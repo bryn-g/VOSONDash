@@ -1,11 +1,18 @@
 # voson dashboard shiny app globals
 
 # app version
-app_version <- "v0.3.8"
-app_date <- "04May19"
+app_version <- "v0.4.0"
+app_date <- "06May19"
 
 isLocal <- Sys.getenv('SHINY_PORT') == ""
+isLocal <- FALSE
 suppressLibraryMessages <- TRUE
+
+# Sys.setenv("SHINYPROXY_USERNAME" = "user1",
+#            "SHINYPROXY_USERGROUPS" = "group1, group2")
+
+shiny_user <- Sys.getenv(c("SHINYPROXY_USERNAME"))
+shiny_groups <- Sys.getenv(c("SHINYPROXY_USERGROUPS"))
 
 source("packages.R", local = TRUE)
 

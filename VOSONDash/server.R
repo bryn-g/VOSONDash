@@ -26,6 +26,18 @@ shinyServer(function(input, output, session) {
   #### api keys ####
   source("server/apiKeysServer.R", local = TRUE)
   
+  output$userMenu <- renderMenu({
+    from <- "from test"
+    message <- "message test"
+    messageData <- data.frame(from, message, stringsAsFactors = FALSE)
+    
+    msgs <- apply(messageData, 1, function(row) {
+      messageItem(from = row[["from"]], message = row[["message"]])
+    })
+    
+    dropdownMenu(type = "messages", .list = msgs)
+  })
+  
   observeEvent(input$sidebar_menu, {
     resetConsole("twitter_console", FALSE)
     resetConsole("youtube_console", FALSE)

@@ -7,7 +7,9 @@ dashboardPage(
   
   dashboardHeader(title = span(icon("project-diagram"), "VOSON Dashboard", 
                                span(app_version, class = "version")), 
-                  titleWidth = 325),
+                  titleWidth = 325,
+                  tags$li(actionLink("userMenu", label = shiny_user, icon = icon("user")), class = "dropdown"),
+                  dropdownMenuOutput("userMenu")),
   
   # sidebar menu items
   dashboardSidebar(useShinyjs(), width = 180,
@@ -23,8 +25,8 @@ dashboardPage(
                                # sidebarMenuOutput("vosonSML_version_field"),
                                menuItem("Twitter", tabName = "twitter_collection_tab", icon = icon("twitter")),
                                menuItem("Youtube", tabName = "youtube_collection_tab", icon = icon("youtube")),
-                               menuItem("Reddit", tabName = "reddit_collection_tab", icon = icon("reddit")),
-                               menuItem("API Keys", tabName = "keys_tab", icon = icon("key"))
+                               menuItem("Reddit", tabName = "reddit_collection_tab", icon = icon("reddit")) # ,
+                               # menuItem("API Keys", tabName = "keys_tab", icon = icon("key"))
                    )
   ),
     

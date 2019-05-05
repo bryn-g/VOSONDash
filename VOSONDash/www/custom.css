@@ -170,3 +170,7 @@ pre.shiny-text-output {
 #graphvisNetworkPlot {
   height:98% !important;
 }
+
+div.nav-tabs-custom ul.nav-tabs li.active {
+    border-top-color: #00a65a !important;
+}
