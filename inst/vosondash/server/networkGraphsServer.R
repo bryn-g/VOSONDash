@@ -14,6 +14,8 @@ ng_rv <- reactiveValues(
   graph_name = "",
   graph_type = "",
   
+  graph_labels = c(),
+  
   graph_cats = c(),        # list of categories in the data # graph_CA
   graph_cat_selected = "", # selected category # graph_CA_selected
   
@@ -100,16 +102,6 @@ observeEvent(ng_rv$graph_data, {
       V(ng_rv$graph_data)$id <- paste0("n", as.numeric(V(ng_rv$graph_data))-1) # n0, n1 ..
     }
     
-    if ("label" %in% attr_v) {
-      # replace empty string labels
-      V(ng_rv$graph_data)$label <- ifelse(nchar(V(ng_rv$graph_data)$label) > 0, 
-                                               V(ng_rv$graph_data)$label, "-")
-    } else {
-      # if no labels set label to vertex name
-      V(ng_rv$graph_data)$label <- ifelse(nchar(V(ng_rv$graph_data)$name) > 0,
-                                               V(ng_rv$graph_data)$name, "-")
-    }    
-    
     # enable network metrics tab
     removeCssClass(selector = "a[data-value = 'network_metrics_tab']", class = "inactive_menu_link")
   }
@@ -167,7 +159,7 @@ observeEvent(input$selected_graph_tab, {
 
 # graphml file uploaded
 observeEvent(input$graphml_data_file, {
-  filedata()
+  setGraphFile()
   
   # set a random number to seed plots
   ng_rv$graph_seed <- sample(gbl_rng_range[1]:gbl_rng_range[2], 1)
@@ -191,7 +183,13 @@ observeEvent(input$node_index_check, {
 observeEvent(input$node_labels_check, {
   if (input$node_labels_check) {
     updateCheckboxInput(session, "node_index_check", value = FALSE)
-  }  
+  }
+})
+
+observeEvent(input$node_label_select, {
+  if (!is.null(ng_rv$graph_data)) {
+    V(ng_rv$graph_data)$label <- vertex_attr(ng_rv$graph_data, input$node_label_select)    
+  }
 })
 
 observeEvent(ng_rv$graph_seed, {
@@ -445,7 +443,7 @@ source("server/igraphPlot.R", local = TRUE)
 source("server/visnetworkPlot.R", local = TRUE)
 
 # set file data when a file is uploaded
-filedata <- reactive({
+setGraphFile <- reactive({
   infile <- input$graphml_data_file
   
   if (is.null(infile)) { return(NULL) }
@@ -457,6 +455,11 @@ filedata <- reactive({
     ng_rv$graph_type <- ifelse("type" %in% graph_attr_names(ng_rv$graph_data), 
                                      graph_attr(ng_rv$graph_data, "type"), "")
     ng_rv$graph_desc <- "Network loaded from file."
+    
+    isolate({
+      attr_v <- vertex_attr_names(ng_rv$graph_data)
+      setLabels(attr_v)
+    })
     
     createGraphCategoryList()
     
@@ -762,6 +765,19 @@ graphComponentSummary <- reactive({
 
 #### functions ------------------------------------------------------------------------------------------------------- #
 
+setLabels <- function(attr_v) {
+  sel <- NULL
+  if ("label" %in% attr_v) {
+    V(ng_rv$graph_data)$imported_Label <- V(ng_rv$graph_data)$label
+    attr_v <- append(attr_v, "imported_Label")
+    sel <- "imported_Label"
+  }
+  label_list <- sort(attr_v[!attr_v %in% c("label")])
+  if (is.null(sel)) { sel <- "id" }
+  shinyjs::enable("node_label_select")
+  updateSelectInput(session, "node_label_select", label = NULL, choices = label_list, selected = sel)  
+}
+
 # set graph manually
 setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
   shinyjs::reset("graphml_data_file")
@@ -771,6 +787,10 @@ setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
   ng_rv$graph_type <- type
   ng_rv$graph_name <- name
   ng_rv$graph_seed <- seed
+  
+  attr_v <- vertex_attr_names(data)
+  setLabels(attr_v)
+  
   ng_rv$graph_cats <- c()
   ng_rv$graph_cat_selected <- ""
   

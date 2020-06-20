@@ -113,8 +113,8 @@ visNetworkData <- reactive({
   }
   
   edges <- edges %>% group_by(to, from) %>%
-    summarise(width = n()) %>% 
-    ungroup()
+    summarise(width = n(), .groups = "drop") # %>% 
+    # ungroup()
   
   category_selection <- NULL
   if (!is.null(gcs) && (!(gcs %in% c("All", "")))) {
