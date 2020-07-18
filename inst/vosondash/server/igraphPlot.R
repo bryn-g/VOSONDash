@@ -119,15 +119,19 @@ igraphData <- reactive({
   }
   # --- end id labels  
 
-  plot_parameters[['vertex.size']] <- switch(node_degree_type,
-                                             "Degree" = igraph_vsize(V(g)$Degree),
-                                             "Indegree" = igraph_vsize(V(g)$Indegree),
-                                             "Outdegree" = igraph_vsize(V(g)$Outdegree),
-                                             "Betweenness" = igraph_vsize(V(g)$Betweenness),
-                                             "Closeness" = igraph_vsize(V(g)$Closeness),
-                                             "None" = (base_vertex_size + 0.1) * node_size_multiplier)
+  # plot_parameters[['vertex.size']] <- switch(node_degree_type,
+  #                                            "Degree" = igraph_vsize(V(g)$Degree),
+  #                                            "Indegree" = igraph_vsize(V(g)$Indegree),
+  #                                            "Outdegree" = igraph_vsize(V(g)$Outdegree),
+  #                                            "Betweenness" = igraph_vsize(V(g)$Betweenness),
+  #                                            "Closeness" = igraph_vsize(V(g)$Closeness),
+  #                                            "None" = (base_vertex_size + 0.1) * node_size_multiplier)
+  
+  plot_parameters[['vertex.size']] <- ifelse(node_degree_type == "None", (base_vertex_size + 0.1) * node_size_multiplier,
+                                             igraph_vsize(vertex_attr(g, node_degree_type)))
   
   plot_parameters['vertex.label.family'] <- "Arial"
+  plot_parameters['edge.label.family'] <- "Arial"
   
   # --- start labels
   if (!node_index_check) {

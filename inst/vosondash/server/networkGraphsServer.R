@@ -13,9 +13,7 @@ ng_rv <- reactiveValues(
   graph_desc = "",   # some graph attributes
   graph_name = "",
   graph_type = "",
-  
-  graph_labels = c(),
-  
+
   graph_cats = c(),        # list of categories in the data # graph_CA
   graph_cat_selected = "", # selected category # graph_CA_selected
   
@@ -189,6 +187,26 @@ observeEvent(input$node_labels_check, {
 observeEvent(input$node_label_select, {
   if (!is.null(ng_rv$graph_data)) {
     V(ng_rv$graph_data)$label <- vertex_attr(ng_rv$graph_data, input$node_label_select)    
+  }
+})
+
+observeEvent(input$edge_labels_check, {
+  if (!is.null(ng_rv$graph_data)) {
+    if (!input$edge_labels_check) {
+      if ("label" %in% edge_attr_names(ng_rv$graph_data)) {
+        ng_rv$graph_data <- delete_edge_attr(ng_rv$graph_data, "label")
+      }
+    } else {
+      E(ng_rv$graph_data)$label <- edge_attr(ng_rv$graph_data, input$edge_label_select)
+    }
+  }
+})
+
+observeEvent(input$edge_label_select, {
+  if (!is.null(ng_rv$graph_data)) {
+    if (input$edge_labels_check) {
+      E(ng_rv$graph_data)$label <- edge_attr(ng_rv$graph_data, input$edge_label_select)
+    }
   }
 })
 
@@ -459,6 +477,11 @@ setGraphFile <- reactive({
     isolate({
       attr_v <- vertex_attr_names(ng_rv$graph_data)
       setLabels(attr_v)
+      
+      attr_e <- edge_attr_names(ng_rv$graph_data)
+      setEdgeLabels(attr_e)
+      
+      addNodeContinuous()
     })
     
     createGraphCategoryList()
@@ -765,6 +788,18 @@ graphComponentSummary <- reactive({
 
 #### functions ------------------------------------------------------------------------------------------------------- #
 
+addNodeContinuous <- function() {
+  if (!is.null(ng_rv$graph_data)) {
+
+    add_attrs <- sapply(vertex_attr_names(ng_rv$graph_data),
+                        function(x) if (all(sapply(vertex_attr(ng_rv$graph_data, x), is.numeric))) x)
+
+    updateSelectInput(session, "graph_node_size_select", label = NULL,
+                      choices = append(c("None", "Degree", "Indegree", "Outdegree", "Betweenness", "Closeness"), add_attrs),
+                      selected = "None")  
+  }
+}
+
 setLabels <- function(attr_v) {
   sel <- NULL
   if ("label" %in% attr_v) {
@@ -776,6 +811,26 @@ setLabels <- function(attr_v) {
   if (is.null(sel)) { sel <- "id" }
   shinyjs::enable("node_label_select")
   updateSelectInput(session, "node_label_select", label = NULL, choices = label_list, selected = sel)  
+}
+
+setEdgeLabels <- function(attr_e) {
+  sel <- NULL
+  if ("label" %in% attr_e) {
+    E(ng_rv$graph_data)$imported_Label <- E(ng_rv$graph_data)$label
+    attr_e <- append(attr_e, "imported_Label")
+    sel <- "imported_Label"
+  }
+  label_list <- sort(attr_e[!attr_e %in% c("label")])
+  if (is.null(sel)) { sel <- label_list[1] }
+  
+  if (length(label_list)) {
+    shinyjs::enable("edge_labels_check")
+    shinyjs::enable("edge_label_select")
+    updateSelectInput(session, "edge_label_select", label = NULL, choices = label_list, selected = sel)      
+  } else {
+    shinyjs::disable("edge_labels_check")
+    shinyjs::disable("edge_label_select")    
+  }
 }
 
 # set graph manually
@@ -790,6 +845,11 @@ setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
   
   attr_v <- vertex_attr_names(data)
   setLabels(attr_v)
+  
+  attr_e <- edge_attr_names(data)
+  setEdgeLabels(attr_e)
+  
+  addNodeContinuous()
   
   ng_rv$graph_cats <- c()
   ng_rv$graph_cat_selected <- ""
