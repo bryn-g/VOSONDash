@@ -1,19 +1,24 @@
 # required packages
 requiredPackages <- c("dplyr",
                       "DT",
+                      "ggplot2",
                       "htmlwidgets",
                       "igraph",
                       "RColorBrewer",
+                      "rlang",
                       "shinydashboard",
                       "shinyjs",
+                      "SnowballC",
+                      "tidytext",
                       "tm",
                       "visNetwork",
-                      "wordcloud")
+                      "wordcloud",
+                      "wordcloud2")
 
 # if app is local print package information
 if (isLocal) {
   message("=================================================\n",
-          paste("VOSONDash", paste0("v", VOSONDash::getVOSONDashVer()), "\n"),
+          paste("VOSONDash", paste0("v", getVOSONDashVer()), "\n"),
           paste0(format(Sys.time(), "%d %b %Y %H:%M"), "\n\n"),
   
           paste0(trimws(paste(Sys.getenv("os"), R.Version()$platform)), "\n"),

@@ -6,6 +6,8 @@ Description: A 'Shiny' application for the interactive visualisation and
     social media data using 'vosonSML'.
 Type: Package
 Imports:
+    forcats,
+    ggplot2,
     graphics,
     httpuv,
     httr,
@@ -15,10 +17,12 @@ Imports:
     RColorBrewer,
     shiny (>= 1.3.2),
     syuzhet,
+    tidytext,
     tm,
     utils,
     vosonSML (>= 0.29.0),
-    wordcloud
+    wordcloud,
+    wordcloud2
 Suggests:
     dplyr,
     DT,
@@ -26,6 +30,7 @@ Suggests:
     rtweet (>= 0.6.8),
     shinydashboard,
     shinyjs,
+    SnowballC,
     visNetwork
 Depends: R (>= 3.2.0)
 Encoding: UTF-8

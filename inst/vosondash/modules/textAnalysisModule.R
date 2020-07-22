@@ -107,9 +107,10 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
             pcolors <- getColors(categories, 
                                  unlist(data_item$graph_attr$cat), 
                                  unlist(data_item$graph_attr$sub_cats), 
-                                 "#f5f5f5", col_palette)
+                                 "#3a6ba1", col_palette)
 
-            VOSONDash::wordFreqChart(corp = data_item$corp, min_freq, top_count, pcolors)
+            # VOSONDash::wordFreqChart(corp = data_item$corp, min_freq, top_count, pcolors)
+            VOSONDash::wordFreqChart(tokens = data_item$tokens, min_freq, top_count, pcolors)
           })
         })
       }
@@ -141,7 +142,8 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
                                  unlist(data_item$graph_attr$sub_cats), 
                                  "#000000", col_palette)
             
-            VOSONDash::wordCloudPlot(corp = data_item$corp, seed, min_freq, max_words, pcolors)
+            # VOSONDash::wordCloudPlot(corp = data_item$corp, seed, min_freq, max_words, pcolors)
+            VOSONDash::wordCloudPlot(tokens = data_item$tokens, seed, min_freq, max_words, pcolors)
           })
         })
       }
@@ -170,12 +172,14 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
           
           plot_id <- paste0(plot_ids[local_i], "-a")
           output[[plot_id]] <- renderPlot({
-            out <- VOSONDash::wordSentChart(corp = data_item$corp, pcolors)
+            # out <- VOSONDash::wordSentChart(corp = data_item$corp, pcolors)
+            out <- VOSONDash::wordSentChart(tokens = data_item$tokens, pcolors)
           })
           
           plot_id <- paste0(plot_ids[local_i], "-b")
           output[[plot_id]] <- renderPlot({
-            out <- VOSONDash::wordSentValenceChart(corp = data_item$corp)
+            # out <- VOSONDash::wordSentValenceChart(corp = data_item$corp)
+            out <- VOSONDash::wordSentValenceChart(tokens = data_item$tokens)
           })        
         })
       }

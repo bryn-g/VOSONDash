@@ -138,7 +138,7 @@ comparisonCloudPlotData <- reactive({
   # cats <- isolate(ng_rv$graph_cats)
   
   max_words <- input$ta_cc_max_word_count
-  
+  return(VOSONDash::emptyPlotMessage("Not yet."))
   if (is.null(plot_data_list)) { return(VOSONDash::emptyPlotMessage("No text data.")) }
   
   if (length(plot_data_list) == 1) {
@@ -231,10 +231,14 @@ textAnalysisDetailsOutput <- reactive({
           }
           title <- paste0(title, paste0(title_attr, collapse = ' / '), "", sep = "")
           output <- append(output, title)
+          
           # removing urls when building base corpus so do not require max word length
-          dtmx <- DocumentTermMatrix(plot_data_list[[i]]$corp)
-          freq_terms <- colSums(as.matrix(dtmx))
-          output <- append(output, paste("Words:", sum(freq_terms)))
+          # dtmx <- DocumentTermMatrix(plot_data_list[[i]]$corp)
+          # freq_terms <- colSums(as.matrix(dtmx))
+          # output <- append(output, paste("Words:", sum(freq_terms)))
+          
+          freq <- plot_data_list[[i]]$tokens %>% count(.data$word)
+          output <- append(output, paste("Words:", sum(freq$n)))
           output <- append(output, "")
         }
       }
@@ -368,77 +372,55 @@ taTextCorpusData <- function(graph_attr, simple = FALSE) {
     
     ta_rv$txt_attr_type <- attr[2]
     ta_rv$txt_attr_name <- gsub(voson_txt_prefix, "", attr[1]) # "vosonTxt_"
-    
-    toRemove <- which(words == "")
-    if (isTRUE(length(toRemove) != 0)) {
-      words <- words[-toRemove]
-    }
-    
-    if (VOSONDash::isMac()) {
-      words <- iconv(words, to = 'utf-8-mac')
-    } else {
-      words <- iconv(words, to = 'utf-8')
-    }
-    
-    if (simple) {
-      return(list(graph_attr, words))
-    }
-    
-    corp <- VCorpus(VectorSource(words))
-    corp <- tm_map(corp, content_transformer(tolower))
-    corp <- tm_map(corp, content_transformer(remHTTP))
-    
-    if (input$ta_twitter_hashtags_check == TRUE) {
-      corp <- tm_map(corp, content_transformer(removeHashTags))
-    }
-    if (input$ta_twitter_usernames_check == TRUE) {
-      corp <- tm_map(corp, content_transformer(removeTwitterHandles))
-    }
 
+    txt_df <- data.frame(text = words) %>%
+      dplyr::mutate(text = gsub("^$", NA, trimws(.data$text))) %>%
+      dplyr::mutate(text = gsub("http\\S+\\s*", "", .data$text)) %>%
+      dplyr::filter(!is.na(.data$text))
+
+    if (simple) {
+      return(list(graph_attr, txt_df$text))
+    }
+    
+    tokens <- NULL
     if (!is.null(igraph::get.graph.attribute(g, "type"))) {
       if (igraph::get.graph.attribute(g, "type") == "twitter") {
-        corp <- tm_map(corp, content_transformer(repHTMLApos))
-        corp <- tm_map(corp, content_transformer(repHTMLQuote))
-        corp <- tm_map(corp, content_transformer(repHTMLAmper))
-        corp <- tm_map(corp, content_transformer(remPartAmpGt))
-      }      
+        tokens <- txt_df %>%
+          tidytext::unnest_tokens(word, .data$text, token = "tweets", to_lower = TRUE)
+        
+        if (input$ta_twitter_hashtags_check == TRUE) {
+          tokens <- tokens %>% dplyr::filter(!grepl("^#.*", .data$word))
+        }
+        if (input$ta_twitter_usernames_check == TRUE) {
+          tokens <- tokens %>% dplyr::filter(!grepl("^@.*", .data$word))
+        }
+      }
     }
-
-    corp <- tm_map(corp, removeNumbers)
-    corp <- tm_map(corp, removePunctuation)
+    if (is.null(tokens)) {
+      tokens <- txt_df %>% tidytext::unnest_tokens(word, .data$text, to_lower = TRUE, strip_punct = TRUE)
+    }
+    
+    # tokens <- tokens %>% dplyr::filter(!is.na(.data$word))
+    tokens <- tokens %>% dplyr::filter(!grepl("^[[:digit:]]+$", .data$word))
     
     if (input$ta_stopwords_check == TRUE) {
-      corp <- tm_map(corp, removeWords, stopwords("english"), lazy = TRUE)
+      tokens <- tokens %>% dplyr::anti_join(tidytext::stop_words, by = "word")
     }
     
     if (input$ta_user_stopwords_check == TRUE) {
       sw <- tolower(input$ta_user_stopwords_input)
       sw <- trimws(unlist(strsplit(sw, ",")))
-      corp <- tm_map(corp, removeWords, sw)
+      tokens <- tokens %>% dplyr::anti_join(data.frame(word = sw), by = "word")
     }
     
     if (input$ta_stem_check == TRUE) {
-      corp <- tm_map(corp, stemDocument)
+      tokens <- tokens %>% dplyr::mutate_at("word", list(~SnowballC::wordStem((.), language = "en")))
     }
     
-    corp <- tm_map(corp, stripWhitespace, lazy = TRUE)
-    
     return(list(graph_attr = list(cat = graph_attr[1], 
-                                  sub_cats = graph_attr[2]), 
-                corp = corp))
+                                  sub_cats = graph_attr[2]),
+                tokens = tokens))
   } else {
     return(NULL)
   }
 }
-
-remHTTP <- function(x) gsub("http[[:alnum:][:punct:]]*", "", x)   # removes http and https tokens
-# remHTTP <- function(x) gsub("http[^[:space:]]*", "", x)         # might need if non-ascii characters in url
-
-removeHashTags <- function(x) gsub("#\\S+", "", x)
-removeTwitterHandles <- function(x) gsub("@\\S+", "", x)
-
-# replace html encoding with escaped characters in twitter text
-repHTMLApos <- function(x) gsub("&apos;", "\'", x)    # apostrophe
-repHTMLQuote <- function(x) gsub("&quot;", "\"", x)   # quote
-repHTMLAmper <- function(x) gsub("&amp;", "&", x)     # ampersand
-remPartAmpGt <- function(x) gsub("amp;|gt;", "", x)   # 

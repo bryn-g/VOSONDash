@@ -25,8 +25,8 @@ install.packages("https://github.com/vosonlab/VOSONDash/releases/download/v0.5.6
 
 Install the latest development version (v0.5.6):
 ```R
-# library(devtools)
-devtools::install_github("vosonlab/VOSONDash")
+# library(remotes)
+remotes::install_github("vosonlab/VOSONDash")
 ```
 
 Once the VOSON Dashboard package is installed and loaded the Shiny web application can be run from the RStudio console using the `runVOSONDash()` function.
@@ -102,4 +102,4 @@ Figure 4. Twitter API token creation and selection.
 
 ## Special thanks
 
-This application would not be possible without key packages by other authors in the R community, particularly the [shiny](https://github.com/rstudio/shiny), [shinydashboard](https://github.com/rstudio/shinydashboard), [DT](https://github.com/rstudio/DT) and [shinyjs](https://github.com/daattali/shinyjs) packages. Graph visualisations created with [igraph](https://github.com/igraph/rigraph) and [visNetwork](https://github.com/datastorm-open/visNetwork), and text analysis with support from [tm](https://CRAN.R-project.org/package=tm), [SnowballC](https://CRAN.R-project.org/package=SnowballC), [wordcloud](https://CRAN.R-project.org/package=wordcloud) and [syuzhet](https://CRAN.R-project.org/package=syuzhet) packages.
+This application would not be possible without key packages by other authors in the R community, particularly the [DT](https://github.com/rstudio/DT), [shiny](https://github.com/rstudio/shiny), [shinydashboard](https://github.com/rstudio/shinydashboard) and [shinyjs](https://github.com/daattali/shinyjs) packages. Graph visualisations created with [igraph](https://github.com/igraph/rigraph) and [visNetwork](https://github.com/datastorm-open/visNetwork), and text analysis with support from [tm](https://CRAN.R-project.org/package=tm), [wordcloud](https://CRAN.R-project.org/package=wordcloud) and [syuzhet](https://CRAN.R-project.org/package=syuzhet) packages.
