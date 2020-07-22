@@ -71,6 +71,9 @@ igraphData <- reactive({
     }
   }
   
+  lgd <- NULL
+  plot_parameters <- list(g, edge.arrow.size = 0.4)
+  
   # vertex colours (only if cat attr selected)
   if (length(categorical_attributes) > 0) { # only if have categorical attributes
     
@@ -81,9 +84,12 @@ igraphData <- reactive({
       if (nrow(df) > 0) {
         
         if (input$use_vertex_colors_check == FALSE || !v_color_in_data) { # added checkbox
+          
           df$color <- gbl_plot_palette()[1:nrow(df)]
           va <- paste0('vosonCA_', selected_categorical_attribute)
-          V(g)$color <- df$color[match(vertex_attr(g, va), df$cat)]  
+          V(g)$color <- df$color[match(vertex_attr(g, va), df$cat)]
+          
+          lgd <- df
         }
       }
     }
@@ -93,8 +99,6 @@ igraphData <- reactive({
   if (length(selected_rows) > 0) {
     selected_row_names <- row.names(graph_vertices)[c(selected_rows)]
   }
-  
-  plot_parameters <- list(g, edge.arrow.size = 0.4)
   
   # set vertex color for vertices selected in graph data table
   plot_parameters[['vertex.color']] <- ifelse(V(g)$id %in% selected_row_names, gbl_plot_sel_vertex_color, V(g)$color)
@@ -208,4 +212,5 @@ igraphData <- reactive({
   
   par(mar = rep(0, 4))
   do.call(plot.igraph, plot_parameters)
+  if (!is.null(lgd)) { legend("topleft", lgd$cat, fill = lgd$color) }
 })
