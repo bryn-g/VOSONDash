@@ -138,7 +138,7 @@ comparisonCloudPlotData <- reactive({
   # cats <- isolate(ng_rv$graph_cats)
   
   max_words <- input$ta_cc_max_word_count
-  return(VOSONDash::emptyPlotMessage("Not yet."))
+  # return(VOSONDash::emptyPlotMessage("Not yet."))
   if (is.null(plot_data_list)) { return(VOSONDash::emptyPlotMessage("No text data.")) }
   
   if (length(plot_data_list) == 1) {
@@ -150,8 +150,9 @@ comparisonCloudPlotData <- reactive({
     # probably better way to do this, but for time being...
     df <- NULL
     for (i in 2:length(plot_data_list)) {   # first corpus in list is "All"
-      df_t <- data.frame(text = unlist(sapply(plot_data_list[[i]]$corp, `[`, "content")), stringsAsFactors = FALSE)
-
+      # df_t <- data.frame(text = unlist(sapply(plot_data_list[[i]]$corp, `[`, "content")), stringsAsFactors = FALSE)
+      df_t <- data.frame(text = plot_data_list[[i]]$tokens, stringsAsFactors = FALSE)
+      
       tmp <- paste0(unlist(plot_data_list[[i]]$graph_attr$sub_cats), collapse = " / ")
       df <- rbind(df, data.frame(catval = tmp, text = paste(df_t$text, collapse = " ", stringsAsFactors = FALSE)))
     }

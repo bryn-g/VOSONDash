@@ -93,7 +93,7 @@ wordFreqChart <- function(tokens, min_freq = 1, top_count = 20, pcolors = NULL) 
 #' @export
 wordSentValenceChart <- function(tokens) {
   
-  return(emptyPlotMessage("Work in progress."))
+  # return(emptyPlotMessage("Work in progress."))
   
   # returns empty plot with message if no data to chart
   if (is.null(tokens) || nrow(tokens) < 1) {
@@ -102,44 +102,54 @@ wordSentValenceChart <- function(tokens) {
   
   # ws_df <- data.frame(content = unlist(sapply(corp, `[`, "content")), stringsAsFactors = FALSE)
   # nrc_sent_df <- syuzhet::get_nrc_sentiment(unlist(ws_df[, 1]))
+  
+  nrc_sent_df <- syuzhet::get_nrc_sentiment(tokens$word)
+  
+  chart_data <- colSums(nrc_sent_df[c(9:10)])
+  valence <- ((nrc_sent_df[, 9]*-1) + nrc_sent_df[, 10])
+  chart_data["valence"] <- sum(valence)
+  chart_data["negative"] <- chart_data["negative"]*-1
+  # chart_data["mean valence"] <- mean(valence)
+
+  valence_col <- "gainsboro"
+  if (sum(valence) < 0) {
+    valence_col <- "lightcoral"
+  } else if (sum(valence) > 0) {
+    valence_col <- "mediumaquamarine"
+  }
+
+  colx <- c("lightcoral", "mediumaquamarine", valence_col) # "gainsboro"
+
+  saved_par <- par(no.readonly = TRUE)
+  on.exit(par(saved_par))
+
+  par(las = 2)
+  par(mar = c(6, 4, 3, 1))
+  
+  # df <- data.frame(valence = names(chart_data), sum = unname(chart_data))
   # 
-  # chart_data <- colSums(nrc_sent_df[c(9:10)])
-  # valence <- ((nrc_sent_df[, 9]*-1) + nrc_sent_df[, 10])
-  # chart_data["valence"] <- sum(valence)
-  # chart_data["negative"] <- chart_data["negative"]*-1
-  # # chart_data["mean valence"] <- mean(valence)
-  # 
-  # valence_col <- "gainsboro"
-  # if (sum(valence) < 0) {
-  #   valence_col <- "lightcoral"
-  # } else if (sum(valence) > 0) {
-  #   valence_col <- "mediumaquamarine"
-  # }
-  # 
-  # colx <- c("lightcoral", "mediumaquamarine", valence_col) # "gainsboro"
-  # 
-  # saved_par <- par(no.readonly = TRUE)
-  # on.exit(par(saved_par))
-  # 
-  # par(las = 2)
-  # par(mar = c(6, 4, 3, 1))
-  # 
-  # sent_plot_summary <- barplot(chart_data,
-  #                              col = colx, 
-  #                              ylab = "Sum NRC Sentiment", 
-  #                              horiz = FALSE, 
-  #                              xpd = FALSE, 
-  #                              axes = TRUE)
-  # 
-  # title("Sentiment Valence", adj = 0, line = 1)
-  # 
-  # text(y = ifelse(chart_data == 0, 0, chart_data/2),
-  #      x = sent_plot_summary,
-  #      labels = chart_data,
-  #      col = "black",
-  #      cex = 0.7)
-  # 
-  # sent_plot_summary
+  # p <- ggplot2::ggplot(data = df, aes(x = valence, y = sum)) +
+  #   geom_bar(stat = "identity", fill = colx) # +
+  #   # theme(axis.title.x = element_text(),
+  #   #       axis.title.y = element_blank())
+  # return(p)
+  
+  sent_plot_summary <- barplot(chart_data,
+                               col = colx,
+                               ylab = "Sum NRC Sentiment",
+                               horiz = FALSE,
+                               xpd = FALSE,
+                               axes = TRUE)
+
+  title("Sentiment Valence", adj = 0, line = 1)
+
+  text(y = ifelse(chart_data == 0, 0, chart_data/2),
+       x = sent_plot_summary,
+       labels = chart_data,
+       col = "black",
+       cex = 0.7)
+
+  sent_plot_summary
 }
 
 #' @title Create an NRC Emotion chart 
@@ -158,7 +168,7 @@ wordSentValenceChart <- function(tokens) {
 #' @export
 wordSentChart <- function(tokens, pcolors = NULL) {
   
-  return(emptyPlotMessage("Work in progress."))
+  # return(emptyPlotMessage("Work in progress."))
   
   # returns empty plot with message if no data to chart
   if (is.null(tokens) || nrow(tokens) < 1) {
@@ -167,37 +177,48 @@ wordSentChart <- function(tokens, pcolors = NULL) {
   
   # ws_df <- data.frame(content = unlist(sapply(corp, `[`, "content")), stringsAsFactors = FALSE)
   # nrc_sent_df <- syuzhet::get_nrc_sentiment(unlist(ws_df[, 1]))
-  # chart_data <- sort(colSums(prop.table(nrc_sent_df[, 1:8]))*100)
-  # 
-  # colx <- pcolors
-  # if (is.null(colx)) {
-  #   colx <- "#f5f5f5"
-  # }
-  # colx[seq(1, 8)] <- colx
-  # 
-  # saved_par <- par(no.readonly = TRUE)
-  # on.exit(par(saved_par))
-  # 
-  # par(las = 2)
-  # par(mar = c(4, 6, 3, 1))
-  # 
-  # sent_plot <- barplot(chart_data, 
-  #                      col = colx, 
-  #                      xlab = "Percentage %", 
-  #                      horiz = TRUE, 
-  #                      xlim = c(0, 100), 
-  #                      xpd = FALSE, 
-  #                      axes = TRUE)
-  # 
-  # title("Emotions in Text", adj = 0, line = 1)
-  # 
-  # text(x = chart_data, 
-  #      y = sent_plot,
-  #      labels = round(chart_data, digits = 2), 
-  #      col = "black",
-  #      cex = 0.8)
-  # 
-  # sent_plot
+  
+  nrc_sent_df <- syuzhet::get_nrc_sentiment(tokens$word)
+  
+  chart_data <- sort(colSums(prop.table(nrc_sent_df[, 1:8]))*100)
+
+  colx <- pcolors
+  if (is.null(colx)) {
+    colx <- "#f5f5f5"
+  }
+  colx[seq(1, 8)] <- colx
+
+  saved_par <- par(no.readonly = TRUE)
+  on.exit(par(saved_par))
+
+  par(las = 2)
+  par(mar = c(4, 6, 3, 1))
+
+  # df <- data.frame(emotions = names(chart_data), sum = unname(chart_data))
+  
+  # p <- ggplot2::ggplot(data = df, aes(x = emotions, y = sum)) +
+  #   geom_bar(stat = "identity", fill = colx) # +
+  # # theme(axis.title.x = element_text(),
+  # #       axis.title.y = element_blank())
+  # return(p)
+  
+  sent_plot <- barplot(chart_data,
+                       col = colx,
+                       xlab = "Percentage %",
+                       horiz = TRUE,
+                       xlim = c(0, 100),
+                       xpd = FALSE,
+                       axes = TRUE)
+
+  title("Emotions in Text", adj = 0, line = 1)
+
+  text(x = chart_data,
+       y = sent_plot,
+       labels = round(chart_data, digits = 2),
+       col = "black",
+       cex = 0.8)
+
+  sent_plot
 }
 
 #' @title Create a Word Cloud plot
