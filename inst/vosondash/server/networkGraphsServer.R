@@ -24,6 +24,10 @@ ng_rv <- reactiveValues(
   prune_verts = c()
 )
 
+dt_prev_sel <- reactiveValues(
+  nodes = c()  
+)
+
 # proxy for vertices data table used for row manipulation
 dt_vertices_proxy <- dataTableProxy('dt_vertices')
 
@@ -292,6 +296,37 @@ observeEvent(input$vis_node_select, {
   DT::selectRows(dt_vertices_proxy, sel)
 })
 
+observeEvent(input$nbh_select_button, {
+  if (length(input$dt_vertices_rows_selected) < 1) { return() }
+  g <- graphFilters()
+  dt_vertices <- graphNodes()
+  sel_rows <- row.names(dt_vertices)[c(input$dt_vertices_rows_selected)]
+  
+  dt_prev_sel$nodes <- sel_rows
+  shinyjs::enable("nbh_undo_button")
+  
+  sel_row_names <- V(g)[V(g)$id %in% sel_rows]$name
+  
+  order <- input$nbh_order_select
+  g_ego <- make_ego_graph(g, order = order, nodes = sel_row_names, mode = "all", mindist = 0)
+  ids <- unlist(sapply(g_ego, function(x) V(x)$id))
+  # ids <- V(g_ego[[1]])$id
+  sel <- which(rownames(dt_vertices) %in% ids)
+  
+  DT::selectRows(dt_vertices_proxy, sel)
+})
+
+observeEvent(input$nbh_undo_button, {
+  if (length(dt_prev_sel$nodes) > 0) {
+    DT::selectRows(dt_vertices_proxy, NULL)
+    sel <- which(rownames(graphNodes()) %in% dt_prev_sel$nodes)
+    DT::selectRows(dt_vertices_proxy, sel)
+    
+    dt_prev_sel$nodes <- c()
+    shinyjs::disable("nbh_undo_button")
+  }
+})
+
 # reset node size slider when changed to none
 observeEvent(input$graph_node_size_select, {
   if (input$graph_node_size_select == "None") { shinyjs::reset("graph_node_size_slider") }
@@ -548,6 +583,9 @@ setGraphFilterControls <- reactive({
     shinyjs::enable("graph_component_slider")
 
     updateComponentSlider(g, isolate(input$graph_component_type_select))
+    
+    dt_prev_sel$nodes <- c()
+    shinyjs::reset("nbh_undo_button")
     
     # update the categorical attribute select box
     if (!is.null(ng_rv$graph_cats) && length(ng_rv$graph_cats) > 0) {

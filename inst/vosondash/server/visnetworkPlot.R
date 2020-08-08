@@ -101,13 +101,20 @@ visNetworkData <- reactive({
   if (node_index_check) {
     verts$title <- verts$label
     verts$label <- sub("n", "", row.names(verts))
-    verts$shape <- "dot"
+    verts$shape <- "circle"
   } else {
+    verts$shape <- "dot"
     if (input$node_labels_check == FALSE) {
-      verts$label <- ""
+      if (input$node_sel_labels_check == TRUE) {
+        verts <- dplyr::mutate(verts, label = ifelse(!is.na(.data$sel_label), .data$sel_label, ""),
+                               sel_label = NULL)
+      } else {
+        verts$label <- ""  
+      }
     } else {
-      verts <- dplyr::mutate(verts, label = ifelse(is.na(.data$sel_label), .data$label, .data$sel_label),
-                             sel_label = NULL)  
+      # verts <- dplyr::mutate(verts, label = ifelse(is.na(.data$sel_label), .data$label, .data$sel_label),
+      #                        sel_label = NULL)
+      verts <- dplyr::mutate(verts, label = ifelse(is.na(.data$label), .data$name, .data$label))
     }
     verts$title <- row.names(verts)
   }
