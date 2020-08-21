@@ -118,11 +118,11 @@ tabItem(tabName = "network_graphs_tab",
                                                          ),
                                                          column(width = 8,
                                                                 fluidRow(actionButton("nbh_select_button", label = "Select Nodes"),
-                                                                         actionButton("prune_unselected_rows_button", label = icon("scissors"))
+                                                                         actionButton("nbh_prune_unselected", label = icon("scissors"))
                                                                         ),
                                                                 fluidRow(disabled(actionButton("nbh_undo_button", label = "Undo")),
-                                                                         actionButton("prune_deselect_rows_button", "Deselect All"),
-                                                                         actionButton("prune_reset_button", "Reset")
+                                                                         actionButton("nbh_deselct_button", "Deselect All"),
+                                                                         actionButton("nbh_reset_button", "Reset")
                                                                          )
                                                         )
                                                  )

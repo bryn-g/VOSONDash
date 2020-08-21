@@ -166,7 +166,13 @@ visNetworkData <- reactive({
                nodesIdSelection = TRUE,
                height = plot_height) %>%
     visInteraction(multiselect = TRUE) %>%
-    visEvents(click = "function(v) { Shiny.onInputChange('vis_node_select', v.nodes); }")
+    visEvents(click = "function(v) { 
+                // if (v.event.srcEvent.ctrlKey) {
+                //   Shiny.onInputChange('vis_nbh_node_select', v.nodes);
+                // } else {
+                  Shiny.onInputChange('vis_node_select', v.nodes);
+                // }
+                }")
   
   if (ng_rv$graph_dir) { 
     vis_net <- vis_net %>% visEdges(arrows = "to", color = list(color = "#b0b0b0"))

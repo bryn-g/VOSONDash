@@ -230,7 +230,8 @@ observeEvent(input$prune_selected_rows_button, {
 })
 
 # add unselected data table rows to pruned vertices list
-observeEvent(input$prune_unselected_rows_button, {
+observeEvent({ input$prune_unselected_rows_button
+               input$nbh_prune_unselected }, {
   pruneListAddOtherNames()
   
   # update prune list select box
@@ -246,6 +247,7 @@ observeEvent(input$prune_unselected_rows_button, {
     prune_list <- temp
   }
   updateSelectInput(session, "pruned_vertices_select", choices = prune_list)
+  # DT::selectRows(dt_vertices_proxy, rownames(graphNodes()))
 })
 
 # remove selected vertices from prune list
@@ -268,7 +270,8 @@ observeEvent(input$prune_return_button, {
 })
 
 # reset prune list
-observeEvent(input$prune_reset_button, {
+observeEvent({ input$prune_reset_button 
+               input$nbh_reset_button }, {
   ng_rv$prune_verts <- c()
   
   updateSelectInput(session, "pruned_vertices_select", choices = character(0))
@@ -278,7 +281,8 @@ observeEvent(input$prune_reset_button, {
 })
 
 # deselect all data table selected rows
-observeEvent(input$prune_deselect_rows_button, { DT::selectRows(dt_vertices_proxy, NULL) })
+observeEvent({ input$prune_deselect_rows_button 
+               input$nbh_deselct_button }, { DT::selectRows(dt_vertices_proxy, NULL) })
 
 # nodes clicked event in visnetwork
 observeEvent(input$vis_node_select, {
@@ -296,6 +300,22 @@ observeEvent(input$vis_node_select, {
   DT::selectRows(dt_vertices_proxy, sel)
 })
 
+# observeEvent(input$vis_nbh_node_select, {
+#   g <- graphFilters()
+#   dt_vertices <- graphNodes()
+#   plot_sel_nodes <- row.names(dt_vertices)[dt_vertices$name %in% input$vis_nbh_node_select]
+#   DT::selectRows(dt_vertices_proxy, which(rownames(dt_vertices) %in% plot_sel_nodes))
+#   sel_rows <- row.names(dt_vertices)[c(input$dt_vertices_rows_selected)]
+#   dt_prev_sel$nodes <- sel_rows
+#   shinyjs::enable("nbh_undo_button")
+#   sel_row_names <- V(g)[V(g)$id %in% sel_rows]$name
+#   order <- 1
+#   g_ego <- make_ego_graph(g, order = order, nodes = sel_row_names, mode = "all", mindist = 0)
+#   ids <- unlist(sapply(g_ego, function(x) V(x)$id))
+#   sel <- which(rownames(dt_vertices) %in% ids)
+#   DT::selectRows(dt_vertices_proxy, sel)  
+# })
+
 observeEvent(input$nbh_select_button, {
   if (length(input$dt_vertices_rows_selected) < 1) { return() }
   g <- graphFilters()
@@ -310,7 +330,6 @@ observeEvent(input$nbh_select_button, {
   order <- input$nbh_order_select
   g_ego <- make_ego_graph(g, order = order, nodes = sel_row_names, mode = "all", mindist = 0)
   ids <- unlist(sapply(g_ego, function(x) V(x)$id))
-  # ids <- V(g_ego[[1]])$id
   sel <- which(rownames(dt_vertices) %in% ids)
   
   DT::selectRows(dt_vertices_proxy, sel)
