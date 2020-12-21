@@ -123,8 +123,8 @@ tabItem(tabName = "network_graphs_tab",
                                                  disabled(checkboxInput("macos_font_check", "Arial Unicode MS", TRUE))
                                 )
 
-                   )
-                 )
+          #          )
+          #        )
           ),
 
           column(width = 9, offset = 0,
