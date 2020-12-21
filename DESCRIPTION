@@ -28,6 +28,7 @@ Suggests:
     DT,
     htmlwidgets,
     rtweet (>= 0.6.8),
+    shinycssloaders,
     shinydashboard,
     shinyjs,
     visNetwork
