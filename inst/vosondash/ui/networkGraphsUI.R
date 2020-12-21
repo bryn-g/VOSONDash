@@ -12,14 +12,14 @@ tabItem(tabName = "network_graphs_tab",
                                          conditionalPanel(condition = 'input.expand_demo_data_check',
                                                           fluidRow(
                                                                   column(width = 12,
-                                                                         div(shinyjs::disabled(selectInput("demo_data_select", 
-                                                                                                           label = NULL, 
+                                                                         div(shinyjs::disabled(selectInput("demo_data_select",
+                                                                                                           label = NULL,
                                                                                                            choices = c("No Demo Dataset Files Found"), selected = NULL, multiple = FALSE))),
                                                                          div(shinyjs::disabled(actionButton("demo_data_select_button", label = "Load graphml")))
                                                                   )
                                                           )
-                                                          
-                                         )         
+
+                                         )
                                 ),
                                 tabPanel("Nodes",
                                          div(disabled(checkboxInput("node_index_check", "Node Index", FALSE)), class = "div_inline", style = "margin-right:8px; margin-top:0px;"),
@@ -40,14 +40,14 @@ tabItem(tabName = "network_graphs_tab",
                                                         disabled(sliderInput("graph_node_size_slider", label = "Multiplier", min = 0.1, max = 15, step = 0.1, value = c(1), ticks = FALSE, animate = FALSE))
                                                  )
                                          ),
-                                         
-                                         checkboxInput('use_vertex_colors_check', 
+
+                                         checkboxInput('use_vertex_colors_check',
                                                        div("Node colors from graphml", style = "margin-bottom:5px;")
                                                        , TRUE),
-                                         
-                                         checkboxInput('expand_categorical_filter_check', 
-                                                       div(tags$b("Categorical Filter"), 
-                                                           vpopover(po_cat_filter()$title, po_cat_filter()$content), 
+
+                                         checkboxInput('expand_categorical_filter_check',
+                                                       div(tags$b("Categorical Filter"),
+                                                           vpopover(po_cat_filter()$title, po_cat_filter()$content),
                                                            style = "margin-bottom:5px;")
                                                        , FALSE),
                                          conditionalPanel(condition = 'input.expand_categorical_filter_check',
@@ -87,14 +87,14 @@ tabItem(tabName = "network_graphs_tab",
                                                                   column(width = 12,
                                                                          verbatimTextOutput("component_summary_ui"))
                                                           )
-                                                          
+
                                          )
-                                ),                                
+                                ),
                                 tabPanel("Layout",
                                          fluidRow(
                                                  column(width = 6,
-                                                        div(tags$b("Graph Layout"), 
-                                                            vpopover(po_graph_layout()$title, po_graph_layout()$content), 
+                                                        div(tags$b("Graph Layout"),
+                                                            vpopover(po_graph_layout()$title, po_graph_layout()$content),
                                                             style = "margin-bottom:5px;"),
                                                         disabled(selectInput("graph_layout_select", label = NULL, choices = c("Auto", "FR", "KK", "DH", "LGL", "Graphopt", "DrL", "GEM",
                                                                                                                               "MDS", "Grid", "Sphere", "Circle", "Star", "Random"),
@@ -117,40 +117,48 @@ tabItem(tabName = "network_graphs_tab",
                                          div(div(id = "seed", "", class = "div_inline"), disabled(actionButton("graph_reseed_button", label = icon("refresh"), style = "padding:2px 8px;")), style = "float:right; margin-top:5px; font-size:0.98em;",
                                              vpopover(po_reseed_graph()$title, po_reseed_graph()$content))
                                 ))
+
+                                ),
+                                conditionalPanel(condition = js_is_mac,
+                                                 disabled(checkboxInput("macos_font_check", "Arial Unicode MS", TRUE))
+                                )
+
+                   )
                  )
           ),
-          
+
           column(width = 9, offset = 0,
                  fluidRow(
                    # graph type tabs
                    uiOutput("vis_plot_ui"),
                    uiOutput("plot_height_ui"),
                    uiOutput("graph_summary_ui"),
-                   
+                   uiOutput("graph_legend_ui"),
+
                    # graph info and download buttons
                    sidebarPanel(id = "graph_info_well", width = 12, class = "custom_well_for_buttons",
                                 fluidRow(
                                         div(shinyjs::disabled(checkboxInput('expand_data_desc_check', label = NULL, FALSE)), class = "div_inline"),
                                         div(textOutput("graph_name"), class = "div_inline", style = "margin-bottom:10px;"),
-                                        div(disabled(downloadButton("analysis_graphml_download_button", label = "Graphml", 
-                                                                    title = "Download Plot Graphml File")), 
+                                        div(disabled(downloadButton("analysis_graphml_download_button", label = "Graphml",
+                                                                    title = "Download Plot Graphml File")),
                                             style = "float:right; margin-right:10px;", class = "div_inline"),
                                         div(disabled(downloadButton("graph_download_button", label = "Plot HTML",
-                                                                    title = "Download Plot as HTML File")), 
+                                                                    title = "Download Plot as HTML File")),
                                             style = "float:right; margin-right:10px;", class = "div_inline")
                                 ),
-                                
-                                fluidRow(        
+
+                                fluidRow(
                                         conditionalPanel(condition = 'input.expand_data_desc_check',
                                             div(htmlOutput("graph_desc"))
                                         )
                                 )
-                                
+
                    )
                  )
           )
         ),
-        
+
         fluidRow(
           # graph data table
           tabBox(width = 12, title = "Graph Data", selected = "Vertices",
@@ -162,13 +170,13 @@ tabItem(tabName = "network_graphs_tab",
                           DT::dataTableOutput("dt_vertices"),
                           fluidRow(
                             column(width = 4, selectInput("pruned_vertices_select", "Pruned Nodes", choices = c(), multiple = TRUE, selectize = FALSE),
-                                   div(actionButton("prune_return_button", "Un-prune Selected"), style = "margin-right:10px;", class = "div_inline"), 
+                                   div(actionButton("prune_return_button", "Un-prune Selected"), style = "margin-right:10px;", class = "div_inline"),
                                    div(actionButton("prune_reset_button", "Reset"), class = "div_inline")),
                             column(width = 1, actionButton("prune_deselect_rows_button", "Deselect All"),
                                    actionButton("prune_selected_rows_button", "Prune Selected"),
                                    actionButton("prune_unselected_rows_button", "Prune Unselected"))
                           )),
-                 tabPanel("Edges", 
+                 tabPanel("Edges",
                           fluidRow(
                             div(checkboxInput("graph_dt_e_truncate_text_check", "Truncate text", TRUE), style = "margin-left:12px; margin-right:5px;", class = "div_inline")
                           ),
