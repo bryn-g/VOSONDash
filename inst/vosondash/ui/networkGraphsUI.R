@@ -6,17 +6,82 @@ tabItem(tabName = "network_graphs_tab",
                    # graph controls
                    sidebarPanel(width = 12, class = "custom_well_for_controls",
                                 fileInput('graphml_data_file', 'Choose graphml file', accept = c('.graphml')),
-                                checkboxInput('expand_demo_data_check', div("Package Datasets"), FALSE),
+                                # checkboxInput('expand_demo_data_check', div("Package Datasets"), FALSE),
+                                prettyToggle(
+                                        inputId = 'expand_demo_data_check',
+                                        label_on = div("Package Datasets"), 
+                                        label_off = div("Package Datasets"),
+                                        outline = TRUE,
+                                        plain = TRUE,
+                                        icon_on = icon("angle-double-down"), 
+                                        icon_off = icon("angle-double-right")
+                                ),
                                 conditionalPanel(condition = 'input.expand_demo_data_check',
                                                  fluidRow(
                                                          column(width = 12,
-                                                                div(shinyjs::disabled(selectInput("demo_data_select", 
-                                                                                              label = NULL, 
-                                                                                              choices = c("No Demo Dataset Files Found"), selected = NULL, multiple = FALSE))),
+                                                                # div(shinyjs::disabled(
+                                                                        pickerInput(
+                                                                                inputId = "demo_data_select",
+                                                                                label = NULL, 
+                                                                                choices = c("No Demo Dataset Files Found")
+                                                                        ),
+                                                                        # selectInput("demo_data_select", 
+                                                                        #                       label = NULL, 
+                                                                        #                       choices = c("No Demo Dataset Files Found"), selected = NULL, multiple = FALSE)
+                                                                # )
+                                                                # ),
                                                                 div(shinyjs::disabled(actionButton("demo_data_select_button", label = "Load graphml")))
                                                          )
                                                  )
                                                  
+                                )
+                   ),
+                   sidebarPanel(width = 12, class = "custom_well_for_controls",
+                                fluidRow(
+                                        column(width = 12,
+                                               prettyToggle(
+                                                       inputId = 'expand_graph_layout_check',
+                                                       label_on = div(tags$b("Graph Layout"), 
+                                                                      vpopover(po_graph_layout()$title, po_graph_layout()$content)),
+                                                       label_off = div(tags$b("Graph Layout"), 
+                                                                       vpopover(po_graph_layout()$title, po_graph_layout()$content)),
+                                                       outline = TRUE,
+                                                       plain = TRUE,
+                                                       icon_on = icon("angle-double-down"), 
+                                                       icon_off = icon("angle-double-right"),
+                                                       inline = TRUE
+                                               ))
+                                ),
+                                conditionalPanel(condition = 'input.expand_graph_layout_check',
+                                                 fluidRow(
+                                                         column(width = 6,
+                                                                pickerInput(
+                                                                        inputId = "graph_layout_select",
+                                                                        label = NULL,
+                                                                        choices = c("Auto", "FR", "KK", "DH", "LGL", "Graphopt", "DrL", "GEM",
+                                                                                    "MDS", "Grid", "Sphere", "Circle", "Star", "Random")
+                                                                )
+                                                         ),
+                                                         column(width = 6,
+                                                                div(disabled(actionButton("graph_reseed_button", label = icon("refresh"))),
+                                                                    vpopover(po_reseed_graph()$title, po_reseed_graph()$content),
+                                                                    HTML("&nbsp;&nbsp;"), div(id = "seed", "", class = "div_inline"))
+                                                         )
+                                                 ),
+                                                 conditionalPanel(condition = 'input.graph_layout_select == "FR" | input.graph_layout_select == "Graphopt"',
+                                                                  fluidRow(column(width = 6, numericInput(inputId = "graph_niter", "Iterations (niter)", value = 500, min = 1, max = 1000000)))
+                                                 ),
+                                                 conditionalPanel(condition = 'input.graph_layout_select == "Graphopt"',
+                                                                  fluidRow(column(width = 6, numericInput(inputId = "graph_charge", "Charge", value = 0.001, min = 0.001, max = 1.0, step = 0.001)),
+                                                                           column(width = 6, numericInput(inputId = "graph_mass", "Mass", value = 30, min = 1, max = 1000))),
+                                                                  fluidRow(column(width = 6, numericInput(inputId = "graph_spr_len", "Spring Length", value = 0, min = 0, max = 1000)),
+                                                                           column(width = 6, numericInput(inputId = "graph_spr_const", "Constant", value = 1, min = 1, max = 1000)))
+                                                 ),
+                                                 fluidRow(
+                                                         column(width = 12,
+                                                                disabled(sliderInput("graph_spread_slider", "Plot Spread", min = 0.25, max = 2.5, step = 0.1, value = c(1), ticks = FALSE))
+                                                         )
+                                                 )
                                 )
                    ),
                    sidebarPanel(width = 12, class = "custom_well_for_controls",
@@ -39,33 +104,9 @@ tabItem(tabName = "network_graphs_tab",
                                           div(disabled(checkboxInput("graph_loops_edge_check", "Loops", TRUE)), class = "div_inline", style = "margin-right:8px; margin-top:0px;"),
                                           div(disabled(checkboxInput("graph_isolates_check", "Isolates", TRUE)), class = "div_inline")
                                         )
-                                ),
-                                fluidRow(
-                                  column(width = 4,
-                                         div(tags$b("Graph Layout"), 
-                                             vpopover(po_graph_layout()$title, po_graph_layout()$content), 
-                                             style = "margin-bottom:5px;"),
-                                         disabled(selectInput("graph_layout_select", label = NULL, choices = c("Auto", "FR", "KK", "DH", "LGL", "Graphopt", "DrL", "GEM",
-                                                                                                               "MDS", "Grid", "Sphere", "Circle", "Star", "Random"),
-                                                              selectize = TRUE, selected = "Auto"))
-                                  ),
-                                  column(width = 6,
-                                         disabled(sliderInput("graph_spread_slider", "Spread", min = 0.25, max = 2.5, step = 0.1, value = c(1), ticks = FALSE))
-                                  ),
-                                  column(width = 2,
-                                         div(div(id = "seed", "", class = "div_inline"), disabled(actionButton("graph_reseed_button", label = icon("refresh"), style = "padding:2px 8px;")), style = "float:right; margin-top:5px; font-size:0.98em;",
-                                             vpopover(po_reseed_graph()$title, po_reseed_graph()$content))       
-                                  )
-                                ),
-                                conditionalPanel(condition = 'input.graph_layout_select == "FR" | input.graph_layout_select == "Graphopt"',
-                                                 fluidRow(column(width = 6, numericInput(inputId = "graph_niter", "Iterations (niter)", value = 500, min = 1, max = 1000000)))
-                                ),
-                                conditionalPanel(condition = 'input.graph_layout_select == "Graphopt"',
-                                                 fluidRow(column(width = 6, numericInput(inputId = "graph_charge", "Charge", value = 0.001, min = 0.001, max = 1.0, step = 0.001)),
-                                                          column(width = 6, numericInput(inputId = "graph_mass", "Mass", value = 30, min = 1, max = 1000))),
-                                                 fluidRow(column(width = 6, numericInput(inputId = "graph_spr_len", "Spring Length", value = 0, min = 0, max = 1000)),
-                                                          column(width = 6, numericInput(inputId = "graph_spr_const", "Constant", value = 1, min = 1, max = 1000)))
-                                ),
+                                )),
+                   
+                   sidebarPanel(width = 12, class = "custom_well_for_controls",
                                 fluidRow(
                                   column(width = 4,
                                          div("Node Size", style = "font-weight: bold;", class = "custom_node_size_div"),
@@ -81,11 +122,23 @@ tabItem(tabName = "network_graphs_tab",
                                               div("Node colors from graphml", style = "margin-bottom:5px;")
                                               , TRUE),
                                 
-                                checkboxInput('expand_categorical_filter_check', 
-                                              div(tags$b("Categorical Filter"), 
-                                                  vpopover(po_cat_filter()$title, po_cat_filter()$content), 
-                                                  style = "margin-bottom:5px;")
-                                              , FALSE),
+                                # checkboxInput('expand_categorical_filter_check', 
+                                #               div(tags$b("Categorical Filter"), 
+                                #                   vpopover(po_cat_filter()$title, po_cat_filter()$content), 
+                                #                   style = "margin-bottom:5px;")
+                                #               , FALSE),
+                                prettyToggle(
+                                        inputId = 'expand_categorical_filter_check',
+                                        label_on = div(tags$b("Categorical Filter"), 
+                                                       vpopover(po_cat_filter()$title, po_cat_filter()$content)),
+                                        label_off = div(tags$b("Categorical Filter"), 
+                                                        vpopover(po_cat_filter()$title, po_cat_filter()$content)),
+                                        outline = TRUE,
+                                        plain = TRUE,
+                                        icon_on = icon("angle-double-down"), 
+                                        icon_off = icon("angle-double-right"),
+                                        inline = TRUE
+                                ),
                                 conditionalPanel(condition = 'input.expand_categorical_filter_check',
                                                  fluidRow(
                                                    column(width = 6,
@@ -97,7 +150,16 @@ tabItem(tabName = "network_graphs_tab",
                                                    )
                                                  )
                                 ),
-                                checkboxInput('expand_component_filter_check', div("Component Filter", style = "font-weight: bold;"), FALSE),
+                                # checkboxInput('expand_component_filter_check', div("Component Filter", style = "font-weight: bold;"), FALSE),
+                                prettyToggle(
+                                        inputId = 'expand_component_filter_check',
+                                        label_on = div("Component Filter", style = "font-weight: bold;"), 
+                                        label_off = div("Component Filter", style = "font-weight: bold;"),
+                                        outline = TRUE,
+                                        plain = TRUE,
+                                        icon_on = icon("angle-double-down"), 
+                                        icon_off = icon("angle-double-right")
+                                ),
                                 conditionalPanel(condition = 'input.expand_component_filter_check',
                                                  disabled(checkboxInput('reset_on_change_check', div("Recalculate on category change", style = "font-weight: normal;"), TRUE)),
                                                  fluidRow(
@@ -114,7 +176,16 @@ tabItem(tabName = "network_graphs_tab",
                                                  )
                                                  
                                 ),
-                                checkboxInput('expand_nbh_check', div("Neighbourhood Select", style = "font-weight: bold;"), FALSE),
+                                # materialSwitch('expand_nbh_check', div("Neighbourhood Select", style = "font-weight: bold;"), value = FALSE, status = "info"),
+                                prettyToggle(
+                                        inputId = 'expand_nbh_check',
+                                        label_on = div("Neighbourhood Select", style = "font-weight: bold;"), 
+                                        label_off = div("Neighbourhood Select", style = "font-weight: bold;"),
+                                        outline = TRUE,
+                                        plain = TRUE,
+                                        icon_on = icon("angle-double-down"), 
+                                        icon_off = icon("angle-double-right")
+                                ),
                                 conditionalPanel(condition = 'input.expand_nbh_check',
                                                  fluidRow(
                                                          column(width = 4,

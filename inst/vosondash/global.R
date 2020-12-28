@@ -64,7 +64,7 @@ vpopover <- function(title, content) {
                  "title = \"", title, "\"",
                  ">",
                  "<i class=\"fa fa-question-circle\" style = \"font-size:0.90em;vertical-align:top;\"></i></a>"))
-      , style = "width:4px;display:inline-block;")
+      , style = "width:4px;display:inline-block;text-indent:0;")
 }
 
 gbl_scroll_delay <- 250 # ms

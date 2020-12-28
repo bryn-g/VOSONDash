@@ -51,9 +51,8 @@ observeEvent(check_demo_files, {
       
     if (length(demo_files_list) > 0) {
       demo_files_list <- lapply(demo_files_list, function(x) gsub("\\.graphml$", "", x, ignore.case = TRUE))
-      updateSelectInput(session, "demo_data_select", label = NULL, choices = demo_files_list,
-                        selected = NULL)
-      shinyjs::enable("demo_data_select")
+      updatePickerInput(session, "demo_data_select", label = NULL, choices = demo_files_list)
+      # shinyjs::enable("demo_data_select")
       shinyjs::enable("demo_data_select_button")
     }    
   }, error = function(err) {
@@ -92,7 +91,7 @@ observeEvent(input$demo_data_select_button, {
       # cat(paste("warning loading demo files:", w))
     })
   }
-})
+}, ignoreInit = TRUE)
 
 # when graphml data loaded or changed
 observeEvent(ng_rv$graph_data, {
