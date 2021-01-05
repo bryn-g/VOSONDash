@@ -1,6 +1,6 @@
 # voson dashboard shiny app ui
 
-#### shiny ui --------------------------------------------------------------------------------------------------------- #
+#### shiny ui -------------------------------------------------------------------------------------------------------- #
 dashboardPage(
   skin = "blue",
   title = paste0("VOSON Dashboard ", app_version, sep = ""),
@@ -11,12 +11,12 @@ dashboardPage(
             tags$style(".main-header .logo {height: 40px; line-height: 40px}"),
             tags$style(".sidebar-toggle {height: 40px; padding-top: 1px !important;}"),
             tags$style(".navbar {min-height:40px !important}")),
-            
-            title = span(icon("project-diagram"), "VOSON Dashboard", 
-                    span(app_version, class = "version")),
     
-            titleWidth = 300
-    ),
+    title = span(icon("project-diagram"), "VOSON Dashboard", 
+                 span(app_version, class = "version")),
+    
+    titleWidth = 300
+  ),
   
   # sidebar menu items
   dashboardSidebar(useShinyjs(), width = 180,
@@ -35,7 +35,7 @@ dashboardPage(
                                menuItem("API Keys", tabName = "keys_tab", icon = icon("key"))
                    )
   ),
-    
+  
   # page body
   dashboardBody(
     # additional js features
