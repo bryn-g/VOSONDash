@@ -48,8 +48,16 @@ fluidRow(column(
     fluidRow(column(
       width = 12,
       verbatimTextOutput("component_summary_ui")
-    ))
-    
+    )) # ,
+    # fluidRow(
+    #   column(width = 12,
+    #      pickerInput(
+    #        "component_membership_select",
+    #        div("Component", style = "font-weight: normal;"),
+    #        choices = c("None"),
+    #        selected = "None"
+    #      )
+    #   ))
   )
   
 ))

@@ -24,6 +24,7 @@ Imports:
     vosonSML (>= 0.29.0),
     wordcloud
 Suggests:
+    colourpicker,
     dplyr,
     DT,
     htmlwidgets,

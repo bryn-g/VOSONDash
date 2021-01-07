@@ -17,6 +17,10 @@ applyComponentFilter <- function(g, component_type = "strong", component_range) 
   
   graph_clusters <- igraph::components(g, mode = component_type)
   
+  # if (add_membership) {
+  #   g <- igraph::set_vertex_attr(g, "component", index = V(g), graph_clusters$membership)
+  # }
+  
   min_cluster_size <- suppressWarnings(min(graph_clusters$csize)) # suppress no non-missing arguments to min;
   max_cluster_size <- suppressWarnings(max(graph_clusters$csize)) # returning Inf warning
   

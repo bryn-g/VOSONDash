@@ -111,7 +111,7 @@ igraphData <- reactive({
   # --- start id labels
   if (node_index_check) {
     plot_parameters[['vertex.label']] <- sub("n", "", V(g)$id) # V(g)$id
-    plot_parameters[['vertex.label.color']] <- "#000000"
+    # plot_parameters[['vertex.label.color']] <- input$node_label_color # "#000000"
     base_vertex_size <- 7
   }
   # --- end id labels  
@@ -162,8 +162,12 @@ igraphData <- reactive({
       }
     }
   
-    plot_parameters[['vertex.label.color']] = ifelse(V(g)$id %in% selected_row_names, gbl_sel_label_col, 
-                                                     gbl_plot_def_label_color)
+    plot_parameters[['vertex.label.color']] = ifelse(V(g)$id %in% selected_row_names, gbl_sel_label_col,
+                                                     ifelse(is.null(V(g)$label.color),
+                                                            gbl_plot_def_label_color,
+                                                            V(g)$label.color))
+                                                     # input$node_label_color)
+                                                     # gbl_plot_def_label_color)
 
     plot_parameters[['vertex.label.cex']] <- switch(node_degree_type,
                                               "Degree" = (norm_values(V(g)$Degree)) + base_label_size,

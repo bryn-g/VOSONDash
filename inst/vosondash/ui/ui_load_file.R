@@ -8,12 +8,12 @@ sidebarPanel(width = 12,
                  inputId = 'expand_load_file_check',
                  label_on = div(strong("Open GraphML")),
                  label_off = div(strong("Open GraphML")),
-                 status_on = "info",
-                 status_off = "info",
+                 status_on = "default",
+                 status_off = "default",
                  outline = TRUE,
                  plain = TRUE,
-                 icon_on = icon("file-code"),
-                 icon_off = icon("file-code")
+                 icon_on = icon("file-upload"),
+                 icon_off = icon("file-upload")
                ),
                conditionalPanel(
                  condition = 'input.expand_load_file_check',

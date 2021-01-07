@@ -206,6 +206,12 @@ observeEvent(input$node_label_select, {
   }
 })
 
+observeEvent(input$node_label_color, {
+  if (!is.null(ng_rv$graph_data)) {
+    V(ng_rv$graph_data)$label.color <- input$node_label_color
+  }
+})
+
 observeEvent(ng_rv$graph_seed, {
   html("seed", ng_rv$graph_seed)
 })
@@ -547,7 +553,24 @@ graphFilters <- reactive({
     g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
     g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
     # isolate as graph_component_type_select has event
-    g <- applyComponentFilter(g, isolate(input$graph_component_type_select), input$graph_component_slider)    
+    g <- applyComponentFilter(g, isolate(input$graph_component_type_select), input$graph_component_slider)
+    
+    # experimental component select
+    # if (input$component_membership_select != "None") {
+    #   graph_clusters <- igraph::components(g, mode = isolate(input$graph_component_type_select))
+    #   g <- igraph::set_vertex_attr(g, "component", index = V(g), graph_clusters$membership)
+    #   # filter_nodes <- names(which(graph_clusters$membership != input$component_membership_select))
+    #   filter_nodes <- V(g)[which(V(g)$component == input$component_membership_select)]$id
+    #   browser()
+    #   dtr <- isolate(graphNodes())
+    #   filter_nodes <- which(rownames(dtr) %in% filter_nodes)
+    #   
+    #   if (length(filter_nodes) > 0) {
+    #     DT::selectRows(dt_vertices_proxy, filter_nodes)
+    #     # g <- igraph::delete_vertices(g, unlist(filter_nodes))
+    #   }
+    # }
+    
     g <- applyGraphFilters(g, input$graph_isolates_check, input$graph_multi_edge_check, 
                                       input$graph_loops_edge_check)
     g <- addAdditionalMeasures(g)
@@ -869,9 +892,9 @@ addNodeContinuous <- function() {
     
     add_attrs <- sapply(vertex_attr_names(ng_rv$graph_data),
                         function(x) if (all(sapply(vertex_attr(ng_rv$graph_data, x), is.numeric))) x)
-    
-    updateSelectInput(session, "graph_node_size_select", label = NULL,
-                      choices = append(c("None", "Degree", "Indegree", "Outdegree", "Betweenness", "Closeness"), add_attrs),
+    updatePickerInput(session, "graph_node_size_select", label = NULL,
+                      choices = base::union(c("None", "Degree", "Indegree", "Outdegree", "Betweenness", "Closeness"),
+                                            unlist(unname(add_attrs))),
                       selected = "None")
   }
 }
@@ -885,8 +908,8 @@ setLabels <- function(attr_v) {
   }
   label_list <- sort(attr_v[!attr_v %in% c("label")])
   if (is.null(sel)) { sel <- "id" }
-  shinyjs::enable("node_label_select")
-  updateSelectInput(session, "node_label_select", label = NULL, choices = label_list, selected = sel)
+  # shinyjs::enable("node_label_select")
+  updatePickerInput(session, "node_label_select", label = NULL, choices = label_list, selected = sel)
 }
 
 # set graph manually
@@ -914,6 +937,7 @@ setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
 }
 
 updateComponentSlider <- function(g, component_type) {
+  # note: not graphFilter
   if (!is.null(g)) {
     graph_clusters <- components(g, mode = component_type)
     
@@ -924,6 +948,22 @@ updateComponentSlider <- function(g, component_type) {
     # likely causes a double render when graph has a component max size greater than the initial slider max set in ui
     updateSliderInput(session, inputId = "graph_component_slider", min = min_cluster_size,
                       max = max_cluster_size, value = c(min_cluster_size, max_cluster_size))
+    
+    i <- 0
+    grps <- sapply(graph_clusters$csize, function(x) {
+      i <<- i + 1
+      paste0(i, " (size:", x, ")")
+    })
+    values <- as.character(1:length(grps))
+    names(values) <- grps
+    grps <- append(c("None" = "None"), values)
+    updatePickerInput(
+      session,
+      inputId = "component_membership_select",
+      label = NULL,
+      choices = grps
+    )
+    updateSelectInput(session, inputId = "component_membership_select", choices = c("None", unique(graph_clusters$membership)))
   }
 }
 

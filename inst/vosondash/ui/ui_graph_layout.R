@@ -1,5 +1,8 @@
 tabPanel(
   "Layout",
+  
+  fluidRow(column(width = 12,
+                  strong("Graph Layout"))),
   fluidRow(column(
     width = 6,
     pickerInput(
@@ -7,14 +10,14 @@ tabPanel(
       label = NULL,
       choices = c(
         "Auto",
-        "FR",
-        "KK",
-        "DH",
-        "LGL",
+        "Fruchterman-Reingold" = "FR",
+        "Kamada-Kawai" = "KK",
+        "Davidson-Harel (slow)" = "DH",
+        "Large Graph Layout" = "LGL",
         "Graphopt",
-        "DrL",
-        "GEM",
-        "MDS",
+        "Distributed Recursive Layout" = "DrL",
+        "GEM Force-Directed Layout" = "GEM",
+        "Multidimensional Scaling Layout" = "MDS",
         "Grid",
         "Sphere",
         "Circle",
@@ -23,17 +26,15 @@ tabPanel(
       )
     )
   ),
-  column(
-    width = 6,
-    div(
-      disabled(actionButton(
-        "graph_reseed_button", label = icon("refresh")
-      )),
-      vpopover(po_reseed_graph()$title, po_reseed_graph()$content),
-      HTML("&nbsp;&nbsp;"),
-      div(id = "seed", "", class = "div_inline")
-    )
-  )),
+  column(width = 5, style = "padding-left: 0px;",
+         
+         div(
+           disabled(actionButton(
+             "graph_reseed_button", label = icon("refresh")
+           )),
+           vpopover(po_reseed_graph()$title, po_reseed_graph()$content), class = "div_inline"),
+         div(id = "seed", "", style = "margin-left: 10px;", class = "div_inline"))),
+  
   conditionalPanel(condition = 'input.graph_layout_select == "FR" | input.graph_layout_select == "Graphopt"',
                    fluidRow(column(
                      width = 6,
@@ -105,4 +106,5 @@ tabPanel(
                       ticks = FALSE
                     )
                   )))
+  
 )

@@ -4,7 +4,12 @@
 \alias{applyComponentFilter}
 \title{Filter out graph vertices not in component size range}
 \usage{
-applyComponentFilter(g, component_type = "strong", component_range)
+applyComponentFilter(
+  g,
+  component_type = "strong",
+  component_range,
+  add_membership = FALSE
+)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
@@ -13,6 +18,8 @@ applyComponentFilter(g, component_type = "strong", component_range)
 \code{"weak"}. Ignored for undirected graphs. Default is \code{"strong"}.}
 
 \item{component_range}{Numeric vector. Min and max values or size range of component.}
+
+\item{add_membership}{Logical. Add component membership id to graph as a node attribute.}
 }
 \value{
 An igraph graph object.

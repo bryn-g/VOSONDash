@@ -29,7 +29,8 @@ collectViewGraphButtonsUI <- function(id) {
   ns <- NS(id)
   
   tagList(
-    shinyjs::disabled(actionButton(ns("view_graph"), label = "Graph", title = "View Network Graph", icon("eye")))
+    shinyjs::disabled(actionButton(ns("view_graph"), label = "Graph", title = "View Network Graph",
+                                   icon("connectdevelop")))
   )
 }
 
