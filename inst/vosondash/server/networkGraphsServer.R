@@ -206,9 +206,21 @@ observeEvent(input$node_label_select, {
   }
 })
 
+observeEvent(input$edge_label_select, {
+  if (!is.null(ng_rv$graph_data)) {
+    E(ng_rv$graph_data)$label <- edge_attr(ng_rv$graph_data, input$edge_label_select)
+  }
+})
+
 observeEvent(input$node_label_color, {
   if (!is.null(ng_rv$graph_data)) {
     V(ng_rv$graph_data)$label.color <- input$node_label_color
+  }
+})
+
+observeEvent(input$edge_label_color, {
+  if (!is.null(ng_rv$graph_data)) {
+    E(ng_rv$graph_data)$label.color <- input$edge_label_color
   }
 })
 
@@ -373,7 +385,7 @@ output$graph_summary_ui <- renderUI({
   tagList(div(div(
     HTML(graphSummaryOutput()),
     style = paste0("position:absolute; z-index:1; top:", (as.numeric(ng_rv$plot_height)-5), 
-                   "px; left:18px; font-size:0.97em;")),
+                   "px; left:22px; font-size:0.97em;")),
     style = "position:relative; z-index:0;"))
 })
 
@@ -517,6 +529,8 @@ setGraphFile <- reactive({
     isolate({
       attr_v <- vertex_attr_names(ng_rv$graph_data)
       setLabels(attr_v)
+      
+      setELabels(edge_attr_names(ng_rv$graph_data))
       
       addNodeContinuous()
     })
@@ -912,6 +926,20 @@ setLabels <- function(attr_v) {
   updatePickerInput(session, "node_label_select", label = NULL, choices = label_list, selected = sel)
 }
 
+setELabels <- function(attr_e) {
+  sel <- NULL
+  if ("label" %in% attr_e) {
+    E(ng_rv$graph_data)$imported_Label <- E(ng_rv$graph_data)$label
+    attr_e <- append(attr_e, "imported_Label")
+    sel <- "imported_Label"
+  }
+  label_list <- sort(attr_e[!attr_e %in% c("label")])
+  if (is.null(sel)) { sel <- "None" }
+  # shinyjs::enable("node_label_select")
+
+  updatePickerInput(session, "edge_label_select", label = NULL, choices = label_list, selected = sel)
+}
+
 # set graph manually
 setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
   shinyjs::reset("graphml_data_file")
@@ -924,6 +952,8 @@ setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
   
   attr_v <- vertex_attr_names(data)
   setLabels(attr_v)
+  
+  setELabels(edge_attr_names(data))
   
   addNodeContinuous()
   

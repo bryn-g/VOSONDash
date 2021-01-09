@@ -91,17 +91,29 @@ igraphData <- reactive({
     selected_row_names <- row.names(graph_vertices)[c(selected_rows)]
   }
   
-  plot_parameters <- list(g, edge.arrow.size = 0.4)
+  plot_parameters <- list(g)
+  plot_parameters['edge.arrow.size'] <- input$edge_arrow_size
+  plot_parameters['edge.arrow.width'] <- input$edge_arrow_width
+  plot_parameters['edge.width'] <- input$edge_width
+  plot_parameters['edge.color'] <- input$edge_color
+  # plot_parameters[['edge.lty']] <- input$edge_line_type
   
   # set vertex color for vertices selected in graph data table
   plot_parameters[['vertex.color']] <- ifelse(V(g)$id %in% selected_row_names, gbl_plot_sel_vertex_color, V(g)$color)
   plot_parameters[['vertex.frame.color']] = ifelse(V(g)$id %in% selected_row_names, "#000000", "gray")
   plot_parameters[['vertex.label.font']] <- ifelse(V(g)$id %in% selected_row_names, 2, 1)
   
+  
+  # label.degree - It defines the position of the vertex labels, relative to the center of the vertices.
+  # It is interpreted as an angle in radian, zero means ‘to the right’, and ‘pi’ means to the left,
+  # up is -pi/2 and down is pi/2. The default value is -pi/4.
+  
   base_vertex_size <- 4
   base_label_size <- 0.8
-  label_dist <- 0.6
-  label_degree <- -(pi)/2  
+  # label_dist <- 0.6
+  # label_degree <- -(pi)/2
+  label_dist <- input$node_label_dist
+  label_degree <- input$node_label_rot
   norm_multi <- 3
 
   igraph_vsize <- function(x) {
@@ -128,11 +140,19 @@ igraphData <- reactive({
       ("Arial Unicode MS" %in% VOSONDash::getSystemFontFamilies()) &
       input$macos_font_check) {
     plot_parameters['vertex.label.family'] <- "Arial Unicode MS"
+    plot_parameters['edge.label.family'] <- "Arial Unicode MS"
   } else {
     plot_parameters['vertex.label.family'] <- "Arial"
+    plot_parameters['edge.label.family'] <- "Arial"
   }
   
   # --- start labels
+  plot_parameters[['edge.label']] <- NA
+  if (input$edge_labels_check == TRUE & !is.null(input$edge_label_select)) {
+    plot_parameters['edge.label.cex'] <- input$edge_label_size
+    plot_parameters[['edge.label']] <- edge_attr(g, input$edge_label_select)
+  }
+  
   if (node_index_check == FALSE) {
     if (input$node_labels_check == FALSE) {
       plot_parameters[['vertex.label']] <- NA
@@ -169,13 +189,15 @@ igraphData <- reactive({
                                                      # input$node_label_color)
                                                      # gbl_plot_def_label_color)
 
-    plot_parameters[['vertex.label.cex']] <- switch(node_degree_type,
-                                              "Degree" = (norm_values(V(g)$Degree)) + base_label_size,
-                                              "Indegree" = (norm_values(V(g)$Indegree)) + base_label_size,
-                                              "Outdegree" = (norm_values(V(g)$Outdegree)) + base_label_size,
-                                              "Betweenness" = (norm_values(V(g)$Betweenness)) + base_label_size,
-                                              "Closeness" = (norm_values(V(g)$Closeness)) + base_label_size,
-                                              "None" = base_label_size)
+    # plot_parameters[['vertex.label.cex']] <- switch(node_degree_type,
+    #                                           "Degree" = (norm_values(V(g)$Degree)) + base_label_size,
+    #                                           "Indegree" = (norm_values(V(g)$Indegree)) + base_label_size,
+    #                                           "Outdegree" = (norm_values(V(g)$Outdegree)) + base_label_size,
+    #                                           "Betweenness" = (norm_values(V(g)$Betweenness)) + base_label_size,
+    #                                           "Closeness" = (norm_values(V(g)$Closeness)) + base_label_size,
+    #                                           "None" = base_label_size)
+    
+    plot_parameters[['vertex.label.cex']] <- input$node_label_size
   }
   # --- end labels
   

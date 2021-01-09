@@ -223,7 +223,13 @@ select#plot_height.form-control {
   height:98% !important;
 }
 
-.popover{
+.popover {
   max-width:300px;
 }
-    
+
+/*
+.active_button_style {
+  background-color:#299E2F;
+  color:#FFFFFF;
+}
+*/

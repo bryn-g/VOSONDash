@@ -1,10 +1,5 @@
 tabPanel(
   "Nodes",
-  source("ui/ui_node_labels.R")$value,
-  fluidRow(column(
-    width = 12,
-    hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
-  )),
   fluidRow(
     column(
       width = 4,
@@ -41,6 +36,7 @@ tabPanel(
       TRUE
     )
   )),
+  source("ui/ui_node_labels.R")$value,
   fluidRow(column(
     width = 12,
     hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
