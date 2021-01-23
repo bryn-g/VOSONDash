@@ -397,7 +397,7 @@ output$graph_legend_ui <- renderUI({
     style = "position:relative; z-index:0;"))
 })
 
-output$vis_plot_ui <- renderUI({
+output$vis_plot_ui <- renderUI({ # selected = input$selected_graph_tab
   tabBox(width = 12, title = span(icon("share-alt", class = "social_green"), "Network Graphs"), 
          selected = input$selected_graph_tab, id = "selected_graph_tab",
          tabPanel("igraph", plotOutput("igraphPlot", width = "100%", height = "auto"), value = "Plot"),
@@ -694,9 +694,11 @@ setGraphTabControls <- reactive({
   }
   
   # enable or disable controls based on network graph tab
-  switch(input$selected_graph_tab,
-         "Plot" = { enablePlotControls() },
-         "visNetwork" = { enableVisNetworkControls() })
+  if (!is.null(input$selected_graph_tab)) {
+    switch(input$selected_graph_tab,
+           "Plot" = { enablePlotControls() },
+           "visNetwork" = { enableVisNetworkControls() })
+  }
 })
 
 # network graph save file name based on selected network graph tab

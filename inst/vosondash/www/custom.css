@@ -263,3 +263,17 @@ select#plot_height.form-control {
 .dropdown-menu {
   border: 1px solid #000000;
 }
+
+.vdash-div-box-heading-icon {
+  margin-right: 5px;
+}
+
+.vdash-div-box-heading {
+  font-size: 14px;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+body.skin-blue {
+  background-color: #ecf0f5;
+}

@@ -1,5 +1,6 @@
 fluidRow(column(
   width = 12,
+  
   fluidRow(column(
     width = 12,
     prettyToggle(
@@ -89,4 +90,5 @@ fluidRow(column(
       )
     ))
   )
+  
 ))

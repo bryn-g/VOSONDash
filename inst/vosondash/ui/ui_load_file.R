@@ -1,25 +1,13 @@
-#sidebarPanel(width = 12,
-#             class = "custom_well_for_controls",
-fluidRow(
-box(
-  width = 12, solidHeader = TRUE,
-           
-             fluidRow(column(
-               width = 12,
-               
-               prettyToggle(
-                 inputId = 'expand_load_file_check',
-                 label_on = div(strong("Open GraphML")),
-                 label_off = div(strong("Open GraphML")),
-                 status_on = "default",
-                 status_off = "default",
-                 outline = TRUE,
-                 plain = TRUE,
-                 icon_on = icon("file-upload"),
-                 icon_off = icon("file-upload")
-               ),
-               conditionalPanel(
-                 condition = 'input.expand_load_file_check',
+fluidRow(box(width = 12, solidHeader = TRUE,
+             fluidRow(
+               column(
+                 width = 12,
+                 div(
+                   icon("file-upload",
+                        class = "vdash-div-box-heading-icon"),
+                   "Open GraphML",
+                   class = "vdash-div-box-heading"
+                 ),
                  
                  fileInput('graphml_data_file',
                            'Choose file',
@@ -49,6 +37,4 @@ box(
                                     ))
                                   )))
                )
-             ))
-             #))
-))
+             )))

@@ -25,7 +25,7 @@ ui <-
       
       navbarPage(
         id = "navbarpage_selection",
-        selected = "network_graphs_tab",
+        selected = "data_tab",
         title = div(
           tags$img(
             src = "vosonlab_48px.png",

@@ -1,22 +1,22 @@
 fluidRow(column(
   width = 12,
   
-  fluidRow(column(
-    width = 12,
-    prettyToggle(
-      inputId = 'expand_component_filter_check',
-      label_on = div("Component Filter", style = "font-weight: bold;"),
-      label_off = div("Component Filter", style = "font-weight: bold;"),
-      status_on = "success",
-      status_off = "info",
-      outline = TRUE,
-      plain = TRUE,
-      icon_on = icon("angle-double-down"),
-      icon_off = icon("angle-double-right")
-    )
-  )),
-  conditionalPanel(
-    condition = 'input.expand_component_filter_check',
+  # fluidRow(column(
+  #   width = 12,
+  #   prettyToggle(
+  #     inputId = 'expand_component_filter_check',
+  #     label_on = div("Component Filter", style = "font-weight: bold;"),
+  #     label_off = div("Component Filter", style = "font-weight: bold;"),
+  #     status_on = "success",
+  #     status_off = "info",
+  #     outline = TRUE,
+  #     plain = TRUE,
+  #     icon_on = icon("angle-double-down"),
+  #     icon_off = icon("angle-double-right")
+  #   )
+  # )),
+  # conditionalPanel(
+  #   condition = 'input.expand_component_filter_check',
     disabled(checkboxInput(
       'reset_on_change_check',
       div("Recalculate on category change", style = "font-weight: normal;"),
@@ -48,7 +48,7 @@ fluidRow(column(
     fluidRow(column(
       width = 12,
       verbatimTextOutput("component_summary_ui")
-    )) # ,
+    )#) # ,
     # fluidRow(
     #   column(width = 12,
     #      pickerInput(
