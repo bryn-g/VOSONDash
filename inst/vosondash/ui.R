@@ -37,8 +37,14 @@ ui <-
         windowTitle = "VOSON Dash",
         inverse = TRUE,
         
+        tabPanel("Network Data",
+          value = "data_tab",
+          icon = icon("database"),
+          source("ui/networkDataUI.R")$value
+        ),
         navbarMenu(
           "Analysis",
+          icon = icon("microscope"),
           "Network",
           tabPanel(
             "Graphs",
@@ -63,6 +69,7 @@ ui <-
         ),
         navbarMenu(
           "Collection",
+          icon = icon("cloud-download-alt"),
           "API Access",
           tabPanel("Keys",
                    icon = icon("key"),

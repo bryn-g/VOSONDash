@@ -1,6 +1,9 @@
-sidebarPanel(width = 12,
-             class = "custom_well_for_controls",
-             
+#sidebarPanel(width = 12,
+#             class = "custom_well_for_controls",
+fluidRow(
+box(
+  width = 12, solidHeader = TRUE,
+           
              fluidRow(column(
                width = 12,
                
@@ -46,4 +49,6 @@ sidebarPanel(width = 12,
                                     ))
                                   )))
                )
-             )))
+             ))
+             #))
+))
