@@ -32,13 +32,13 @@ observeEvent(input$selected_text_analysis_tab, {
   plotWordFrequencies()
   plotWordClouds()
   if (input$selected_text_analysis_tab == "Sentiment") {
-    plotSentiments()  
+    plotSentiments()
   }
 }, ignoreInit = TRUE)
 
 # enter text analysis section or controls toggled
 # generate plots data and plot
-observeEvent({ input$sidebar_menu
+observeEvent({ input$navbarpage_selection # input$sidebar_menu
   input$ta_stopwords_check
   input$ta_twitter_hashtags_check
   input$ta_twitter_usernames_check
@@ -50,7 +50,8 @@ observeEvent({ input$sidebar_menu
   input$ta_iconv_check
   input$ta_rem_punc_check }, {
     
-    if (input$sidebar_menu == "text_analysis_tab") {
+    # if (input$sidebar_menu == "text_analysis_tab") {
+    if (input$navbarpage_selection == "word_freq_tab") {
       taPlotListData()
       plotWordFrequencies()
       plotWordClouds()

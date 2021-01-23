@@ -13,6 +13,5 @@ tabItem(tabName = "assortativity_tab",
             h4("Homophily Index"),
             verbatimTextOutput("assortativity_homophily_output", placeholder = FALSE)
           )
-        )
-)
+        ))
 #### end assortativity tab

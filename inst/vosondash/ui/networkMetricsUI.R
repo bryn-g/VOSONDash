@@ -1,5 +1,5 @@
 #### network metric tab  ---------------------------------------------------------------------------------------------- #
-tabItem(tabName="network_metrics_tab",
+tabItem(tabName = "network_metrics_tab",
         fluidRow(
           box(
             width = 12,
@@ -18,6 +18,5 @@ tabItem(tabName="network_metrics_tab",
             h4("Outdegree Distribution"),
             plotOutput("outdegreeDistPlot")
           )
-        )
-)
+        ))
 #### end network_metrics_tab

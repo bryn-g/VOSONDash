@@ -77,9 +77,18 @@ h1, h2, h3 {
   width:300px;
   position:fixed;
   top:calc(25%);
-  left:calc(60%);
+  left:calc(50%);
 }
 
+/*
+.shiny-notification {
+  height:100px;
+  width:300px;
+  position:fixed;
+  top:calc(25%);
+  left:calc(60%);
+}
+*/
 /*
 [class*="col-lg-"],[class*="col-md-"],
 [class*="col-sm-"],[class*="col-xs-"] {
@@ -88,7 +97,6 @@ h1, h2, h3 {
 }
 */
 
-/* #e1b3fdb0 */
 #dt_vertices table.dataTable tr.selected td, 
 #dt_vertices table.dataTable td.selected {
   background-color:#51a5e0 !important;
@@ -227,9 +235,31 @@ select#plot_height.form-control {
   max-width:300px;
 }
 
-/*
-.active_button_style {
-  background-color:#299E2F;
-  color:#FFFFFF;
+/* navbar ui style changes */
+
+.navbar {
+  margin-bottom: 5px !important;
 }
-*/
+
+.content {
+ padding-top: 0px;
+ padding-left: 0px; 
+ padding-right: 0px;
+ padding-bottom: 0px; 
+}
+
+.navbar-brand {
+  padding-top: 6px;
+  padding-bottom: 0;
+}
+
+.nav-tabs-custom>.nav-tabs>li.header {
+  line-height: 35px;
+  padding: 0 10px;
+  font-size: 16px;
+  color: #444;
+}
+
+.dropdown-menu {
+  border: 1px solid #000000;
+}

@@ -176,7 +176,7 @@ visNetworkData <- reactive({
   
   e_arrows <- e_smooth <- NULL
   if (ng_rv$graph_dir) { e_arrows <- "to" }
-  if (input$graph_multi_edge_check) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
+  if (input$graph_multi_edge_check) { e_smooth <- list(enabled = TRUE, type = "diagonalCross", roundness = input$edge_curved) }
   
   vis_net <- vis_net %>% visEdges(arrows = e_arrows,
                                   smooth = e_smooth,

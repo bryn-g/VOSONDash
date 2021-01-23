@@ -53,7 +53,7 @@ tabItem(tabName = "reddit_collection_tab",
                             span(actionButton("clear_reddit_console", label = icon("erase", lib = "glyphicon"), 
                                               style = "padding: 2px 8px;", title = "Clear Console"), 
                                  style = "padding-right: 10px;"),
-                            span(icon("reddit", class = "reddit_red"), "Reddit Network Collection")
+                            span(icon("reddit", class = "reddit_red"), "Reddit Data Collection")
                           ),                          
                           tabPanel("Console", width = 12,
                                    verbatimTextOutput("reddit_arguments_output"),

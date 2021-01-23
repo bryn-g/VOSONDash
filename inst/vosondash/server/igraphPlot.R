@@ -98,11 +98,12 @@ igraphData <- reactive({
   plot_parameters['edge.color'] <- input$edge_color
   # plot_parameters[['edge.lty']] <- input$edge_line_type
   
+  plot_parameters['edge.curved'] <- input$edge_curved
+  
   # set vertex color for vertices selected in graph data table
   plot_parameters[['vertex.color']] <- ifelse(V(g)$id %in% selected_row_names, gbl_plot_sel_vertex_color, V(g)$color)
   plot_parameters[['vertex.frame.color']] = ifelse(V(g)$id %in% selected_row_names, "#000000", "gray")
   plot_parameters[['vertex.label.font']] <- ifelse(V(g)$id %in% selected_row_names, 2, 1)
-  
   
   # label.degree - It defines the position of the vertex labels, relative to the center of the vertices.
   # It is interpreted as an angle in radian, zero means ‘to the right’, and ‘pi’ means to the left,

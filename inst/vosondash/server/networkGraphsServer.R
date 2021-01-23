@@ -385,7 +385,7 @@ output$graph_summary_ui <- renderUI({
   tagList(div(div(
     HTML(graphSummaryOutput()),
     style = paste0("position:absolute; z-index:1; top:", (as.numeric(ng_rv$plot_height)-5), 
-                   "px; left:22px; font-size:0.97em;")),
+                   "px; left:26px; font-size:0.97em;")),
     style = "position:relative; z-index:0;"))
 })
 
@@ -393,7 +393,7 @@ output$graph_legend_ui <- renderUI({
   tagList(div(div(
     HTML(graphLegendOutput()),
     style = paste0("position:absolute; z-index:1; top:", 85, # (as.numeric(ng_rv$plot_height)-5), 
-                   "px; left:18px; font-size:0.97em;")),
+                   "px; left:26px; font-size:0.97em;")),
     style = "position:relative; z-index:0;"))
 })
 
