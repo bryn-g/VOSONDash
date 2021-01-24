@@ -47,24 +47,9 @@ tabPanel(
         ticks = FALSE
       )
     )),
+  
     fluidRow(column(
       width = 12,
-      prettyToggle(
-        inputId = 'expand_edge_arrows_check',
-        label_on = tags$b("Arrows"),
-        label_off = tags$b("Arrows"),
-        outline = TRUE,
-        plain = TRUE,
-        icon_on = icon("angle-double-down"),
-        icon_off = icon("angle-double-right"),
-        status_on = "success",
-        status_off = "info",
-        inline = TRUE
-      )
-    )),
-    fluidRow(column(
-      width = 12,
-      conditionalPanel(condition = 'input.expand_edge_arrows_check',
                        fluidRow(
                          column(
                            width = 6,
@@ -89,7 +74,7 @@ tabPanel(
                              ticks = FALSE
                            )
                          )
-                       ))
+                       )
     )),
     source("ui/ui_edge_labels.R")$value
   )

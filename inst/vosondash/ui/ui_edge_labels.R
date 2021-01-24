@@ -1,22 +1,6 @@
 fluidRow(column(
   width = 12,
-  fluidRow(column(
-    width = 12,
-    prettyToggle(
-      inputId = 'expand_elabel_visuals_check',
-      label_on = tags$b("Labels"),
-      label_off = tags$b("Labels"),
-      outline = TRUE,
-      plain = TRUE,
-      icon_on = icon("angle-double-down"),
-      icon_off = icon("angle-double-right"),
-      status_on = "success",
-      status_off = "info",
-      inline = TRUE
-    )
-  )),
-  conditionalPanel(
-    condition = 'input.expand_elabel_visuals_check',
+
     fluidRow(column(
       width = 12,
       div(disabled(
@@ -58,5 +42,4 @@ fluidRow(column(
         ticks = FALSE
       )
     ))
-  )
 ))
