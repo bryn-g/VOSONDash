@@ -6,7 +6,7 @@ ui <-
     dashboardSidebar(disable = TRUE),
     dashboardBody(
       useShinyjs(),
-      
+      tags$style(type="text/css", "body {padding-top: 52px;}"),
       extendShinyjs(text = disable_tab_jscode, functions = c("disableTab")),
       inlineCSS(disable_tab_css),
       
@@ -36,22 +36,21 @@ ui <-
         ),
         windowTitle = "VOSON Dash",
         inverse = TRUE,
-        
+        position = "fixed-top",
         tabPanel("Network Data",
           value = "data_tab",
           icon = icon("database"),
           source("ui/networkDataUI.R")$value
         ),
+        tabPanel("Network Graphs",
+                 value = "network_graphs_tab",
+                 icon = icon("share-alt"),
+                 source("ui/networkGraphsUI.R")$value
+        ),        
         navbarMenu(
           "Analysis",
           icon = icon("microscope"),
           "Network",
-          tabPanel(
-            "Graphs",
-            value = "network_graphs_tab",
-            icon = icon("share-alt"),
-            source("ui/networkGraphsUI.R")$value
-          ),
           tabPanel("Metrics",
                    icon = icon("ruler-combined"),
                    source("ui/networkMetricsUI.R")$value),

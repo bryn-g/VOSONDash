@@ -401,7 +401,7 @@ observeEvent(input$graph_layout_select, {
 output$plot_height_ui <- renderUI({
   tagList(div(div(
     div(selectInput("plot_height", label = NULL, 
-                    choices = c("300px" = 300, "400px" = 400, "500px" = 500, "600px" = 600, "700px" = 700, 
+                    choices = c("300px" = 300, "400px" = 400, "500px" = 500, "525px" = 525, "600px" = 600, "700px" = 700, 
                                 "800px" = 800, "900px" = 900, "1000px" = 1000), 
                     multiple = FALSE, selectize = FALSE, selected = ng_rv$plot_height), 
         style = "width:100%;", align = "right"),
