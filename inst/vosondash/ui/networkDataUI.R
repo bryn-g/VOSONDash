@@ -23,7 +23,7 @@ tabItem(tabName = "network_data_tab",
                               NULL,
                               choices = c(),
                               multiple = TRUE,
-                              size = 10,
+                              size = 6,
                               selectize = FALSE
                         ))),
                         fluidRow(

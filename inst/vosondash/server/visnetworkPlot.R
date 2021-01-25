@@ -147,17 +147,28 @@ visNetworkData <- reactive({
   if ("color" %in% names(verts)) { verts <- dplyr::select(verts, -color) }
 
   # vis_net <- visNetworkProxy("visNetworkPlot") %>% visUpdateNodes(verts)
-  vis_net <- visNetwork::visNetwork(verts, edges, main = NULL)
-  
-  l_params <- list(vis_net, layout = graph_layout, randomSeed = graph_seed)
-  if (chosen_layout %in% c("FR", "Graphopt")) { l_params['niter'] <- input$graph_niter }
-  if (chosen_layout == "Graphopt") {
-    l_params['charge'] = input$graph_charge
-    l_params['mass'] = input$graph_mass
-    l_params['spring.length'] = input$graph_spr_len
-    l_params['spring.constant'] = input$graph_spr_const    
+
+  v <- verts
+  if (isolate(input$vert_lock) == TRUE) {
+    n_pos <- isolate(nodes_positions())
+    if(!is.null(n_pos)){
+      v <- merge(verts, n_pos, by = "id", all.x = TRUE, all.y = FALSE) # all = TRUE
+    }
   }
-  vis_net <- do.call(visIgraphLayout, l_params)
+  
+  vis_net <- visNetwork::visNetwork(v, edges, main = NULL) %>% visPhysics(enabled = FALSE)
+  
+  if (isolate(input$vert_lock) == FALSE) {
+    l_params <- list(vis_net, layout = graph_layout, randomSeed = graph_seed)
+    if (chosen_layout %in% c("FR", "Graphopt")) { l_params['niter'] <- input$graph_niter }
+    if (chosen_layout == "Graphopt") {
+      l_params['charge'] = input$graph_charge
+      l_params['mass'] = input$graph_mass
+      l_params['spring.length'] = input$graph_spr_len
+      l_params['spring.constant'] = input$graph_spr_const    
+    }
+    vis_net <- do.call(visIgraphLayout, l_params)    
+  }
   
   vis_net <- vis_net %>%
     visOptions(collapse = FALSE, 

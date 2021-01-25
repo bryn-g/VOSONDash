@@ -405,6 +405,12 @@ output$plot_height_ui <- renderUI({
                                 "800px" = 800, "900px" = 900, "1000px" = 1000), 
                     multiple = FALSE, selectize = FALSE, selected = ng_rv$plot_height), 
         style = "width:100%;", align = "right"),
+    div(id = "n_lock", switchInput(
+        inputId = "vert_lock",
+        label = span(icon("lock")),
+        size = "mini",
+        value = input$vert_lock
+    )),
     style = "position:absolute; z-index:1; top:60px; right:40px; font-size:0.97em;"),
     style = "position:relative; z-index:0;"))
 })
@@ -412,7 +418,7 @@ output$plot_height_ui <- renderUI({
 output$graph_summary_ui <- renderUI({
   tagList(div(div(
     HTML(graphSummaryOutput()),
-    style = paste0("position:absolute; z-index:1; top:", (as.numeric(ng_rv$plot_height)-5), 
+    style = paste0("position:absolute; z-index:1; top:", (as.numeric(ng_rv$plot_height)-23), # -5 without selected
                    "px; left:26px; font-size:0.97em;")),
     style = "position:relative; z-index:0;"))
 })
@@ -725,7 +731,9 @@ setGraphTabControls <- reactive({
   if (!is.null(input$selected_graph_tab)) {
     switch(input$selected_graph_tab,
            "Plot" = { enablePlotControls() },
-           "visNetwork" = { enableVisNetworkControls() })
+           "visNetwork" = {
+             enableVisNetworkControls()
+             })
   }
 })
 
@@ -845,12 +853,18 @@ graphSummaryOutput <- reactive({
   output <- c()
   
   if (!is.null(g)) {
+    if (length(input$dt_vertices_rows_selected)) {
+      output <-  append(output, paste0(span("Selected: ",
+                                       length(input$dt_vertices_rows_selected), class = "graph_sel_blue")))
+    } else {
+      output <- append(output, paste0(""))
+    }
     output <- append(output, paste0("Nodes: ", vcount(g)))
     output <- append(output, paste0("Edges: ", ecount(g)))
     
     isolate_count <- sum(degree(g) == 0)
     output <- append(output, paste0("Isolates: ", isolate_count))
-  }else {
+  } else {
     output <- append(output, paste0(""))
   }
   
@@ -1045,3 +1059,23 @@ norm_values <- function(x) {
   diff_x <- max(x) - min_x
   s <- sapply(x, function(y) { (y - min_x) / diff_x })
 }
+
+# visnet testing
+
+observeEvent(input$vert_lock, {
+  if (input$vert_lock) {
+    visNetworkProxy("visNetworkPlot") %>% visGetPositions()  
+  }
+})
+
+nodes_positions <- reactive({
+  positions <- input$visNetworkPlot_positions
+  if(!is.null(positions)){
+    nodes_positions <- do.call("rbind", lapply(positions, function(x){ data.frame(x = x$x, y = x$y)}))
+    nodes_positions$id <- names(positions)
+    nodes_positions
+  } else {
+    NULL
+  }
+})
+

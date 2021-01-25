@@ -97,9 +97,10 @@ h1, h2, h3 {
 }
 */
 
+/* #51a5e0 */
 #dt_vertices table.dataTable tr.selected td, 
 #dt_vertices table.dataTable td.selected {
-  background-color:#51a5e0 !important;
+  background-color:#86c7ec !important;
 }
 
 #dt_edges table.dataTable tr.selected td, 
@@ -276,4 +277,8 @@ select#plot_height.form-control {
 
 body.skin-blue {
   background-color: #ecf0f5;
+}
+
+.graph_sel_blue {
+  color:"#006cb7";
 }

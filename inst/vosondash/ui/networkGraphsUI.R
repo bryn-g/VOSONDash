@@ -34,6 +34,7 @@ tabItem(tabName = "network_graphs_tab",
                                                        source("ui/ui_cat_filter.R")$value)   
                                        )),#),
                                 
+                        
                         conditionalPanel(
                                 condition = js_is_mac,
                                 sidebarPanel(width = 12, class = "custom_well_for_controls",
