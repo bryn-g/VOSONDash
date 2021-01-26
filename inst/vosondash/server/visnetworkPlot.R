@@ -193,7 +193,7 @@ visNetworkData <- reactive({
                                   smooth = e_smooth,
                                   color = list(color = "#b0b0b0"))
   
-  vis_net <- vis_net %>% visInteraction(navigationButtons = TRUE)
+  # vis_net <- vis_net %>% visInteraction(navigationButtons = TRUE)
   
   vis_net
 })

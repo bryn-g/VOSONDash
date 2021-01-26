@@ -20,10 +20,10 @@ disableTextAnalysisControls()
 
 # enable text analysis tab if text data 
 observeEvent(ta_rv$has_text, {
-  if (ta_rv$has_text == FALSE) {
-    addCssClass(selector = "a[data-value = 'text_analysis_tab']", class = "inactive_menu_link")
+  if (ta_rv$has_text == FALSE) { # text_analysis_tab
+    addCssClass(selector = "a[data-value = 'word_freq_tab']", class = "inactive_menu_link")
   } else {
-    removeCssClass(selector = "a[data-value = 'text_analysis_tab']", class = "inactive_menu_link")
+    removeCssClass(selector = "a[data-value = 'word_freq_tab']", class = "inactive_menu_link")
   }
 })
 

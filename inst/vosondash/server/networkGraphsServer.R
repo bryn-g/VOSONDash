@@ -93,6 +93,74 @@ observeEvent(input$demo_data_select_button, {
   }
 }, ignoreInit = TRUE)
 
+if (require("igraphdata")) {
+  updatePickerInput(
+    session,
+    inputId = "igd_data_select",
+    selected = "None",
+    choices = c("None", data(package = "igraphdata")[["results"]][, 3]),
+  )
+}
+
+getdata <- function(...) {
+  e <- new.env()
+  name <- data(..., envir = e)[1]
+  e[[name]]
+}
+
+observeEvent(input$igd_data_select, {
+  if (input$igd_data_select != "None") {
+
+    n_env <- .GlobalEnv
+    
+    #assign("v", input$igd_data_select, envir = n_env)
+    #data <- (function(...)get(utils::data(..., envir = n_env)))("kite")
+    
+    # rm("kite")
+    # ds <- input$igd_data_select
+    # data <- getdata(ds)
+    #utils::data(input$igd_data_select)
+    #delayedAssign("data", input$igd_data_select)
+    
+    tryCatch({
+      switch(input$igd_data_select,
+         "kite" = { data <- (function(...)get(utils::data(..., envir = n_env)))("kite") },
+         "karate" = { data <- (function(...)get(utils::data(..., envir = n_env)))("karate") },
+         "yeast" = { data <- (function(...)get(utils::data(..., envir = n_env)))("yeast") },
+         "rfid" = { data <- (function(...)get(utils::data(..., envir = n_env)))("rfid")
+                    data <- data %>% set_vertex_attr("name", value = 1:igraph::vcount(data)) },
+         "UKfaculty" = {
+           data <- (function(...)get(utils::data(..., envir = n_env)))("UKfaculty")
+           data <- data %>% set_vertex_attr("name", value = 1:igraph::vcount(data)) },
+         "USairports" = { data <- (function(...)get(utils::data(..., envir = n_env)))("USairports") },
+         "macaque" = { data <- (function(...)get(utils::data(..., envir = n_env)))("macaque") },
+         "immuno" = {
+           data <- (function(...)get(utils::data(..., envir = n_env)))("immuno")
+           data <- data %>% set_vertex_attr("name", value = 1:igraph::vcount(data)) },
+         "foodwebs" = {
+           data <- (function(...)get(utils::data(..., envir = n_env)))("foodwebs")
+           data <- data$Michigan },
+         "Koenigsberg" = { data <- (function(...)get(utils::data(..., envir = n_env)))("Koenigsberg") },
+         "enron" = {
+           data <- (function(...)get(utils::data(..., envir = n_env)))("enron")
+           data <- data %>% set_vertex_attr("name", value = 1:igraph::vcount(data)) }
+      )
+      
+      type <- ifelse("type" %in% graph_attr_names(data), graph_attr(data, "type"), "")
+      
+      setGraphView(data = data,
+                   desc = "igraphdata dataset",
+                   type = type,
+                   name = input$igd_data_select,
+                   seed = sample(gbl_rng_range[1]:gbl_rng_range[2], 1))
+    }, error = function(err) {
+      cat(paste("error loading datasets:", err))
+    }, warning = function(w) {
+      # cat(paste("warning loading datasets:", w))
+    })
+  }
+}, ignoreInit = TRUE)
+
 # when graphml data loaded or changed
 observeEvent(ng_rv$graph_data, {
   if (!is.null(ng_rv$graph_data)) {
@@ -411,7 +479,7 @@ output$plot_height_ui <- renderUI({
         size = "mini",
         value = input$vert_lock
     )),
-    style = "position:absolute; z-index:1; top:60px; right:40px; font-size:0.97em;"),
+    style = "position:absolute; z-index:1; top:60px; right:15px; font-size:0.97em;"),
     style = "position:relative; z-index:0;"))
 })
 
@@ -419,7 +487,7 @@ output$graph_summary_ui <- renderUI({
   tagList(div(div(
     HTML(graphSummaryOutput()),
     style = paste0("position:absolute; z-index:1; top:", (as.numeric(ng_rv$plot_height)-23), # -5 without selected
-                   "px; left:26px; font-size:0.97em;")),
+                   "px; left:15px; font-size:0.97em;")),
     style = "position:relative; z-index:0;"))
 })
 

@@ -89,13 +89,6 @@ h1, h2, h3 {
   left:calc(60%);
 }
 */
-/*
-[class*="col-lg-"],[class*="col-md-"],
-[class*="col-sm-"],[class*="col-xs-"] {
-    padding-right:12px;
-    padding-left:10px;
-}
-*/
 
 /* #51a5e0 */
 #dt_vertices table.dataTable tr.selected td, 
@@ -113,11 +106,6 @@ pre.shiny-text-output {
 }
 
 /* custom css ------------------------------------------------------------------------------------------------------ */
-.inactive_menu_link {
-  pointer-events:none;
-  cursor:default;
-  color:#484e50 !important;
-}
 
 .reddit_red {
   color:#ff4500;  
@@ -236,7 +224,7 @@ select#plot_height.form-control {
   max-width:300px;
 }
 
-/* navbar ui style changes */
+/* navbar ui style changes ---------------------------- */
 
 .navbar {
   margin-bottom: 5px !important;
@@ -281,4 +269,26 @@ body.skin-blue {
 
 .graph_sel_blue {
   color:"#006cb7";
+}
+
+[class*="col-lg-"],[class*="col-md-"],
+[class*="col-sm-"],[class*="col-xs-"] {
+    padding-right:5px;
+    padding-left:5px;
+}
+
+div.row {
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+/* #484e50 */
+.inactive_menu_link {
+  pointer-events:none;
+  cursor:default;
+  color:#ccc !important;
+}
+
+.dropdown-menu>li>a {
+    color: #000;
 }

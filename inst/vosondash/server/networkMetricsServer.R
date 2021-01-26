@@ -8,58 +8,97 @@
 #### output ---------------------------------------------------------------------------------------------------------- #
 
 output$network_metrics_details_output <- renderText({ networkMetricsDetailsOutput() })
-output$componentDistPlot <- renderPlot({ componentDistPlotData() })
-output$degreeDistPlot <- renderPlot({ degreeDistPlotData() })
-output$indegreeDistPlot <- renderPlot({ indegreeDistPlotData() })
-output$outdegreeDistPlot <- renderPlot({ outdegreeDistPlotData() })
+# output$componentDistPlot <- renderPlot({ componentDistPlotData() })
+# output$degreeDistPlot <- renderPlot({ degreeDistPlotData() })
+# output$indegreeDistPlot <- renderPlot({ indegreeDistPlotData() })
+# output$outdegreeDistPlot <- renderPlot({ outdegreeDistPlotData() })
 
 #### reactives ------------------------------------------------------------------------------------------------------- #
 
-componentDistPlotData <- reactive({
+distrib_data <- reactive({
   g <- graphFilters()
-  
   if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
   
-  cc <- components(g, mode = input$graph_component_type_select)
-  plot(table(cc$csize), type = "b", xlab = paste0("Size of component (", input$graph_component_type_select, ")"), 
-       ylab = "N")
-}) 
-
-degreeDistPlotData <- reactive({
-  g <- graphFilters()
+  type <- input$metrics_distrib_sel
   
-  if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
-  
-  if (is.directed(g)) {
-    VOSONDash::emptyPlotMessage("Not defined for network.")
+  if (type == "component") {
+    if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
+    
+    cc <- components(g, mode = input$graph_component_type_select)
+    plot(table(cc$csize), type = "b", xlab = paste0("Size of component (", input$graph_component_type_select, ")"), 
+         ylab = "N components")
+  } else if (type == "degree") {
+    if (is.directed(g)) {
+      VOSONDash::emptyPlotMessage("Not defined for network.")
+    } else {
+      plot(table(degree(g)), type = "b", xlab = "Degree", ylab = "N nodes")
+    }
+  } else if (type == "indegree") {
+    if (is.directed(g)){
+      plot(table(degree(g, mode="in")), type = "b", xlab = "Indegree", ylab = "N nodes")
+    } else {
+      VOSONDash::emptyPlotMessage("Not defined for undirected network.")
+    }
+  } else if (type == "outdegree") {
+    if (is.directed(g)){
+      plot(table(degree(g, mode="out")), type="b", xlab="Outdegree", ylab="N nodes")
+    } else {
+      VOSONDash::emptyPlotMessage("Not defined for undirected network.")
+    }
   } else {
-    plot(table(degree(g)), type = "b", xlab = "Degree", ylab = "N")
+    VOSONDash::emptyPlotMessage("No graph data.")
   }
 })
 
-indegreeDistPlotData <- reactive({
-  g <- graphFilters()
-  
-  if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
-  
-  if (is.directed(g)){
-    plot(table(degree(g, mode="in")), type = "b", xlab = "Indegree", ylab = "N")
-  } else {
-    VOSONDash::emptyPlotMessage("Not defined for undirected network.")
-  }
-}) 
-
-outdegreeDistPlotData <- reactive({
-  g <- graphFilters()
-  
-  if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
-  
-  if (is.directed(g)){
-    plot(table(degree(g, mode="out")), type="b", xlab="Outdegree", ylab="N")
-  } else {
-    VOSONDash::emptyPlotMessage("Not defined for undirected network.")
-  }
+output$metrics_distrib_plot <- renderPlot({
+  distrib_data()
 })
+
+# componentDistPlotData <- reactive({
+#   g <- graphFilters()
+#   
+#   if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
+#   
+#   cc <- components(g, mode = input$graph_component_type_select)
+#   plot(table(cc$csize), type = "b", xlab = paste0("Size of component (", input$graph_component_type_select, ")"), 
+#        ylab = "N")
+# }) 
+# 
+# degreeDistPlotData <- reactive({
+#   g <- graphFilters()
+#   
+#   if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
+#   
+#   if (is.directed(g)) {
+#     VOSONDash::emptyPlotMessage("Not defined for network.")
+#   } else {
+#     plot(table(degree(g)), type = "b", xlab = "Degree", ylab = "N")
+#   }
+# })
+# 
+# indegreeDistPlotData <- reactive({
+#   g <- graphFilters()
+#   
+#   if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
+#   
+#   if (is.directed(g)){
+#     plot(table(degree(g, mode="in")), type = "b", xlab = "Indegree", ylab = "N")
+#   } else {
+#     VOSONDash::emptyPlotMessage("Not defined for undirected network.")
+#   }
+# }) 
+# 
+# outdegreeDistPlotData <- reactive({
+#   g <- graphFilters()
+#   
+#   if (is.null(g)) { return(VOSONDash::emptyPlotMessage("No graph data.")) }
+#   
+#   if (is.directed(g)){
+#     plot(table(degree(g, mode="out")), type="b", xlab="Outdegree", ylab="N")
+#   } else {
+#     VOSONDash::emptyPlotMessage("Not defined for undirected network.")
+#   }
+# })
 
 networkMetricsDetailsOutput <- reactive({
   g <- graphFilters()
@@ -79,11 +118,11 @@ networkMetricsDetailsOutput <- reactive({
       paste("Density:", sprintf("%.3f", metrics$density)),
       paste("Average geodesic distance:", sprintf("%.3f", metrics$ave_geodesic_dist)), "",
       paste("(Global) clustering coefficient:", sprintf("%.3f", metrics$global_clust_coeff)),
-      "  Proportion of connected triples that close to form triangles",
+      "  Proportion of connected triples that close to\n  form triangles.",
       paste("Reciprocity - 1:", sprintf("%.3f", metrics$reciprocity_def)),
-      "  Ratio of number of dyads with reciprocated (mutual) edges to number of dyads with single edge",
+      "  Ratio of number of dyads with reciprocated (mutual)\n  edges to number of dyads with single edge.",
       paste("Reciprocity - 2:", sprintf("%.3f", metrics$reciprocity_ratio)),
-      "  Ratio of total number of reciprocated edges to total number of edges", ""
+      "  Ratio of total number of reciprocated edges to\n  total number of edges.", ""
     ))
     
     if (metrics$directed){

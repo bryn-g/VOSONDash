@@ -21,7 +21,8 @@ fluidRow(box(width = 12, solidHeader = TRUE,
                    outline = TRUE,
                    plain = TRUE,
                    icon_on = icon("angle-double-down"),
-                   icon_off = icon("angle-double-right")
+                   icon_off = icon("angle-double-right"),
+                   value = FALSE
                  ),
                  
                  conditionalPanel(condition = 'input.expand_demo_data_check',
@@ -35,6 +36,16 @@ fluidRow(box(width = 12, solidHeader = TRUE,
                                     div(shinyjs::disabled(
                                       actionButton("demo_data_select_button", label = "Load graphml")
                                     ))
-                                  )))
+                                  ))),
+                 
+                 fluidRow(column(
+                   width = 12,
+                   br(),
+                 pickerInput(
+                   inputId = "igd_data_select",
+                   label = div("igraphdata Datasets"),
+                   choices = c("No Datasets Found")
+                 )))
+                 #ds[["results"]][,3]
                )
              )))

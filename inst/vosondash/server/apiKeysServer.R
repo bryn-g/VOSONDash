@@ -163,6 +163,7 @@ observeEvent(input$use_selected_token, {
   } else {
     creds_rv$use_token <- creds_rv$tokens[[input$twitter_token_select]]   
     creds_rv$msg_log <- logMessage(creds_rv$msg_log, paste("using token", input$twitter_token_select))
+    updateTabsetPanel(session, "navbarpage_selection", selected = "twitter_ui")
   }
 })
 

@@ -18,7 +18,12 @@ output$assortativity_details_output <- renderText({
 })
 
 output$mixing_matrix <- DT::renderDataTable({
-  DT::datatable(assortativityMMOutput(), options = list(paging = F, searching = F, bInfo = F, ordering = F))
+  DT::datatable(assortativityMMOutput(),
+                extensions = 'Buttons',
+                options = list(paging = F, searching = F, bInfo = F, ordering = F,
+                               dom = 'lBfrtip', buttons = c('copy', 'csv', 'excel', 'print')),
+                class = 'cell-border stripe compact hover',
+                selection = 'none')
 })
 
 output$assortativity_homophily_output <- renderText({
@@ -27,6 +32,12 @@ output$assortativity_homophily_output <- renderText({
 
 output$mixing_matrix_details_output <- renderText({
   assort_rvalues$mixmat_message
+})
+
+output$mm_message_output <- renderUI({
+  if (!is.null(assort_rvalues$mixmat_message)) {
+    tagList(pre(assort_rvalues$mixmat_message))
+  }
 })
 
 #### reactives ------------------------------------------------------------------------------------------------------- #
@@ -42,8 +53,8 @@ assortativityPrelimOutput <- reactive({
     if (nchar(CA_sel) && CA_sel != "All") {   # eventually will have cat attr selected by default...
       output <- append(output, paste0("Selected categorical attribute is: ", CA_sel))
       output <- append(output, "")
-    } else { return(NULL) }
-  } else { return(NULL) }
+    } else { output <- append(output, paste0("Requires the selection of a categorical attribute.")) }
+  } else { output <- append(output, paste0("Requires the selection of a categorical attribute.")) }
   
   paste0(output, collapse = '\n')
 })
