@@ -251,7 +251,7 @@ datatableRedditData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = 'Buttons', filter = "top",
+    DT::datatable(data, extensions = 'Buttons', filter = "top", selection = "none",
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
                                  columnDefs = col_defs, dom = 'lBfrtip',
                                  buttons = c('copy', 'csv', 'excel', 'print')),

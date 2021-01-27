@@ -1,15 +1,6 @@
 tabPanel(
   "Edges",
-  fluidRow(column(
-    width = 12,
-    div("Edge Filters", style = "font-weight: bold;"),
-    div(disabled(
-      checkboxInput("graph_multi_edge_check", "Multiple Edges", TRUE)
-    ), class = "div_inline", style = "margin-right:8px; margin-top:0px;"),
-    div(disabled(
-      checkboxInput("graph_loops_edge_check", "Loops", TRUE)
-    ), class = "div_inline", style = "margin-right:8px; margin-top:0px;")
-  )),
+  h4("Edge Attributes"),
   fluidRow(
     column(
       width = 6,
@@ -76,6 +67,19 @@ tabPanel(
                          )
                        )
     )),
-    source("ui/ui_edge_labels.R")$value
+  hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
+  h4("Edge Labels"),
+    source("ui/ui_edge_labels.R")$value,
+  fluidRow(column(
+    width = 12,
+    hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
+    h4("Edge Filters"),
+    div(disabled(
+      checkboxInput("graph_multi_edge_check", "Multiple Edges", TRUE)
+    ), class = "div_inline", style = "margin-right:8px; margin-top:0px;"),
+    div(disabled(
+      checkboxInput("graph_loops_edge_check", "Loops", TRUE)
+    ), class = "div_inline", style = "margin-right:8px; margin-top:0px;")
+  ))
   )
   

@@ -27,11 +27,11 @@ tabItem(tabName = "network_graphs_tab",
                                                        "Components",
                                                        source("ui/ui_comp_filter.R")$value),
                                                tabPanel(
-                                                       "Neighbourhood",
-                                                       source("ui/ui_nbh_filter.R")$value),
-                                               tabPanel(
                                                        "Categorical",
-                                                       source("ui/ui_cat_filter.R")$value)   
+                                                       source("ui/ui_cat_filter.R")$value),
+                                               tabPanel(
+                                                       "Neighbourhood",
+                                                       source("ui/ui_nbh_filter.R")$value)
                                        )),#),
                                 
                         
@@ -40,7 +40,7 @@ tabItem(tabName = "network_graphs_tab",
                                 sidebarPanel(width = 12, class = "custom_well_for_controls",
                                              fluidRow(column(
                                                      width = 12,
-                                                     
+                                                     div("OSX Unicode Font"),
                                                      disabled(checkboxInput(
                                                              "macos_font_check", "Arial Unicode MS", TRUE
                                                      ))

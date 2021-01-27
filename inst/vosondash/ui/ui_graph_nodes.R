@@ -3,6 +3,7 @@
 #         fluidRow(column(width = 12,
                          tabPanel("Nodes", 
   
+  h4("Node Attributes"),
   # node size
   fluidRow(column(
     width = 4,
@@ -37,7 +38,8 @@
                     ,
                     TRUE
                   ))), 
-  
+  hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
+  h4("Node Labels"),
   # node labels
   source("ui/ui_node_labels.R")$value,
   
@@ -45,7 +47,7 @@
   fluidRow(column(
     width = 12,
     hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
-    div("Node Filters", style = "font-weight: bold;"),
+    h4("Node Filters"),
     div(disabled(
       checkboxInput("graph_isolates_check", "Isolates", TRUE)
     ), class = "div_inline")

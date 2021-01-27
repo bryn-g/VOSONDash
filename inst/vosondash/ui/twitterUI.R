@@ -9,7 +9,7 @@ tabItem(tabName = "twitter_collection_tab",
                                         width = 12,
                                         class = "custom_well_for_controls",
                                         p(tags$b("Auth Token")),
-                                        verbatimTextOutput("twitter_collect_token_output", placeholder = TRUE)
+                                        disabled(textInput("twitter_collect_token_output", label = NULL, value = "Not set."))
                                 ),
                                 
                                 tabBox(

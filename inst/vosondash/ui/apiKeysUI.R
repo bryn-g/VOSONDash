@@ -17,7 +17,7 @@ tabItem(tabName = "keys_tab",
               )),
               fluidRow(box(width = 12, solidHeader = TRUE,
                 h4("Saved Tokens"),
-                textOutput("user_tokens_path"),
+                textOutput("user_tokens_path"),br(),
                 actionButton("tokens_load_button", label = "Load Tokens"),
                 disabled(actionButton("tokens_save_button", label = "Save Tokens"))
               ))

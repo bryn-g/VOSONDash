@@ -1,3 +1,11 @@
+# VOSONDash 0.6.0.9000
+
+## Major Changes:
+- Redesigned user interface with header navigation
+
+## Minor Changes:
+- Removed isolates from simply network graph filter
+
 # VOSONDash 0.5.8.9000
 
 ## Minor Changes:

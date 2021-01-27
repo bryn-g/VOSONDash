@@ -82,9 +82,11 @@ ui <-
                    icon = icon("twitter"),
                    source("ui/twitterUI.R")$value),
           tabPanel("Youtube",
+                   value = "youtube_ui",
                    icon = icon("youtube"),
                    source("ui/youtubeUI.R")$value),
           tabPanel("Reddit",
+                   value = "reddit_ui",
                    icon = icon("reddit"),
                    source("ui/redditUI.R")$value)
         )

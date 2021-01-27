@@ -43,7 +43,7 @@ shinyServer(function(input, output, session) {
   if (VOSONDash::isMac()) { shinyjs::enable("macos_font_check") }
   
   # reset collect consoles on startup
-  observeEvent(input$sidebar_menu, {
+  observeEvent(input$navbarpage_selection, {
     resetConsole("twitter_console", FALSE)
     resetConsole("youtube_console", FALSE)
     resetConsole("reddit_console", FALSE)

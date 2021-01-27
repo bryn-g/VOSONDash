@@ -554,7 +554,7 @@ output$graph_download_button <- downloadHandler(
 
 # analysis graphml download button
 output$analysis_graphml_download_button <- downloadHandler(
-  filename = function() { systemTimeFilename("analysis-graph", "graphml") },
+  filename = function() { systemTimeFilename("analysis", "graphml") },
   content = function(file) { write_graph(graphFilters(), file, format = c("graphml")) }
 )
 
@@ -687,8 +687,13 @@ graphFilters <- reactive({
     #   }
     # }
     
-    g <- applyGraphFilters(g, input$graph_isolates_check, input$graph_multi_edge_check, 
-                                      input$graph_loops_edge_check)
+    g <- applyGraphFilters(g, input$graph_multi_edge_check, input$graph_loops_edge_check)
+    
+    # remove isolates
+    if (input$graph_isolates_check == FALSE) {
+      g <- igraph::delete_vertices(g, degree(g) == 0)
+    }
+    
     g <- addAdditionalMeasures(g)
     
     # enable network metrics tab
@@ -808,7 +813,7 @@ setGraphTabControls <- reactive({
 # network graph save file name based on selected network graph tab
 saveGraphFileName <- reactive({
   switch(input$selected_graph_tab,
-         "visNetwork" = systemTimeFilename("visNetwork-graph", "html"))
+         "visNetwork" = systemTimeFilename("visNetwork", "html"))
 })
 
 # network graph data based on selected network graph tab

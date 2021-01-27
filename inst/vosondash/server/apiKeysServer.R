@@ -186,6 +186,7 @@ observeEvent(input$delete_selected_token, {
 
 observeEvent(input$keys_youtube_populate_button, {
   populateYoutubeKeys()
+  updateTabsetPanel(session, "navbarpage_selection", selected = "youtube_ui")
 })
 
 observeEvent(input$twitter_token_select, {
