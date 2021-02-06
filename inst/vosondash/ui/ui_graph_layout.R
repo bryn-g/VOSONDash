@@ -1,8 +1,7 @@
-tabPanel(
-  "Layout",
-  
-  fluidRow(column(width = 12,
-                  strong("Graph Layout"))),
+# tabPanel(
+#   "Layout",
+  box(width = 12,
+  h4("Graph layout"),
   fluidRow(column(
     width = 6,
     pickerInput(

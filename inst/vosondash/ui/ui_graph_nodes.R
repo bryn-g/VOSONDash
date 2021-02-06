@@ -43,14 +43,9 @@
   # node labels
   source("ui/ui_node_labels.R")$value,
   
-  # node isolates filter
-  fluidRow(column(
-    width = 12,
-    hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
-    h4("Node Filters"),
-    div(disabled(
-      checkboxInput("graph_isolates_check", "Isolates", TRUE)
-    ), class = "div_inline")
-  ))
+  hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
+  h4("Neighbourhood"),
+  # node labels
+  source("ui/ui_nbh_filter.R")$value
   
 ) # end top tabpanel

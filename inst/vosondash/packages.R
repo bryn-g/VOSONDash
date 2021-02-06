@@ -8,7 +8,8 @@ requiredPackages <- c(
   "RColorBrewer",
   "shinydashboard",
   "shinyjs",
-  "shinyWidgets",
+  "shinyWidgets", # 0.5.7
+  "sortable",
   "tm",
   "visNetwork",
   "wordcloud"

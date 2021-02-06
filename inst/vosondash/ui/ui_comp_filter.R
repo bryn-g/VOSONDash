@@ -17,19 +17,23 @@ fluidRow(column(
   # )),
   # conditionalPanel(
   #   condition = 'input.expand_component_filter_check',
-    disabled(checkboxInput(
-      'reset_on_change_check',
-      div("Recalculate on category change", style = "font-weight: normal;"),
-      TRUE
-    )),
+
+      # disabled(checkboxInput(
+    #   'reset_on_change_check',
+    #   div("Recalculate on category change", style = "font-weight: normal;"),
+    #   TRUE
+    # )),
+  
+    fluidRow(actionButton("graph_comps_recalculate", "Recalculate", icon = icon("calculator"))),
+  
     fluidRow(
       column(width = 4,
              shinyjs::disabled(
                selectInput(
                  "graph_component_type_select",
                  div("Type", style = "font-weight: normal;"),
-                 choices = c("Weak", "Strong"),
-                 selected = "Weak",
+                 choices = c("weak", "strong"),
+                 selected = "weak",
                  multiple = FALSE
                )
              )),

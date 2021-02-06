@@ -61,37 +61,24 @@ applyComponentFilter <- function(g, component_type = "strong", component_range) 
 #' @note Removing multiple edges or edge loops from a graph will simplify it and remove other edge attributes.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param multi_edge Logical. Include multiple edges between vertices in graph. Default is \code{TRUE}.
-#' @param loops_edge Logical. Include vertex edge loops in graph. Default is \code{TRUE}.
+#' @param multi_edge Logical. Remove multiple edges between vertices in graph. Default is \code{TRUE}.
+#' @param loops_edge Logical. Remove vertex edge loops in graph. Default is \code{TRUE}.
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-applyGraphFilters <- function(g, multi_edge = TRUE, loops_edge = TRUE) { # isolates = TRUE,
+applyGraphFilters <- function(g, multi_edge = TRUE, loops_edge = TRUE) {
   
-  # just remove loops
-  if (multi_edge == FALSE || loops_edge == FALSE) {
-    
-    # invert for simplify params
-    multi_edge <- ifelse(multi_edge == FALSE, TRUE, FALSE)
-    loops_edge <- ifelse(loops_edge == FALSE, TRUE, FALSE)
-    
-    params <- list(g, remove.multiple = multi_edge, remove.loops = loops_edge)
-    
-    # if (multi_edge == TRUE) {
-    #   igraph::E(g)$weight <- 1
-    #   params <- append(params, edge.attr.comb = list(weight = "sum"))
-    # }
-    
-    g2 <- do.call(igraph::simplify, params)
-    if (multi_edge == TRUE) {
-      igraph::E(g2)$weight = sapply(E(g2),
-          function(e) { length(igraph::all_shortest_paths(g, from = ends(g2, e)[1], to = ends(g2, e)[2])$res) })
-    }
-    return(g2)
+  g2 <- igraph::simplify(g, remove.multiple = multi_edge, remove.loops = loops_edge)
+  
+  if (multi_edge == TRUE) {
+    igraph::E(g2)$weight = sapply(E(g2),
+      function(e) {
+        length(igraph::all_shortest_paths(g, from = igraph::ends(g2, e)[1], to = igraph::ends(g2, e)[2])$res)
+      })
   }
-
-  g
+  
+  g2
 }
 
 #' @title Add additional measures to graph as vertex attributes

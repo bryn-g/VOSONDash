@@ -13,27 +13,11 @@ tabItem(tabName = "network_graphs_tab",
                                         width = 12,
                                         source("ui/ui_graph_nodes.R")$value,
                                         source("ui/ui_graph_edges.R")$value,
-                                        source("ui/ui_graph_layout.R")$value
+                                        source("ui/ui_graph_filters.R")$value
                                 )#)
                         ),
-                                
-                        fluidRow(
-                                #column(width = 12,
-                                       tabBox(
-                                               title = NULL,
-                                               id = "node_filters_tabset",
-                                               width = 12,
-                                               tabPanel(
-                                                       "Components",
-                                                       source("ui/ui_comp_filter.R")$value),
-                                               tabPanel(
-                                                       "Categorical",
-                                                       source("ui/ui_cat_filter.R")$value),
-                                               tabPanel(
-                                                       "Neighbourhood",
-                                                       source("ui/ui_nbh_filter.R")$value)
-                                       )),#),
-                                
+                        
+                        fluidRow(source("ui/ui_graph_layout.R")$value),
                         
                         conditionalPanel(
                                 condition = js_is_mac,

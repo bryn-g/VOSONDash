@@ -292,3 +292,15 @@ div.row {
 .dropdown-menu>li>a {
     color: #000;
 }
+
+.rank-list-container {
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  padding-bottom: 5px;
+}
+
+.rank-list-item {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}

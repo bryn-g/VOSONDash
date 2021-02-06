@@ -34,6 +34,7 @@ addCssClass(selector = "a[data-value = 'network_metrics_tab']", class = "inactiv
 addCssClass(selector = "a[data-value = 'assortativity_tab']", class = "inactive_menu_link")
 
 source("server/controls.R", local = TRUE)
+source("server/srv_components.R", local = TRUE)
 
 #### events ---------------------------------------------------------------------------------------------------------- #
 
@@ -200,7 +201,7 @@ observeEvent(ng_rv$graph_cat_selected, {
 
 # ** check this is not redundant
 # update component slider when graph component or category changed
-observeEvent({ input$graph_component_type_select
+observeEvent({ # input$graph_component_type_select
                input$graph_sub_cats_select
                ng_rv$prune_verts
                input$reset_on_change_check }, {
@@ -212,7 +213,8 @@ observeEvent({ input$graph_component_type_select
     g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
   }
 
-  updateComponentSlider(g, input$graph_component_type_select)
+  # 2021 / 02 / 03
+  # updateComponentSlider(g, input$graph_component_type_select)
 }, ignoreInit = TRUE)
   
 # selected category updates select box with its attribute values
@@ -383,7 +385,7 @@ observeEvent({ input$prune_reset_button }, {
     updateSelectInput(session, "pruned_vertices_select", choices = character(0))
     
     # added to address bug with disappearing plot on pruning
-    updateComponentSlider(ng_rv$graph_data, input$graph_component_type_select)  
+    #updateComponentSlider(ng_rv$graph_data, input$graph_component_type_select)  
   })
 
 observeEvent({ input$nbh_reset_button }, {
@@ -392,7 +394,7 @@ observeEvent({ input$nbh_reset_button }, {
   updateSelectInput(session, "pruned_vertices_select", choices = character(0))
   
   # added to address bug with disappearing plot on pruning
-  updateComponentSlider(ng_rv$graph_data, input$graph_component_type_select)  
+  #updateComponentSlider(ng_rv$graph_data, input$graph_component_type_select)  
 })
 
 # deselect all data table selected rows
@@ -506,10 +508,6 @@ output$vis_plot_ui <- renderUI({ # selected = input$selected_graph_tab
          tabPanel("visNetwork", visNetworkOutput("visNetworkPlot", width = "100%",
                                                  height = paste0(ng_rv$plot_height, "px")), value = "visNetwork")
   )
-})
-
-output$component_summary_ui <- renderText({
-  graphComponentSummary()
 })
 
 output$graph_name <- renderText({
@@ -666,33 +664,62 @@ graphFilters <- reactive({
     }    
     # ----
     
-    g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
-    g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
-    # isolate as graph_component_type_select has event
-    g <- applyComponentFilter(g, isolate(input$graph_component_type_select), input$graph_component_slider)
-    
-    # experimental component select
-    # if (input$component_membership_select != "None") {
-    #   graph_clusters <- igraph::components(g, mode = isolate(input$graph_component_type_select))
-    #   g <- igraph::set_vertex_attr(g, "component", index = V(g), graph_clusters$membership)
-    #   # filter_nodes <- names(which(graph_clusters$membership != input$component_membership_select))
-    #   filter_nodes <- V(g)[which(V(g)$component == input$component_membership_select)]$id
-    #   browser()
-    #   dtr <- isolate(graphNodes())
-    #   filter_nodes <- which(rownames(dtr) %in% filter_nodes)
-    #   
-    #   if (length(filter_nodes) > 0) {
-    #     DT::selectRows(dt_vertices_proxy, filter_nodes)
-    #     # g <- igraph::delete_vertices(g, unlist(filter_nodes))
-    #   }
-    # }
-    
-    g <- applyGraphFilters(g, input$graph_multi_edge_check, input$graph_loops_edge_check)
-    
-    # remove isolates
-    if (input$graph_isolates_check == FALSE) {
-      g <- igraph::delete_vertices(g, degree(g) == 0)
+    f_order <- input$filter_order
+    for (cmd in f_order) {
+      if (cmd == "rm_pruned" & input$graph_pruned_check == TRUE) {
+        g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
+        
+      } else if (cmd == "rm_categories" & input$graph_categories_check == TRUE) {
+        g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
+        
+      } else if (cmd == "rm_components") {
+        
+        # filter component selection
+        # if (input$graph_components_check == TRUE) {
+        #   g <- applyComponentFilter(g, isolate(input$graph_component_type_select), input$graph_component_slider)  
+        # }
+        # updateComponentSlider_(g, isolate(input$graph_component_type_select))
+        
+        setComponentRanges(g, input$graph_component_type_select)
+        
+      } else if (cmd == "rm_multiedges" & input$graph_multi_edge_check == TRUE) {
+        g <- applyGraphFilters(g, input$graph_multi_edge_check, input$graph_loops_edge_check)
+        
+      } else if (cmd == "rm_loops" & input$graph_loops_edge_check == TRUE) {
+        g <- applyGraphFilters(g, input$graph_multi_edge_check, input$graph_loops_edge_check)
+        
+      } else if (cmd == "rm_isolates" & input$graph_isolates_check == TRUE) {
+        g <- igraph::delete_vertices(g, degree(g) == 0)
+      }
     }
+    
+    # g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
+    # g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
+    # # isolate as graph_component_type_select has event
+    # g <- applyComponentFilter(g, isolate(input$graph_component_type_select), input$graph_component_slider)
+    # 
+    # # experimental component select
+    # # if (input$component_membership_select != "None") {
+    # #   graph_clusters <- igraph::components(g, mode = isolate(input$graph_component_type_select))
+    # #   g <- igraph::set_vertex_attr(g, "component", index = V(g), graph_clusters$membership)
+    # #   # filter_nodes <- names(which(graph_clusters$membership != input$component_membership_select))
+    # #   filter_nodes <- V(g)[which(V(g)$component == input$component_membership_select)]$id
+    # #   browser()
+    # #   dtr <- isolate(graphNodes())
+    # #   filter_nodes <- which(rownames(dtr) %in% filter_nodes)
+    # #   
+    # #   if (length(filter_nodes) > 0) {
+    # #     DT::selectRows(dt_vertices_proxy, filter_nodes)
+    # #     # g <- igraph::delete_vertices(g, unlist(filter_nodes))
+    # #   }
+    # # }
+    # 
+    # g <- applyGraphFilters(g, input$graph_multi_edge_check, input$graph_loops_edge_check)
+    # 
+    # # remove isolates
+    # if (input$graph_isolates_check == FALSE) {
+    #   g <- igraph::delete_vertices(g, degree(g) == 0)
+    # }
     
     g <- addAdditionalMeasures(g)
     
@@ -735,7 +762,7 @@ setGraphFilterControls <- reactive({
     shinyjs::enable("graph_reseed_button")
     shinyjs::enable("graph_component_slider")
 
-    updateComponentSlider(g, isolate(input$graph_component_type_select))
+    # updateComponentSlider(g, isolate(input$graph_component_type_select))
     
     dt_prev_sel$nodes <- c()
     shinyjs::reset("nbh_undo_button")
@@ -986,36 +1013,6 @@ graphLegendOutput <- reactive({
   output
 })
 
-graphComponentSummary <- reactive({
-  g <- graphFilters()
-  
-  output <- c()
-  
-  if (!is.null(g)) {
-    graph_clusters <- components(g, mode = isolate(input$graph_component_type_select))
-    
-    output <- append(output, paste0("Components (", isolate(input$graph_component_type_select), "): ", 
-                                    graph_clusters$no))
-    
-    min_value <- max_value <- 0
-    if (graph_clusters$no > 0) {
-      # suppress no non-missing arguments to min; returning Inf warning
-      min_value <- suppressWarnings(min(graph_clusters$csize))
-      max_value <- suppressWarnings(max(graph_clusters$csize))
-    }
-    
-    if (graph_clusters$no == 1) {
-      output <- append(output, paste0("Size: ", min_value, sep = ""))
-    } else {
-      output <- append(output, paste0("Size min: ", min_value, " max: ", max_value, sep = ""))
-    }
-  }else {
-    output <- append(output, paste0(""))
-  }
-  
-  paste0(output, collapse = '\n')
-})
-
 #### functions ------------------------------------------------------------------------------------------------------- #
 
 addNodeContinuous <- function() {
@@ -1083,37 +1080,6 @@ setGraphView <- function(data, desc = "", type = "", name = "", seed = 1) {
   updateTabItems(session, "sidebar_menu", selected = "network_graphs_tab")
 }
 
-updateComponentSlider <- function(g, component_type) {
-  # note: not graphFilter
-  if (!is.null(g)) {
-    graph_clusters <- components(g, mode = component_type)
-    
-    # suppress no non-missing arguments to min; returning Inf warning
-    min_cluster_size <- suppressWarnings(min(graph_clusters$csize))
-    max_cluster_size <- suppressWarnings(max(graph_clusters$csize))
-    
-    # likely causes a double render when graph has a component max size greater than the initial slider max set in ui
-    updateSliderInput(session, inputId = "graph_component_slider", min = min_cluster_size,
-                      max = max_cluster_size, value = c(min_cluster_size, max_cluster_size))
-    
-    i <- 0
-    grps <- sapply(graph_clusters$csize, function(x) {
-      i <<- i + 1
-      paste0(i, " (size:", x, ")")
-    })
-    values <- as.character(1:length(grps))
-    names(values) <- grps
-    grps <- append(c("None" = "None"), values)
-    updatePickerInput(
-      session,
-      inputId = "component_membership_select",
-      label = NULL,
-      choices = grps
-    )
-    updateSelectInput(session, inputId = "component_membership_select", choices = c("None", unique(graph_clusters$membership)))
-  }
-}
-
 # filter out list of vertices from graph object
 applyPruneFilterSrv <- function(g, selected_prune_verts) {
   if (length(selected_prune_verts) > 0) {
@@ -1151,4 +1117,3 @@ nodes_positions <- reactive({
     NULL
   }
 })
-

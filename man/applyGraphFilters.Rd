@@ -9,9 +9,9 @@ applyGraphFilters(g, multi_edge = TRUE, loops_edge = TRUE)
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
 
-\item{multi_edge}{Logical. Include multiple edges between vertices in graph. Default is \code{TRUE}.}
+\item{multi_edge}{Logical. Remove multiple edges between vertices in graph. Default is \code{TRUE}.}
 
-\item{loops_edge}{Logical. Include vertex edge loops in graph. Default is \code{TRUE}.}
+\item{loops_edge}{Logical. Remove vertex edge loops in graph. Default is \code{TRUE}.}
 }
 \value{
 An igraph graph object.
