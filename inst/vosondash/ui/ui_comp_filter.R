@@ -24,7 +24,7 @@ fluidRow(column(
     #   TRUE
     # )),
   
-    fluidRow(actionButton("graph_comps_recalculate", "Recalculate", icon = icon("calculator"))),
+    #fluidRow(actionButton("graph_comps_recalculate", "Recalculate", icon = icon("calculator"))),
   
     fluidRow(
       column(width = 4,

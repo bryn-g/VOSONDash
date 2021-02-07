@@ -207,6 +207,11 @@ igraphData <- reactive({
     set.seed(graph_seed)
   }
   
+  # temporary until vertex deletion improved for case of existing layout
+  if (!is.null(g$layout) & chosen_layout == "Auto") {
+    chosen_layout <- "FR"
+  }
+  
   graph_layout <- switch(chosen_layout,
                          "Auto" = layout_nicely(g, dim = 2),
                          "FR" = layout_with_fr(g, dim = 2, niter = input$graph_niter),
@@ -237,7 +242,7 @@ igraphData <- reactive({
   plot_parameters['rescale'] <- FALSE
 
   plot_parameters[['layout']] <- graph_layout * graph_spread
-  
+  #browser()
   par(mar = rep(0, 4))
   do.call(plot.igraph, plot_parameters)
 })

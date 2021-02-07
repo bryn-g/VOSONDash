@@ -234,6 +234,7 @@ applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefi
 #' 
 #' @export
 applyPruneFilter <- function(g, selected_prune_verts) {
+  # g <- induced_subgraph(g, V(g)[-as.numeric(rm_nodes)])
   if (length(selected_prune_verts) > 0) {
     verts <- which(V(g)$id %in% selected_prune_verts)
     g <- igraph::delete.vertices(g, verts)

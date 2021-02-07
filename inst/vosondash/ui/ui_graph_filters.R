@@ -1,28 +1,36 @@
 tabPanel(
   "Filters",
 
-  fluidRow(column(width = 12, h4("Order Filters"))),
   fluidRow(column(width = 12,
 rank_list(
   text = NULL,
   labels = list(
     "rm_pruned" = list(
-      div(checkboxInput("graph_pruned_check", "{nodes} Remove Pruned", FALSE), class = "div_inline")
+      div("{node}", class = "div_inline"),
+      div("Pruned", class = "div_inline")
     ),    
     "rm_isolates" = list(
-      div(checkboxInput("graph_isolates_check", "{nodes} Remove Isolates", FALSE), class = "div_inline")
+      div("{node}", class = "div_inline"),
+      # div("Remove Isolates", class = "div_inline"),   
+      div(checkboxInput("graph_isolates_check", "Remove Isolates", FALSE), class = "div_inline")
     ),
     "rm_loops" = list(
-      div(checkboxInput("graph_loops_edge_check", "{edges} Remove Loops", FALSE), class = "div_inline")
+      div("{edge}", class = "div_inline"),
+      # div("Remove Loops", class = "div_inline"),       
+      div(checkboxInput("graph_loops_edge_check", "Remove Loops", FALSE), class = "div_inline")
     ),
     "rm_multiedges" = list(
-      div(checkboxInput("graph_multi_edge_check", "{edges} Merge Multiple Edges", FALSE), class = "div_inline")
+      div("{edge}", class = "div_inline"),
+      # div("Merge Multiple Edges", class = "div_inline"),       
+      div(checkboxInput("graph_multi_edge_check", "Merge Multiple Edges", FALSE), class = "div_inline")
     ),
     "rm_components" = list(
-      div(checkboxInput("graph_components_check", "{nodes} Components", FALSE), class = "div_inline")
+      div("{node}", class = "div_inline"),
+      div("Components", class = "div_inline")
     ),
     "rm_categories" = list(
-      div(checkboxInput("graph_categories_check", "{nodes} Categories", FALSE), class = "div_inline")
+      div("{node}", class = "div_inline"),
+      div("Categorical", class = "div_inline")
     )
   ),
   input_id = "filter_order",
@@ -30,7 +38,7 @@ rank_list(
     swap = TRUE
   )
 ))),
-
+fluidRow(column(width = 12, hr())),
 fluidRow(
   tabBox(
     title = NULL,

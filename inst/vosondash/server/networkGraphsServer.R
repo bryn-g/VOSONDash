@@ -187,6 +187,9 @@ observeEvent(ng_rv$graph_data, {
     
     # enable network metrics tab
     removeCssClass(selector = "a[data-value = 'network_metrics_tab']", class = "inactive_menu_link")
+    
+    setComponentRanges(ng_rv$graph_data, "weak")
+    setComponentSliders()
   }
 })
 
@@ -201,21 +204,21 @@ observeEvent(ng_rv$graph_cat_selected, {
 
 # ** check this is not redundant
 # update component slider when graph component or category changed
-observeEvent({ # input$graph_component_type_select
-               input$graph_sub_cats_select
-               ng_rv$prune_verts
-               input$reset_on_change_check }, {
-  
-  g <- ng_rv$graph_data
-  g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
-  
-  if (input$reset_on_change_check == TRUE) {
-    g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
-  }
-
-  # 2021 / 02 / 03
-  # updateComponentSlider(g, input$graph_component_type_select)
-}, ignoreInit = TRUE)
+# observeEvent({ # input$graph_component_type_select
+#                input$graph_sub_cats_select
+#                ng_rv$prune_verts
+#                input$reset_on_change_check }, {
+#   
+#   g <- ng_rv$graph_data
+#   g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
+#   
+#   if (input$reset_on_change_check == TRUE) {
+#     g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
+#   }
+# 
+#   # 2021 / 02 / 03
+#   # updateComponentSlider(g, input$graph_component_type_select)
+# }, ignoreInit = TRUE)
   
 # selected category updates select box with its attribute values
 observeEvent(input$graph_cat_select, {
@@ -493,13 +496,13 @@ output$graph_summary_ui <- renderUI({
     style = "position:relative; z-index:0;"))
 })
 
-output$graph_legend_ui <- renderUI({
-  tagList(div(div(
-    HTML(graphLegendOutput()),
-    style = paste0("position:absolute; z-index:1; top:", 85, # (as.numeric(ng_rv$plot_height)-5), 
-                   "px; left:26px; font-size:0.97em;")),
-    style = "position:relative; z-index:0;"))
-})
+# output$graph_legend_ui <- renderUI({
+#   tagList(div(div(
+#     HTML(graphLegendOutput()),
+#     style = paste0("position:absolute; z-index:1; top:", 85, # (as.numeric(ng_rv$plot_height)-5), 
+#                    "px; left:26px; font-size:0.97em;")),
+#     style = "position:relative; z-index:0;"))
+# })
 
 output$vis_plot_ui <- renderUI({ # selected = input$selected_graph_tab
   tabBox(width = 12, title = span(icon("share-alt", class = "social_green"), "Network Graphs"), 
@@ -666,10 +669,10 @@ graphFilters <- reactive({
     
     f_order <- input$filter_order
     for (cmd in f_order) {
-      if (cmd == "rm_pruned" & input$graph_pruned_check == TRUE) {
+      if (cmd == "rm_pruned") { # & input$graph_pruned_check == TRUE
         g <- applyPruneFilterSrv(g, ng_rv$prune_verts)
         
-      } else if (cmd == "rm_categories" & input$graph_categories_check == TRUE) {
+      } else if (cmd == "rm_categories") { # & input$graph_categories_check == TRUE
         g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
         
       } else if (cmd == "rm_components") {
@@ -681,6 +684,7 @@ graphFilters <- reactive({
         # updateComponentSlider_(g, isolate(input$graph_component_type_select))
         
         setComponentRanges(g, input$graph_component_type_select)
+        setComponentSliders()
         
       } else if (cmd == "rm_multiedges" & input$graph_multi_edge_check == TRUE) {
         g <- applyGraphFilters(g, input$graph_multi_edge_check, input$graph_loops_edge_check)
@@ -971,47 +975,47 @@ graphSummaryOutput <- reactive({
   paste0(output, collapse = '<br>') # \n
 })
 
-graphLegendOutput <- reactive({
-  if (input$graph_legend_check == FALSE) { return("") }
-  g <- graphFilters()
-  output <- c()
-  
-  if (!is.null(g)) {
-    isolate({
-      categorical_attributes <- ng_rv$graph_cats
-      selected_categorical_attribute <- input$graph_cat_select
-    })
-    
-    output <- append(output, paste0(""))
-    
-    if (length(categorical_attributes) > 0) {
-      if (nchar(selected_categorical_attribute) && selected_categorical_attribute != "All") {
-        categories <- categorical_attributes[[selected_categorical_attribute]]
-        df <- data.frame('cat' = categories)
-        if (nrow(df) > 0) {
-          if (!("color" %in% vertex_attr_names(g) & input$use_vertex_colors_check == TRUE)) {
-            output <- append(output, paste0("<table><tbody><tr><td colspan='3'>",
-                                            selected_categorical_attribute, "</td></tr>"))
-            df$color <- gbl_plot_palette()[1:nrow(df)]
-            for (row in 1:nrow(df)) {
-              output <- append(output,
-                paste0("<tr><td style='vertical-align:middle'>",
-                  "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
-                  "background-color:", df[row, 2], ";'></span></td>",
-                  "<td>&nbsp;</td><td style='vertical-align:middle'>", df[row, 1], "</td></tr>"))
-            }
-            output <- append(output, "</tbody></table>")
-          }
-        }
-      }
-    }
-    
-  } else {
-    output <- append(output, paste0(""))
-  }
-  
-  output
-})
+# graphLegendOutput <- reactive({
+#   if (input$graph_legend_check == FALSE) { return("") }
+#   g <- graphFilters()
+#   output <- c()
+#   
+#   if (!is.null(g)) {
+#     isolate({
+#       categorical_attributes <- ng_rv$graph_cats
+#       selected_categorical_attribute <- input$graph_cat_select
+#     })
+#     
+#     output <- append(output, paste0(""))
+#     
+#     if (length(categorical_attributes) > 0) {
+#       if (nchar(selected_categorical_attribute) && selected_categorical_attribute != "All") {
+#         categories <- categorical_attributes[[selected_categorical_attribute]]
+#         df <- data.frame('cat' = categories)
+#         if (nrow(df) > 0) {
+#           if (!("color" %in% vertex_attr_names(g) & input$use_vertex_colors_check == TRUE)) {
+#             output <- append(output, paste0("<table><tbody><tr><td colspan='3'>",
+#                                             selected_categorical_attribute, "</td></tr>"))
+#             df$color <- gbl_plot_palette()[1:nrow(df)]
+#             for (row in 1:nrow(df)) {
+#               output <- append(output,
+#                 paste0("<tr><td style='vertical-align:middle'>",
+#                   "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
+#                   "background-color:", df[row, 2], ";'></span></td>",
+#                   "<td>&nbsp;</td><td style='vertical-align:middle'>", df[row, 1], "</td></tr>"))
+#             }
+#             output <- append(output, "</tbody></table>")
+#           }
+#         }
+#       }
+#     }
+#     
+#   } else {
+#     output <- append(output, paste0(""))
+#   }
+#   
+#   output
+# })
 
 #### functions ------------------------------------------------------------------------------------------------------- #
 

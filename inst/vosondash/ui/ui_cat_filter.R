@@ -16,7 +16,7 @@ fluidRow(column(width = 12,
                         multiple = FALSE
                       )
                     ),
-                    checkboxInput("graph_legend_check", "Legend", TRUE)
+                    # checkboxInput("graph_legend_check", "Legend", FALSE)
                   ),
                   column(width = 6,
                          disabled(

@@ -1,6 +1,10 @@
-# tabPanel(
-#   "Layout",
-  box(width = 12,
+tabPanel(
+  "Layout",
+
+  #box(width = 12,
+  fluidRow(column(
+    width = 12,
+    
   h4("Graph layout"),
   fluidRow(column(
     width = 6,
@@ -106,4 +110,5 @@
                     )
                   )))
   
+))
 )

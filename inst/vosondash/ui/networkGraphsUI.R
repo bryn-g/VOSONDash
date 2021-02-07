@@ -13,11 +13,12 @@ tabItem(tabName = "network_graphs_tab",
                                         width = 12,
                                         source("ui/ui_graph_nodes.R")$value,
                                         source("ui/ui_graph_edges.R")$value,
+                                        source("ui/ui_graph_layout.R")$value,
                                         source("ui/ui_graph_filters.R")$value
                                 )#)
                         ),
                         
-                        fluidRow(source("ui/ui_graph_layout.R")$value),
+                        # fluidRow(source("ui/ui_graph_layout.R")$value),
                         
                         conditionalPanel(
                                 condition = js_is_mac,
