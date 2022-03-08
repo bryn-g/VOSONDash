@@ -1,17 +1,35 @@
-# VOSONDash 0.6.0.9000
+# VOSONDash 0.6
 
 ## Major Changes:
-- Redesigned user interface with header navigation
+- Redesigned user interface with header navigation.
 
 ## Minor Changes:
-- Removed isolates from simply network graph filter
+- Removed isolates from simply network graph filter.
 
-# VOSONDash 0.5.8.9000
+# VOSONDash 0.5.11
+
+## Minor Changes
+- Added detection for numeric node attributes and addition to node size control.
+- Added base vertex size controls. Base vertex size gives greater control over starting node size independent from normalization.
+- Enabled vertex size for `visNetwork` graph.
+
+## Bug Fixes:
+- Fixed a problem with categorical attributes having multiple underscores in their names.
+
+# VOSONDash 0.5.10
+
+## Minor Changes
+- Updated standard package documentation, added citation and README.Rmd.
+
+# VOSONDash 0.5.9
+
+## Bug Fixes:
+- Fixed the issue with pruning un-selected failing.
 
 ## Minor Changes:
 - Added neighborhood select feature to enable selection of ego networks from graphs.
 - Added node labels selection and checkbox for displaying labels for selected nodes only.
-- visNetwork plot now displays multiple edges.
+- `visNetwork` plot now displays multiple edges.
 
 # VOSONDash 0.5.7
 
@@ -34,7 +52,7 @@
 ## Minor Changes:
 - Set `visNetwork` plot edge width if weight column present in edges.
 - Removed arrows from `visNetwork` plot if graph undirected.
-- Fixed a groups parameter warning from `dplyr::summarise`. 
+- Fixed a groups parameter warning from `dplyr::summarise`.
 - Cleaned up package dependencies.
 
 # VOSONDash 0.5.5
@@ -84,7 +102,7 @@
 - Networks supported are `activity`, `actor`, `bimodal` and `semantic`.
 - Both `activity` and `actor` have an option to `Add Text` that adds tweet text as a network node or edge attribute.
 - The `actor` network also has the option to `Lookup User Data`. This will retrieve profile information for users that became nodes during network creation who were not authors of tweets. Their profile information was missing most likely because they were referenced in tweets but none of their tweets were collected in the search. In a twitter search profile information is only returned for the authors of tweets captured in the search.
-- Both `bimodal` and `semantic` networks have the option to filter out terms using the `Remove Terms` field. This accepts a comma delimited list of terms that can be `actors` and `hashtags` (e.g \@climate_person, #climate) for `bimodal` networks and `terms`, `actors` and `hashtags` (e.g climate, \@climate_person, #climate) for `semantic` networks. The `semantic` network currently uses the default `vosonSML` options of only including the 5% most frequent terms and 50% most frequently occuring hashtags in the network. 
+- Both `bimodal` and `semantic` networks have the option to filter out terms using the `Remove Terms` field. This accepts a comma delimited list of terms that can be `actors` and `hashtags` (e.g \@climate_person, #climate) for `bimodal` networks and `terms`, `actors` and `hashtags` (e.g climate, \@climate_person, #climate) for `semantic` networks. The `semantic` network currently uses the default `vosonSML` options of only including the 5% most frequent terms and 50% most frequently occuring hashtags in the network.
 
 #### Youtube:
 - Networks supported are `activity` and `actor`.
@@ -95,12 +113,12 @@
 
 #### Reddit:
 - Networks supported are `activity` and `actor`.
-- Both `activity` and `actor` have an option to `Add Text` that adds thread comment text as a network node or edge attribute. 
+- Both `activity` and `actor` have an option to `Add Text` that adds thread comment text as a network node or edge attribute.
 
 <br/>Refer to `vosonSML` documentation for further information on network types and options at https://vosonlab.github.io/vosonSML/reference/index.html.
 
 ## Minor Changes:
-- Added a new `Collect` data download button named `Network` to allow the `nodes` and `edges` dataframes to be downloaded after `Create Network`. The data is downloaded as an R object in a `.rds` file that can be loaded into R using the `readRDS()` function. 
+- Added a new `Collect` data download button named `Network` to allow the `nodes` and `edges` dataframes to be downloaded after `Create Network`. The data is downloaded as an R object in a `.rds` file that can be loaded into R using the `readRDS()` function.
 
 ## Bug Fixes:
 - Fixed the console scrolling in the `Collect` section of the interface to scroll to the bottom when there is new text output.
@@ -127,7 +145,7 @@
 # VOSONDash 0.4.2
 
 ## Bug Fixes:
-- Fixed problem with `visNetwork` graphs rendering slightly off the canvas. 
+- Fixed problem with `visNetwork` graphs rendering slightly off the canvas.
 
 ## Major Changes:
 - `VOSONDash` Shiny app has been re-structured into an R package. Have started moving some of the 'business logic' away from the app server and into the general package.
@@ -144,5 +162,5 @@
 - Removed `D3` network plots for the time being.
 - NRC sentiment analysis plots have been re-worked and now split into the 8 emotions, measured and sorted as the proportion of the total of the emotions in the text and the valence which is the measure of how positive or negative the text is.
 - The `All categories` plot has now been removed from text analysis when single categories are chosen or combined. In that particular use-case the plots are the same. It will only be shown when the `All` value in the sub-categories select box is selected.
-- Removed keys fields from `Collect` twitter and it now displays selected auth token. 
-- Variable naming changes and a lot of code re-structuring and refactoring. 
+- Removed keys fields from `Collect` twitter and it now displays selected auth token.
+- Variable naming changes and a lot of code re-structuring and refactoring.

@@ -20,6 +20,8 @@ disableGraphFilterControls <- function() {
                    "graph_reseed_button",
                    "graph_layout_select", 
                    "graph_spread_slider",
+                   "igraph_node_base_size_slider",
+                   "visgraph_node_base_size_slider",
                    "graph_component_type_select",
                    "graph_component_slider")
   
@@ -43,6 +45,7 @@ resetEnableGraphFilterControls <- function() {
                    "graph_spr_const",
                    "graph_node_size_select",
                    "graph_node_size_slider",
+                   "igraph_node_base_size_slider",
                    "graph_sub_cats_select", 
                    "graph_layout_select", 
                    "graph_spread_slider",
@@ -87,6 +90,7 @@ resetEnableTextAnalysisControls <- function() {
 
 enablePlotControls <- function() {
   shinyjs::disable("graph_download_button")
+  shinyjs::disable("visgraph_node_base_size_slider")
   
   ui_controls <- c("node_index_check",
                    "node_labels_check",
@@ -104,6 +108,7 @@ enablePlotControls <- function() {
                    "graph_node_size_select",
                    "graph_node_size_slider",
                    "graph_spread_slider",
+                   "igraph_node_base_size_slider",
                    "graph_multi_edge_check",
                    "graph_loops_edge_check")
   
@@ -112,8 +117,9 @@ enablePlotControls <- function() {
 
 enableVisNetworkControls <- function() {
   shinyjs::enable("graph_download_button")
+  shinyjs::enable("visgraph_node_base_size_slider")
   
-  ui_controls <- c("graph_spread_slider")
+  ui_controls <- c("graph_spread_slider", "igraph_node_base_size_slider")
   
   sapply(ui_controls, function(x) { shinyjs::disable(x) })
 }

@@ -4,7 +4,7 @@ tabItem(tabName = "network_graphs_tab",
                 column(
                         width = 3,
                         offset = 0,
-                        
+
                         fluidRow(
                                 #column(width = 12,
                                 tabBox(
@@ -17,9 +17,9 @@ tabItem(tabName = "network_graphs_tab",
                                         source("ui/ui_graph_filters.R")$value
                                 )#)
                         ),
-                        
+
                         # fluidRow(source("ui/ui_graph_layout.R")$value),
-                        
+
                         conditionalPanel(
                                 condition = js_is_mac,
                                 sidebarPanel(width = 12, class = "custom_well_for_controls",
@@ -30,7 +30,7 @@ tabItem(tabName = "network_graphs_tab",
                                                              "macos_font_check", "Arial Unicode MS", TRUE
                                                      ))
                                              )))
-                                
+
                         )
                 ), # end col width 3
                 #),
@@ -44,7 +44,7 @@ tabItem(tabName = "network_graphs_tab",
                                 uiOutput("plot_height_ui"),
                                 uiOutput("graph_summary_ui"),
                                 uiOutput("graph_legend_ui"),
-                                
+
                                 # graph info and download buttons
                                 sidebarPanel(
                                         id = "graph_info_well",
@@ -62,7 +62,7 @@ tabItem(tabName = "network_graphs_tab",
                                                                 icon_on = icon("angle-double-down"),
                                                                 icon_off = icon("angle-double-right")
                                                         #),
-                                                        
+
                                                         # checkboxInput('expand_data_desc_check', label = NULL, FALSE)
                                                 ), class = "div_inline"),
                                                 div(textOutput("graph_name"), class = "div_inline",
@@ -88,17 +88,17 @@ tabItem(tabName = "network_graphs_tab",
                                                         class = "div_inline"
                                                 )
                                         ),
-                                        
+
                                         fluidRow(
                                                 conditionalPanel(condition = 'input.expand_data_desc_check',
                                                                  div(htmlOutput("graph_desc")))
                                         )
-                                        
+
                                 )
                         )
                 )
-        
-        
-        
+
+
+
         ))#)
 #### end network_graphs_tab
