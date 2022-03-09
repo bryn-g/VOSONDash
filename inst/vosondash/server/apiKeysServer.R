@@ -301,7 +301,7 @@ output$save_token_output <- renderText({
     output <- c(
       paste("token:", token$auth$app$appname),
       paste("social media:", token$socialmedia),
-      paste("key:", token$auth$app$key),
+      paste("key:", substr(token$auth$app$key, 1, 4), ".."),
       paste("type:", token$type),
       paste("created:", token$created)
     )

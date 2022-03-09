@@ -72,12 +72,12 @@ tabItem(tabName = "keys_tab",
                                         label = "App Name",
                                         value = ""
                                       ),
-                                      textInput(
+                                      passwordInput(
                                         "keys_twitter_api_key_input",
                                         label = "Consumer Key (API Key)",
                                         value = ""
                                       ),
-                                      textInput(
+                                      passwordInput(
                                         "keys_twitter_api_secret_input",
                                         label = "Consumer Secret (API Secret)",
                                         value = ""
@@ -107,12 +107,12 @@ tabItem(tabName = "keys_tab",
                                         style = "padding-bottom:0px; margin-bottom:0px"
                                       ),
                                       
-                                      textInput(
+                                      passwordInput(
                                         "keys_twitter_access_token_input",
                                         label = "Access Token",
                                         value = ""
                                       ),
-                                      textInput(
+                                      passwordInput(
                                         "keys_twitter_access_token_secret_input",
                                         label = "Access Token Secret",
                                         value = ""
@@ -191,7 +191,7 @@ tabItem(tabName = "keys_tab",
                                     width = 6,
                                     class = "custom_well_for_keys",
                                     h4(icon("youtube", class = "youtube_red"), "Youtube Auth"),
-                                    textInput(
+                                    passwordInput(
                                       "keys_youtube_api_key_input",
                                       label = "Data API Key",
                                       value = ""

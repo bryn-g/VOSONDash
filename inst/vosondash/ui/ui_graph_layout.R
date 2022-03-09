@@ -4,7 +4,7 @@ tabPanel("Layout",
            column(
              width = 12,
              
-             h4("Graph layout"),
+             h4("Graph Layout"),
              fluidRow(
                column(
                  width = 6,
