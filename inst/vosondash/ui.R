@@ -6,7 +6,6 @@ ui <-
     dashboardSidebar(disable = TRUE),
     dashboardBody(
       useShinyjs(),
-      # tags$style(type="text/css", "body {padding-top: 52px;}"),
       extendShinyjs(text = disable_tab_jscode, functions = c("disableTab")),
       inlineCSS(disable_tab_css),
       
@@ -36,29 +35,34 @@ ui <-
         ),
         windowTitle = "VOSON Dash",
         inverse = TRUE,
-        # position = "fixed-top",
-        tabPanel("Network Data",
+        tabPanel(
+          "Network Data",
           value = "data_tab",
           icon = icon("database"),
           source("ui/networkDataUI.R")$value
         ),
-        tabPanel("Network Graphs",
-                 value = "network_graphs_tab",
-                 icon = icon("share-alt"),
-                 source("ui/networkGraphsUI.R")$value
-        ),        
+        tabPanel(
+          "Network Graphs",
+          value = "network_graphs_tab",
+          icon = icon("share-alt"),
+          source("ui/networkGraphsUI.R")$value
+        ),
         navbarMenu(
           "Analysis",
           icon = icon("microscope"),
           "Network",
-          tabPanel("Metrics",
-                   value = "network_metrics_tab",
-                   icon = icon("ruler-combined"),
-                   source("ui/networkMetricsUI.R")$value),
-          tabPanel("Assortativity",
-                   value = "assortativity_tab",
-                   icon = icon("braille"),
-                   source("ui/assortativityUI.R")$value),
+          tabPanel(
+            "Metrics",
+            value = "network_metrics_tab",
+            icon = icon("ruler-combined"),
+            source("ui/networkMetricsUI.R")$value
+          ),
+          tabPanel(
+            "Assortativity",
+            value = "assortativity_tab",
+            icon = icon("braille"),
+            source("ui/assortativityUI.R")$value
+          ),
           "---",
           "Text",
           tabPanel(
@@ -77,18 +81,24 @@ ui <-
                    source("ui/apiKeysUI.R")$value),
           "---",
           "Social Media",
-          tabPanel("Twitter",
-                   value = "twitter_ui",
-                   icon = icon("twitter"),
-                   source("ui/twitterUI.R")$value),
-          tabPanel("Youtube",
-                   value = "youtube_ui",
-                   icon = icon("youtube"),
-                   source("ui/youtubeUI.R")$value),
-          tabPanel("Reddit",
-                   value = "reddit_ui",
-                   icon = icon("reddit"),
-                   source("ui/redditUI.R")$value)
+          tabPanel(
+            "Twitter",
+            value = "twitter_ui",
+            icon = icon("twitter"),
+            source("ui/twitterUI.R")$value
+          ),
+          tabPanel(
+            "Youtube",
+            value = "youtube_ui",
+            icon = icon("youtube"),
+            source("ui/youtubeUI.R")$value
+          ),
+          tabPanel(
+            "Reddit",
+            value = "reddit_ui",
+            icon = icon("reddit"),
+            source("ui/redditUI.R")$value
+          )
         )
         
       )

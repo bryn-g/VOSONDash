@@ -83,7 +83,7 @@ tabItem(tabName = "text_analysis_tab",
                  fluidRow(
                    tabBox(
                      width = 12,
-                     title = span(icon("bar-chart", class = "social_green"), "Text Analysis"),
+                     title = span(icon("chart-bar", class = "social_green"), "Text Analysis"),
                      selected = "Word Frequency",
                      id = "selected_text_analysis_tab",
                      
@@ -148,7 +148,7 @@ tabItem(tabName = "text_analysis_tab",
                                              div(
                                                actionButton(
                                                  "wc_reseed_button",
-                                                 label = icon("refresh"),
+                                                 label = icon("sync"),
                                                  style = "padding:2px 8px;"
                                                ),
                                                div(id = "wc_seed", "", class = "div_inline")

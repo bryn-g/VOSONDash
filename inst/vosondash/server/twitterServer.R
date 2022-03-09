@@ -284,14 +284,6 @@ observeEvent(creds_rv$use_token, {
   )
 })
 
-# output$twitter_collect_token_output <- renderText({
-#   if (!is.null(creds_rv$use_token)) {
-#     createTokenId(creds_rv$use_token)
-#   } else {
-#     "No token set"
-#   }
-# })
-
 # render twitter collection arguments
 output$twitter_arguments_output <- renderText({
   # dependencies
@@ -416,7 +408,6 @@ datatableTwitterData <- reactive({
   
   if (!is.null(input$show_twitter_cols)) {
     if (length(input$show_twitter_cols) > 0) {
-      # data <- dplyr::select(tw_rv$tw_data, input$show_twitter_cols)
       data <- dplyr::select(data, input$show_twitter_cols)
     } else { return(NULL) }
   } else { return(NULL) }

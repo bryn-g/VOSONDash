@@ -76,7 +76,6 @@ visNetworkData <- reactive({
     }
     
     verts$font.color <- gbl_plot_def_label_color
-    # verts$id <- row.names(verts)
     verts$id <- verts$name
   }
   
@@ -121,8 +120,6 @@ visNetworkData <- reactive({
         verts$label <- ""  
       }
     } else {
-      # verts <- dplyr::mutate(verts, label = ifelse(is.na(.data$sel_label), .data$label, .data$sel_label),
-      #                        sel_label = NULL)
       verts <- dplyr::mutate(verts, label = ifelse(is.na(.data$label), .data$name, .data$label))
     }
     verts$title <- row.names(verts)
@@ -142,20 +139,12 @@ visNetworkData <- reactive({
     }
   }
   
-  # edges <- edges %>%
-  #   group_by(to, from) %>%
-  #   summarise(width = n()) %>% 
-  #   ungroup()
-  # .groups = "drop"
-  
   category_selection <- NULL
   if (!is.null(gcs) && (!(gcs %in% c("All", "")))) {
     category_selection <- list(variable = gcs, multiple = TRUE)
   }
   
   if ("color" %in% names(verts)) { verts <- dplyr::select(verts, -color) }
-
-  # vis_net <- visNetworkProxy("visNetworkPlot") %>% visUpdateNodes(verts)
 
   v <- verts
   if (isolate(input$vert_lock) == TRUE) {
@@ -201,8 +190,5 @@ visNetworkData <- reactive({
   vis_net <- vis_net %>% visEdges(arrows = e_arrows,
                                   smooth = e_smooth,
                                   color = list(color = "#b0b0b0"))
-  
-  # vis_net <- vis_net %>% visInteraction(navigationButtons = TRUE)
-  
   vis_net
 })

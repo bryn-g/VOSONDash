@@ -1,28 +1,34 @@
 #### api keys tab ----------------------------------------------------------------------------------------------------- #
 tabItem(tabName = "keys_tab",
         fluidRow(
-          column(
-            width = 3,
-            
-              fluidRow(box(width = 12, solidHeader = TRUE,
-                h4("Saved Keys"),
-                textOutput("user_keys_path"),
-                checkboxInput(
-                  'load_and_use_keys_check',
-                  'Load and Use API Keys on app start',
-                  FALSE
-                ),
-                actionButton("keys_load_button", label = "Load Keys"),
-                disabled(actionButton("keys_save_button", label = "Save Keys"))
-              )),
-              fluidRow(box(width = 12, solidHeader = TRUE,
-                h4("Saved Tokens"),
-                textOutput("user_tokens_path"),br(),
-                actionButton("tokens_load_button", label = "Load Tokens"),
-                disabled(actionButton("tokens_save_button", label = "Save Tokens"))
-              ))
-            
-          ),
+          column(width = 3,
+                 
+                 fluidRow(
+                   box(
+                     width = 12,
+                     solidHeader = TRUE,
+                     h4("Saved Keys"),
+                     textOutput("user_keys_path"),
+                     checkboxInput(
+                       'load_and_use_keys_check',
+                       'Load and Use API Keys on app start',
+                       FALSE
+                     ),
+                     actionButton("keys_load_button", label = "Load Keys"),
+                     disabled(actionButton("keys_save_button", label = "Save Keys"))
+                   )
+                 ),
+                 fluidRow(
+                   box(
+                     width = 12,
+                     solidHeader = TRUE,
+                     h4("Saved Tokens"),
+                     textOutput("user_tokens_path"),
+                     br(),
+                     actionButton("tokens_load_button", label = "Load Tokens"),
+                     disabled(actionButton("tokens_save_button", label = "Save Tokens"))
+                   )
+                 )),
           
           column(width = 9, offset = 0,
                  fluidRow(
@@ -40,13 +46,14 @@ tabItem(tabName = "keys_tab",
                                       width = 12,
                                       offset = 0,
                                       div(
+                                        h4("Twitter API User Access Tokens (v1.1)"),
                                         p(
-                                          "Web Auth Tokens require an App name, Consumer Key, Consumer Secret, a twitter account and
+                                          "User Tokens require an App name, Consumer Key, Consumer Secret, a twitter user account and
                                                                                a web browser that allows new tabs to be opened. The user will be asked to log into
                                                                                twitter and authorize the app before the token can be created."
                                         ),
                                         p(
-                                          "Dev App Tokens require an App Name and all four API Keys as found in their twitter
+                                          "Dev Tokens require an App Name and all four API Keys as found in their twitter
                                                                                developer app settings."
                                         )
                                       ),
@@ -56,7 +63,10 @@ tabItem(tabName = "keys_tab",
                                     sidebarPanel(
                                       width = 12,
                                       class = "custom_well_for_keys",
-                                      h4(icon("coins", class = "twitter_blue"), "Create Token"),
+                                      h4(
+                                        icon("coins", class = "twitter_blue"),
+                                        "Create Token (OAuth 1.0a)"
+                                      ),
                                       textInput(
                                         "keys_twitter_app_name_input",
                                         label = "App Name",
@@ -64,12 +74,12 @@ tabItem(tabName = "keys_tab",
                                       ),
                                       textInput(
                                         "keys_twitter_api_key_input",
-                                        label = "Consumer Key",
+                                        label = "Consumer Key (API Key)",
                                         value = ""
                                       ),
                                       textInput(
                                         "keys_twitter_api_secret_input",
-                                        label = "Consumer Secret",
+                                        label = "Consumer Secret (API Secret)",
                                         value = ""
                                       ),
                                       
@@ -90,7 +100,7 @@ tabItem(tabName = "keys_tab",
                                         div(disabled(
                                           actionButton(
                                             "create_web_auth_token",
-                                            "Create Web Auth Token",
+                                            "Create User Token",
                                             icon("drafting-compass")
                                           )
                                         ), style = "display:inline-block;float:right;margin-right:15px;margin-left:5px;"),
@@ -110,7 +120,7 @@ tabItem(tabName = "keys_tab",
                                       fluidRow(div(
                                         actionButton(
                                           "create_app_token",
-                                          "Create Dev App Token",
+                                          "Create Dev Token",
                                           icon("drafting-compass"),
                                           style = "float:right;margin-right:15px;padding-bottom:2px"
                                         )
@@ -158,7 +168,12 @@ tabItem(tabName = "keys_tab",
                                       textOutput("twitter_set_token", container = span, inline = FALSE),
                                       fluidRow(
                                         actionButton("use_selected_token", "Use Token", icon("copy"), style = "margin-left:15px;"),
-                                        actionButton("delete_selected_token", "Delete", icon("delete"), style = "float:right;margin-right:15px;")
+                                        actionButton(
+                                          "delete_selected_token",
+                                          "Delete",
+                                          icon("minus-circle"),
+                                          style = "float:right;margin-right:15px;"
+                                        )
                                       )
                                       ,
                                       style = "margin-left:15px; margin-right:10px"

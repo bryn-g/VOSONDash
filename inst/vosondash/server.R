@@ -12,6 +12,9 @@ shinyServer(function(input, output, session) {
     u_api_tokens_path <- paste0(Sys.getenv("HOME"), "/vosondash_tokens.rds", sep = "")
   }
   
+  #### network data ####
+  source("server/networkDataServer.R", local = TRUE)
+  
   #### network graphs ####
   source("server/networkGraphsServer.R", local = TRUE)
   

@@ -126,11 +126,9 @@ collectGraphButtons_ <-
       if (!is.null(graph_data())) {
         shinyjs::enable("dl_graph")
         shinyjs::enable("view_graph")
-        # addCssClass("view_graph", class = "active_button_style")
       } else {
         shinyjs::disable("dl_graph")
         shinyjs::disable("view_graph")
-        # removeCssClass("view_graph", class = "active_button_style")
       }
     })
   }
@@ -153,13 +151,3 @@ collectViewGraphButtons <-
     
     return(view_rvalues)
   }
-
-# collectViewGraphButtons_ <- function(input, output, session, graph_data) {
-#   view_rvalues <- reactiveValues(data = NULL)
-#
-#   observeEvent(input$view_graph, {
-#     view_rvalues$data <<- graph_data()
-#   })
-#
-#   return(view_rvalues)
-# }

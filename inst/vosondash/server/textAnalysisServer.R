@@ -50,7 +50,6 @@ observeEvent({ input$navbarpage_selection # input$sidebar_menu
   input$ta_iconv_check
   input$ta_rem_punc_check }, {
     
-    # if (input$sidebar_menu == "text_analysis_tab") {
     if (input$navbarpage_selection == "word_freq_tab") {
       taPlotListData()
       plotWordFrequencies()
@@ -176,8 +175,7 @@ plotWordClouds <- reactive({
 # does not yet support selected subset category comparison as they are combined in ta_rv$plot_data_list
 comparisonCloudPlotData <- reactive({
   plot_data_list <- ta_rv$plot_data_list
-  # cats <- isolate(ng_rv$graph_cats)
-  
+
   max_words <- input$ta_cc_max_word_count
   word_len <- input$ta_word_length_slider
   mac_arial <- setArialUnicodeMS(input$macos_font_check)

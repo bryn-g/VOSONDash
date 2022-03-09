@@ -41,11 +41,11 @@ fluidRow(box(width = 12, solidHeader = TRUE,
                  fluidRow(column(
                    width = 12,
                    br(),
-                 pickerInput(
-                   inputId = "igd_data_select",
-                   label = div("igraphdata Datasets"),
-                   choices = c("No Datasets Found")
-                 )))
-                 #ds[["results"]][,3]
+                   pickerInput(
+                     inputId = "igd_data_select",
+                     label = div("igraphdata Datasets"),
+                     choices = c("No Datasets Found")
+                   )
+                 ))
                )
              )))
