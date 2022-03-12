@@ -271,6 +271,10 @@ body.skin-blue {
   color:"#006cb7";
 }
 
+.txt_sel_blue {
+  color: #428bca;
+}
+
 [class*="col-lg-"],[class*="col-md-"],
 [class*="col-sm-"],[class*="col-xs-"] {
     padding-right:5px;

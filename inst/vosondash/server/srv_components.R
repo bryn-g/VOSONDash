@@ -37,6 +37,19 @@ graphComponentSummary <- reactive({
   paste0(output, collapse = '\n')
 })
 
+output$component_count_ui <- renderText({
+  graphComponentCount()
+})
+
+graphComponentCount <- reactive({
+  g <- graphFilters()
+  n <- 0
+  if (!is.null(g)) {
+    n <- components(g, mode = input$graph_component_type_select)$no
+  }
+  paste0("Selected: ", n)
+})
+
 observeEvent(input$graph_component_type_select, {
   setComponentSliders()
 }, ignoreInit = TRUE)

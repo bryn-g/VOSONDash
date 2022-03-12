@@ -26,7 +26,11 @@ fluidRow(column(
   fluidRow(column(
     width = 12,
     verbatimTextOutput("component_summary_ui")
-  ),
+  )),
+  fluidRow(column(
+    width = 12,
+    verbatimTextOutput("component_count_ui")
+  )),  
   fluidRow(column(
     width = 12,
     actionButton(
@@ -35,5 +39,5 @@ fluidRow(column(
       icon = icon("calculator")
     )
   )))
-  
-))
+)
+#))

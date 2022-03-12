@@ -98,42 +98,42 @@ output$filter_rank_list <- renderUI({
     labels = list(
       "rm_pruned" = list(
         div(
-          disabled(checkboxInput("graph_pruned_check", "Prune Nodes", FALSE)),
+          disabled(checkboxInput("graph_pruned_check", div("Prune Nodes", id = "graph_pruned_check_label"), FALSE)),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
       "rm_isolates" = list(
         div(
-          checkboxInput("graph_isolates_check", "Remove Isolates", FALSE),
+          checkboxInput("graph_isolates_check", div("Remove Isolates", id = "graph_isolates_check_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
       "rm_loops" = list(
         div(
-          checkboxInput("graph_loops_edge_check", "Remove Loops", FALSE),
+          checkboxInput("graph_loops_edge_check", div("Remove Edge Loops", id = "graph_loops_edge_check_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
       "rm_multiedges" = list(
         div(
-          checkboxInput("graph_multi_edge_check", "Merge Multiple Edges", FALSE),
+          checkboxInput("graph_multi_edge_check", div("Merge Multiple Edges", id = "graph_multi_edge_check_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
       "rm_components" = list(
         div(
-          checkboxInput("graph_components_check", "Components", FALSE),
+          checkboxInput("graph_components_check", div("Components", id = "graph_components_check_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
       "rm_categories" = list(
         div(
-          disabled(checkboxInput("graph_categorical_check", "Categorical", FALSE)),
+          disabled(checkboxInput("graph_categorical_check", div("Categorical", id = "graph_categorical_check_label"), FALSE)),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
@@ -148,4 +148,13 @@ observeEvent(input$graph_filter_sort_reset, {
   sapply(c("graph_cat_select", "graph_sub_cats_select"), function(x) {
     shinyjs::reset(x)
   })
+})
+
+observe({
+  toggleClass(id = "graph_isolates_check_label", class = "txt_sel_blue", asis = TRUE, condition = input$graph_isolates_check)
+  toggleClass(id = "graph_pruned_check_label", class = "txt_sel_blue", asis = TRUE, condition = input$graph_pruned_check)
+  toggleClass(id = "graph_loops_edge_check_label", class = "txt_sel_blue", asis = TRUE, condition = input$graph_loops_edge_check)
+  toggleClass(id = "graph_multi_edge_check_label", class = "txt_sel_blue", asis = TRUE, condition = input$graph_multi_edge_check)
+  toggleClass(id = "graph_components_check_label", class = "txt_sel_blue", asis = TRUE, condition = input$graph_components_check)
+  toggleClass(id = "graph_categorical_check_label", class = "txt_sel_blue", asis = TRUE, condition = input$graph_categorical_check)
 })

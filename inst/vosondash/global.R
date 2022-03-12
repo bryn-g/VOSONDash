@@ -34,7 +34,7 @@ gbl_plot_sel_vertex_color <- "#74c6ff" # "#006cb7"
 gbl_sel_label_col <- "#006cb7"
 
 gbl_plot_palette <- function(n = 8) brewer.pal(n, "Dark2")
-gbl_plot_height <- 525
+gbl_plot_height <- 600
 
 ta_plot_height <- "450px"
 
