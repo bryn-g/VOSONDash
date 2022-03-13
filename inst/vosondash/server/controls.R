@@ -123,3 +123,38 @@ enableVisNetworkControls <- function() {
   
   sapply(ui_controls, function(x) { shinyjs::disable(x) })
 }
+
+observeEvent(input$node_attr_reset_button, {
+  resetEnableNodeAttrControls()
+})
+
+resetEnableNodeAttrControls <- function() {
+  ui_controls <- c("graph_node_size_select",
+                   "graph_node_size_slider", 
+                   "igraph_node_base_size_slider",
+                   "visgraph_node_base_size_slider",
+                   "use_vertex_colors_check")
+  
+  sapply(ui_controls, function(x) {
+    shinyjs::reset(x)
+    shinyjs::enable(x) })
+}
+
+observeEvent(input$node_labels_reset_button, {
+  resetEnableNodeLabelControls()
+})
+
+resetEnableNodeLabelControls <- function() {
+  ui_controls <- c("node_labels_check",
+                   "node_index_check", 
+                   "node_sel_labels_check",
+                   "node_label_select",
+                   "node_label_color",
+                   "node_label_size",
+                   "node_label_rot",
+                   "node_label_dist")
+  
+  sapply(ui_controls, function(x) {
+    shinyjs::reset(x)
+    shinyjs::enable(x) })
+}

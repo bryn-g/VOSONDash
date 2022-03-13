@@ -12,7 +12,7 @@ applyPruneFilterSrv <- function(g, selected_prune_verts) {
 # apply all filters to graph data and return modified graph
 graphFilters <- reactive({
   g <- NULL
-  
+  pv <- ng_rv$prune_verts
   if (!is.null(ng_rv$graph_data)) {
     g <- ng_rv$graph_data
     
@@ -31,7 +31,7 @@ graphFilters <- reactive({
       V(g)$label <- ifelse(nchar(V(g)$name) > 0, V(g)$name, "-")
     }
     # ----
-    
+
     f_order <- input$filter_order
     for (cmd in f_order) {
       if (cmd == "rm_pruned") {

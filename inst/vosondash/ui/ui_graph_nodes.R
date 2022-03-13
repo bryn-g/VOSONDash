@@ -66,10 +66,18 @@ tabPanel(
       TRUE
     )
   )),
+  fluidRow(column(
+    width = 12,
+    actionButton("node_attr_reset_button", "Reset")
+  )),
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
   h4("Node Labels"),
   # node labels
   source("ui/ui_node_labels.R")$value,
+  fluidRow(column(
+    width = 12,
+    actionButton("node_labels_reset_button", "Reset")
+  )),
   
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
   h4("Neighbourhood"),

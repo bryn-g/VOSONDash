@@ -129,12 +129,14 @@ visNetworkData <- reactive({
     if ("weight" %in% names(edges)) {
       edges$width <- edges$weight
     } else {
-      medge <- isolate(input$graph_multi_edge_check)
-      if (medge == FALSE) {
-        edges <- edges %>%
-          group_by(to, from) %>%
-          summarise(width = n(), .groups = "drop") %>% 
-          ungroup()
+      if (!is.null(input$graph_multi_edge_check)) {
+        medge <- isolate(input$graph_multi_edge_check)
+        if (medge == FALSE) {
+          edges <- edges %>%
+            group_by(to, from) %>%
+            summarise(width = n(), .groups = "drop") %>% 
+            ungroup()
+        }  
       }
     }
   }
@@ -185,7 +187,10 @@ visNetworkData <- reactive({
   
   e_arrows <- e_smooth <- NULL
   if (ng_rv$graph_dir) { e_arrows <- "to" }
-  if (input$graph_multi_edge_check) { e_smooth <- list(enabled = TRUE, type = "diagonalCross", roundness = input$edge_curved) }
+  
+  if (!is.null(input$graph_multi_edge_check)) {
+    if (input$graph_multi_edge_check) { e_smooth <- list(enabled = TRUE, type = "diagonalCross", roundness = input$edge_curved) }  
+  }
   
   vis_net <- vis_net %>% visEdges(arrows = e_arrows,
                                   smooth = e_smooth,

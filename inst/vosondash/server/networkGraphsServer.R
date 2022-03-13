@@ -364,7 +364,7 @@ observeEvent(ng_rv$graph_seed, {
 observeEvent(input$prune_selected_rows_button, {
   # this updates prune list and triggers graph redraw
   pruneListAddNames()
-  
+
   # update prune list select box
   prune_list <- isolate(ng_rv$prune_verts)
   if (is.null(prune_list)) {
@@ -481,7 +481,7 @@ observeEvent({
 }, {
   ng_rv$prune_verts <- c()
   updateSelectInput(session, "pruned_vertices_select", choices = character(0))
-  updateComponentSlider(ng_rv$graph_data, input$graph_component_type_select)
+  #updateComponentSlider(ng_rv$graph_data, input$graph_component_type_select)
 })
 
 # deselect all data table selected rows
