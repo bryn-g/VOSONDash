@@ -29,8 +29,15 @@ runVOSONDash <- function(pkgStartupMsgs = FALSE, isLocal = NULL) {
     # shiny::shinyOptions(VOSONIsLocal = isLocal)
   # }
   
+  # set vosonSML output to cat for console
+  saved_voson_msg <- getOption("voson.msg")
+  options(voson.msg = "cat")
+  
   # on.exit(rm(list = gbl_vars, envir = .GlobalEnv))
-  on.exit(shiny::shinyOptions(VOSONPkgMsgs = NULL, VOSONIsLocal = NULL))
+  on.exit({
+    shiny::shinyOptions(VOSONPkgMsgs = NULL, VOSONIsLocal = NULL)
+    options(voson.msg = saved_voson_msg)
+  })
   
   shiny::runApp(app_dir, display.mode = "normal", launch.browser = TRUE)
 }

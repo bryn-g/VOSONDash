@@ -646,7 +646,7 @@ output$vis_plot_ui <-
     # selected = input$selected_graph_tab
     tabBox(
       width = 12,
-      title = span(icon("share-alt", class = "social_green"), "Network Graphs"),
+      title = span(icon("share-nodes", class = "social_green"), "Network Graphs"),
       selected = input$selected_graph_tab,
       id = "selected_graph_tab",
       tabPanel(

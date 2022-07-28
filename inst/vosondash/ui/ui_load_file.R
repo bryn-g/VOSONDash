@@ -3,7 +3,7 @@ fluidRow(box(width = 12, solidHeader = TRUE,
                column(
                  width = 12,
                  div(
-                   icon("file-upload",
+                   icon("file-arrow-up",
                         class = "vdash-div-box-heading-icon"),
                    "Open GraphML",
                    class = "vdash-div-box-heading"
@@ -20,8 +20,8 @@ fluidRow(box(width = 12, solidHeader = TRUE,
                    status_off = "info",
                    outline = TRUE,
                    plain = TRUE,
-                   icon_on = icon("angle-double-down"),
-                   icon_off = icon("angle-double-right"),
+                   icon_on = icon("angles-down"),
+                   icon_off = icon("angles-right"),
                    value = FALSE
                  ),
                  

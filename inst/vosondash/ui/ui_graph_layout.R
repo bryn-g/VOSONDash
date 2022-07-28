@@ -34,7 +34,7 @@ tabPanel("Layout",
                  style = "padding-left: 0px;",
                  
                  div(
-                   disabled(actionButton("graph_reseed_button", label = icon("sync"))),
+                   disabled(actionButton("graph_reseed_button", label = icon("arrows-rotate"))),
                    vpopover(po_reseed_graph()$title, po_reseed_graph()$content),
                    class = "div_inline"
                  ),

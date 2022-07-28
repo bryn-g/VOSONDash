@@ -92,7 +92,7 @@ observeEvent(input$reddit_create_button, {
         network <-
           vosonSML::Create(isolate(red_rv$reddit_data), "activity", verbose = TRUE)
         if (add_text) {
-          network <- vosonSML::AddText(network, isolate(red_rv$reddit_data))
+          network <- vosonSML::AddText(network, isolate(red_rv$reddit_data), verbose = TRUE)
         }
       } else if (net_type == "actor") {
         network <-

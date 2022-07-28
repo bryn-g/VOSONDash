@@ -69,7 +69,7 @@ tabItem(tabName = "youtube_collection_tab",
                     actionButton(
                       "youtube_collect_button",
                       label = "Collect Comments",
-                      icon = icon("cloud-download-alt")
+                      icon = icon("cloud-arrow-down")
                     )
                   )
                 ),
@@ -111,7 +111,7 @@ tabItem(tabName = "youtube_collection_tab",
                     actionButton(
                       "youtube_create_button",
                       label = "Create Network",
-                      icon = icon("share-alt")
+                      icon = icon("share-nodes")
                     )
                   )
                   

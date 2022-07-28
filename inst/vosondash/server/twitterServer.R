@@ -219,7 +219,6 @@ observeEvent(input$twitter_create_button, {
         rem_terms <- parse_rem_terms(input$twitter_semantic_remove)
         network <- NULL
         tryCatch({
-          if (is2910) {
             network <- vosonSML::Create(isolate(tw_rv$tw_data), "semantic",
                                         removeTermsOrHashtags = rem_terms,
                                         stopwords = input$twitter_semantic_stopwords, # >= v0.29.10
@@ -227,14 +226,6 @@ observeEvent(input$twitter_create_button, {
                                         hashtagFreq = input$twitter_hashtag_freq,
                                         assoc = ifelse(input$twitter_semantic_assoc, "limited", "full"), # >= v0.29.10
                                         verbose = TRUE)
-          } else {
-            network <- vosonSML::Create(isolate(tw_rv$tw_data), "semantic",
-                                        removeTermsOrHashtags = rem_terms,
-                                        stopwordsEnglish = input$twitter_semantic_stopwords, # < v0.29.10
-                                        termFreq = input$twitter_term_freq,
-                                        hashtagFreq = input$twitter_hashtag_freq,
-                                        verbose = TRUE)            
-          }
         }, error = function(e) { cat(e$message) })
         
       }

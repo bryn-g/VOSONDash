@@ -148,7 +148,7 @@ tabItem(tabName = "text_analysis_tab",
                                              div(
                                                actionButton(
                                                  "wc_reseed_button",
-                                                 label = icon("sync"),
+                                                 label = icon("arrows-rotate"),
                                                  style = "padding:2px 8px;"
                                                ),
                                                div(id = "wc_seed", "", class = "div_inline")

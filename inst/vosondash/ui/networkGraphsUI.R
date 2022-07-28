@@ -55,8 +55,8 @@ tabItem(tabName = "network_graphs_tab",
                       status_off = "info",
                       outline = TRUE,
                       plain = TRUE,
-                      icon_on = icon("angle-double-down"),
-                      icon_off = icon("angle-double-right")
+                      icon_on = icon("angles-down"),
+                      icon_off = icon("angles-right")
                     ),
                     class = "div_inline"
                   ),

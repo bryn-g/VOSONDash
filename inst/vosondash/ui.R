@@ -44,7 +44,7 @@ ui <-
         tabPanel(
           "Network Graphs",
           value = "network_graphs_tab",
-          icon = icon("share-alt"),
+          icon = icon("share-nodes"),
           source("ui/networkGraphsUI.R")$value
         ),
         navbarMenu(
@@ -68,13 +68,13 @@ ui <-
           tabPanel(
             "Word Frequency",
             value = "word_freq_tab",
-            icon = icon("sort-amount-up"),
+            icon = icon("arrow-up-wide-short"),
             source("ui/textAnalysisUI.R")$value
           )
         ),
         navbarMenu(
           "Collection",
-          icon = icon("cloud-download-alt"),
+          icon = icon("cloud-arrow-down"),
           "API Access",
           tabPanel("Keys",
                    icon = icon("key"),

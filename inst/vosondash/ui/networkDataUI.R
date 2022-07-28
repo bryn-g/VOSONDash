@@ -14,8 +14,8 @@ tabItem(tabName = "network_data_tab",
                   column(
                     width = 12,
                     div("Prune Nodes", class = "vdash-div-box-heading"),
-                    actionButton("prune_selected_rows_button", label = div(icon("cut"), "Selected")),
-                    actionButton("prune_unselected_rows_button", label = div(icon("cut"), "Un-selected")),
+                    actionButton("prune_selected_rows_button", label = div(icon("scissors"), "Selected")),
+                    actionButton("prune_unselected_rows_button", label = div(icon("scissors"), "Un-selected")),
                     actionButton("prune_deselect_rows_button", "Deselect All")
                   )
                 ),

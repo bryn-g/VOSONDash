@@ -190,7 +190,7 @@ tabItem(tabName = "twitter_collection_tab",
                     actionButton(
                       "twitter_collect_button",
                       label = "Collect Tweets",
-                      icon = icon("cloud-download-alt")
+                      icon = icon("cloud-arrow-down")
                     )
                   )
                   
@@ -275,7 +275,7 @@ tabItem(tabName = "twitter_collection_tab",
                     actionButton(
                       "twitter_create_button",
                       label = "Create Network",
-                      icon = icon("share-alt")
+                      icon = icon("share-nodes")
                     )
                   )
                   

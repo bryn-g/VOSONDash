@@ -72,12 +72,12 @@ tabItem(tabName = "keys_tab",
                                         label = "App Name",
                                         value = ""
                                       ),
-                                      passwordInput(
+                                      textInput(
                                         "keys_twitter_api_key_input",
                                         label = "Consumer Key (API Key)",
                                         value = ""
                                       ),
-                                      passwordInput(
+                                      textInput(
                                         "keys_twitter_api_secret_input",
                                         label = "Consumer Secret (API Secret)",
                                         value = ""
@@ -101,18 +101,18 @@ tabItem(tabName = "keys_tab",
                                           actionButton(
                                             "create_web_auth_token",
                                             "Create User Token",
-                                            icon("drafting-compass")
+                                            icon("compass-drafting")
                                           )
                                         ), style = "display:inline-block;float:right;margin-right:15px;margin-left:5px;"),
                                         style = "padding-bottom:0px; margin-bottom:0px"
                                       ),
                                       
-                                      passwordInput(
+                                      textInput(
                                         "keys_twitter_access_token_input",
                                         label = "Access Token",
                                         value = ""
                                       ),
-                                      passwordInput(
+                                      textInput(
                                         "keys_twitter_access_token_secret_input",
                                         label = "Access Token Secret",
                                         value = ""
@@ -121,7 +121,7 @@ tabItem(tabName = "keys_tab",
                                         actionButton(
                                           "create_app_token",
                                           "Create Dev Token",
-                                          icon("drafting-compass"),
+                                          icon("compass-drafting"),
                                           style = "float:right;margin-right:15px;padding-bottom:2px"
                                         )
                                       ))
@@ -171,7 +171,7 @@ tabItem(tabName = "keys_tab",
                                         actionButton(
                                           "delete_selected_token",
                                           "Delete",
-                                          icon("minus-circle"),
+                                          icon("circle-minus"),
                                           style = "float:right;margin-right:15px;"
                                         )
                                       )
@@ -191,7 +191,7 @@ tabItem(tabName = "keys_tab",
                                     width = 6,
                                     class = "custom_well_for_keys",
                                     h4(icon("youtube", class = "youtube_red"), "Youtube Auth"),
-                                    passwordInput(
+                                    textInput(
                                       "keys_youtube_api_key_input",
                                       label = "Data API Key",
                                       value = ""

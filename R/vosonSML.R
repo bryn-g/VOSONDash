@@ -25,8 +25,6 @@ getVosonSMLVersion <- function() {
 #' @keywords internal
 #' @export
 createTwitterDevToken <- function(app_name, keys) {
-  if (!requireNamespace("rtweet", quietly = TRUE)) { return(NULL) }
-  
   check_keys <- sapply(keys, isNullOrEmpty)
   if (any(check_keys == TRUE)) { return(NULL) }
   
@@ -35,8 +33,7 @@ createTwitterDevToken <- function(app_name, keys) {
                                  apiKey = keys$apiKey, 
                                  apiSecret = keys$apiSecret,
                                  accessToken = keys$accessToken,
-                                 accessTokenSecret = keys$accessTokenSecret, 
-                                 useCachedToken = FALSE)
+                                 accessTokenSecret = keys$accessTokenSecret)
   
   cred$type <- "dev"
   cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
@@ -58,19 +55,13 @@ createTwitterDevToken <- function(app_name, keys) {
 #' @keywords internal
 #' @export
 createTwitterWebToken <- function(app_name, keys) {
-  if (!requireNamespace("rtweet", quietly = TRUE)) { return(NULL) }
-  
   check_keys <- sapply(keys, isNullOrEmpty)
   if (any(check_keys == TRUE)) { return(NULL) }
   
-  cred <- list(socialmedia = "twitter", auth = NULL)
-  class(cred) <- append(class(cred), c("credential", "twitter")) 
-  
-  cred$auth <- rtweet::create_token(
-    app = app_name,
-    consumer_key = keys$apiKey,
-    consumer_secret = keys$apiSecret,
-    set_renv = FALSE)
+  cred <- vosonSML::Authenticate("twitter", 
+                         appName = app_name,
+                         apiKey = keys$apiKey, 
+                         apiSecret = keys$apiSecret)
   
   cred$type <- "web"
   cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
@@ -214,7 +205,7 @@ collectYoutubeData <- function(youtube_api_key, youtube_video_id_list, youtube_m
   }
   
   collect_params['writeToFile'] <- FALSE
-  collect_params['verbose'] <- FALSE
+  collect_params['verbose'] <- TRUE
   
   data <- do.call(vosonSML::Collect, collect_params)
 }
@@ -254,8 +245,10 @@ collectRedditData <- function(reddit_url_list) {
   data <- NULL
   
   if (length(reddit_url_list) > 0) {
-    data <- vosonSML::Collect(vosonSML::Authenticate("reddit"), threadUrls = reddit_url_list, waitTime = 5, 
-                              writeToFile = FALSE)
+    data <- vosonSML::Collect(
+      vosonSML::Authenticate("reddit"),
+      threadUrls = reddit_url_list, waitTime = 5, 
+      writeToFile = FALSE, verbose = TRUE)
   }
   
   data
@@ -272,8 +265,8 @@ collectRedditData <- function(reddit_url_list) {
 #' @keywords internal
 #' @export
 createRedditActorNetwork <- function(data) {
-  network <- vosonSML::Create(data, "actor", writeToFile = FALSE)
-  networkWT <- vosonSML::Create(data, "actor", textData = TRUE, cleanText = TRUE, writeToFile = FALSE)
+  network <- vosonSML::Create(data, "actor", writeToFile = FALSE, verbose = TRUE)
+  networkWT <- vosonSML::Create(data, "actor", textData = TRUE, cleanText = TRUE, writeToFile = FALSE, verbose = TRUE)
   
   list(network = network$graph, networkWT = networkWT$graph)
 }

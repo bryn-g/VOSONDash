@@ -42,7 +42,7 @@ tabItem(tabName = "reddit_collection_tab",
                          actionButton(
                            "reddit_collect_button",
                            label = "Collect Threads",
-                           icon = icon("cloud-download-alt")
+                           icon = icon("cloud-arrow-down")
                          )
                        )
                        
@@ -67,7 +67,7 @@ tabItem(tabName = "reddit_collection_tab",
                          actionButton(
                            "reddit_create_button",
                            label = "Create Network",
-                           icon = icon("share-alt")
+                           icon = icon("share-nodes")
                          )
                        )
                        
