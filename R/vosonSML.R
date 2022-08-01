@@ -36,6 +36,7 @@ createTwitterDevToken <- function(app_name, keys) {
                                  accessTokenSecret = keys$accessTokenSecret)
   
   cred$type <- "dev"
+  cred$name <- app_name
   cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
   
   cred
@@ -64,6 +65,30 @@ createTwitterWebToken <- function(app_name, keys) {
                          apiSecret = keys$apiSecret)
   
   cred$type <- "web"
+  cred$name <- app_name
+  cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
+  
+  cred
+}
+
+#' @title Create a auth token with twitter bearer token
+#' 
+#' @description This function creates a \code{vosonSML::Authenticate} credential object with twitter bearer token.
+#'
+#' @param name Character string. Project name or description.
+#' @param bearerToken Character string. Twitter bearer token.
+#'
+#' @return A \pkg{vosonSML} twitter credential object.
+#' 
+#' @keywords internal
+#' @export
+createTwitterBearerToken <- function(name, bearerToken) {
+  if (isNullOrEmpty(bearerToken)) { return(NULL) }
+  
+  cred <- vosonSML::Authenticate("twitter", bearerToken = bearerToken)
+  
+  cred$type <- "bearer"
+  cred$name <- name
   cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
   
   cred
@@ -80,7 +105,7 @@ createTwitterWebToken <- function(app_name, keys) {
 #' @keywords internal
 #' @export
 createTokenId <- function(cred) {
-  token_id <- paste0(cred$created, " ", cred$auth$app$appname, " (", cred$type ,")")
+  token_id <- paste0(cred$created, " ", cred$name, " (", cred$type ,")")
 }
 
 #' @title Collect twitter data
@@ -152,27 +177,6 @@ collectTwitterData <- function(cred, search_term, search_type, tweet_count,
   collect_params['verbose'] <- TRUE
   
   data <- do.call(vosonSML::Collect, collect_params)
-}
-
-#' @title Create twitter actor networks
-#' 
-#' @description This function is a wrapper for creating a twitter actor networks using \code{vosonSML::Create}.
-#' 
-#' @param data \pkg{vosonSML} twitter dataframe.
-#'
-#' @return Twitter actor networks as named list.
-#' 
-#' @keywords internal
-#' @export
-createTwitterActorNetwork <- function(data) {
-  network <- vosonSML::Create(data, "actor", verbose = TRUE)
-  
-  g <- igraph::set_graph_attr(network$graph, "type", "twitter")
-  
-  g_wt <- g
-  E(g_wt)$vosonTxt_tweet <- data$text[match(E(g_wt)$status_id, data$status_id)]
-  
-  list(network = g, networkWT = g_wt)
 }
 
 #' @title Collect youtube data

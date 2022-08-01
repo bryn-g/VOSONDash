@@ -60,6 +60,41 @@ tabItem(tabName = "keys_tab",
                                       style = "margin-left:10px"
                                     ),
                                     #),
+                                    
+                                    # ---
+                                    sidebarPanel(
+                                      width = 12,
+                                      class = "custom_well_for_keys",
+                                      h4(
+                                        icon("coins", class = "twitter_blue"),
+                                        "Bearer Token"
+                                      ),
+                                      textInput(
+                                        "keys_bearer_token_name_input",
+                                        label = "Name",
+                                        value = ""
+                                      ),
+                                      textInput(
+                                        "keys_bearer_token_input",
+                                        label = "Bearer Token",
+                                        value = ""
+                                      ),
+                        
+                                      fluidRow(
+                                        div(
+                                          actionButton(
+                                            "create_bearer_token",
+                                            "Create Token",
+                                            icon("compass-drafting")
+                                          )
+                                        , style = "display:inline-block;float:right;margin-right:15px;margin-left:5px;"),
+                                        style = "padding-bottom:0px; margin-bottom:0px"
+                                      ),
+
+                                      style = "margin-left:10px"
+                                    ),
+                                    
+                                    # ---
                                     sidebarPanel(
                                       width = 12,
                                       class = "custom_well_for_keys",

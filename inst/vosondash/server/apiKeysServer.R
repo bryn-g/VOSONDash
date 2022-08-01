@@ -32,6 +32,12 @@ observeEvent(check_creds_startup, {
           
           updateTextInput(
             session,
+            "twitter_bearer_token_input",
+            label = NULL,
+            value = api_keys$twitter_app_name
+          )
+          updateTextInput(
+            session,
             "twitter_app_name_input",
             label = NULL,
             value = api_keys$twitter_app_name
@@ -94,6 +100,22 @@ observeEvent(check_creds_startup, {
     
   } # end isLocal
 }, once = TRUE)
+
+observeEvent(input$create_bearer_token, {
+  # not caught if httpuv aborted as it as ends shiny session
+  tryCatch({
+    creds_rv$created_token <-
+      VOSONDash::createTwitterBearerToken(input$keys_bearer_token_name_input,
+                                          input$keys_bearer_token_input)
+  }, error = function(err) {
+    creds_rv$msg_log <-
+      logMessage(creds_rv$msg_log, paste("token creation error:", err))
+    creds_rv$created_token <- NULL
+  }, warning = function(w) {
+    creds_rv$msg_log <-
+      logMessage(creds_rv$msg_log, paste("token creation warning:", w))
+  })
+})
 
 observeEvent(input$create_app_token, {
   keys <- list(
@@ -202,7 +224,7 @@ observeEvent(creds_rv$created_token, {
       logMessage(
         isolate(creds_rv$msg_log),
         paste("created token",
-              creds_rv$created_token$auth$app$appname)
+              creds_rv$created_token$name)
       )
     shinyjs::enable("save_token")
   }
@@ -299,7 +321,7 @@ output$save_token_output <- renderText({
     output <- append(output, "Empty or invalid token.")
   } else {
     output <- c(
-      paste("token:", token$auth$app$appname),
+      paste("token:", token$name),
       paste("social media:", token$socialmedia),
       paste("key:", substr(token$auth$app$key, 1, 4), ".."),
       paste("type:", token$type),

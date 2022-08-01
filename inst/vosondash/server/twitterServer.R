@@ -144,8 +144,8 @@ observeEvent(input$twitter_collect_button, {
                                           twitter_since_id, twitter_max_id) })
           
           tw_rv$tw_data <- tw_data
-          
-          tw_rv$data_cols <- names(tw_rv$tw_data)
+          tw_rv$data_cols <- names(tw_rv$tw_data$tweets)
+
         }, error = function(err) {
           incProgress(1, detail = "Error")
           cat(paste("twitter collection error: ", err))
@@ -170,7 +170,7 @@ observeEvent(input$twitter_collect_button, {
 })
 
 observeEvent(tw_rv$tw_data, {
-  if (!is.null(tw_rv$tw_data) && nrow(tw_rv$tw_data)) {
+  if (!is.null(tw_rv$tw_data)) {
     shinyjs::enable("twitter_create_button")
   } else {
     shinyjs::disable("twitter_create_button")
@@ -329,7 +329,7 @@ observeEvent(input$clear_all_twitter_dt_columns, {
 observeEvent(input$reset_twitter_dt_columns, {
   updateCheckboxGroupInput(session, "show_twitter_cols", label = NULL,
                            choices = isolate(tw_rv$data_cols),
-                           selected = c("user_id", "status_id", "created_at", "screen_name", "text",
+                           selected = c("user_id", "status_id", "created_at", "screen_name", "full_text",
                                         "is_retweet"),
                            inline = TRUE)
 })
@@ -345,7 +345,7 @@ output$twitter_data_cols_ui <- renderUI({
         actionButton("reset_twitter_dt_columns", "Reset")),
     checkboxGroupInput("show_twitter_cols", label = NULL,
                        choices = tw_rv$data_cols,
-                       selected = c("user_id", "status_id", "created_at", "screen_name", "text",
+                       selected = c("user_id", "status_id", "created_at", "screen_name", "full_text",
                                     "is_retweet"), 
                        inline = TRUE, width = '98%')
   )
@@ -399,27 +399,27 @@ datatableTwitterData <- reactive({
   
   if (!is.null(input$show_twitter_cols)) {
     if (length(input$show_twitter_cols) > 0) {
-      data <- dplyr::select(data, input$show_twitter_cols)
+      data$tweets <- dplyr::select(data$tweets, input$show_twitter_cols)
     } else { return(NULL) }
   } else { return(NULL) }
   
-  if (nrow(data) < 1) { return(NULL) }
+  if (nrow(data$tweets) < 1) { return(NULL) }
   
-  col_classes <- sapply(data, class)
+  col_classes <- sapply(data$tweets, class)
   for (i in seq(1, length(col_classes))) {
     if ("list" %in% col_classes[i]) {
       var <- names(col_classes)[i]
-      data[var] <- lapply(data[var], function(x) sapply(x, paste, collapse = ", ", character(1L)))
+      data$tweets[var] <- lapply(data$tweets[var], function(x) sapply(x, paste, collapse = ", ", character(1L)))
     }
   }
   
-  if (!is.null(tw_rv$tw_data)) {
+  if (!is.null(tw_rv$tw_data$tweets)) {
     col_defs <- NULL
     if (input$dt_twitter_truncate_text_check == TRUE) {
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = 'Buttons', filter = "top", selection = "none",
+    DT::datatable(data$tweets, extensions = 'Buttons', filter = "top", selection = "none",
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
                                  columnDefs = col_defs, dom = 'lBfrtip',
                                  buttons = c('copy', 'csv', 'excel', 'print')),

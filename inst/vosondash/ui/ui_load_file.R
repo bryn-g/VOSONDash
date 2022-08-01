@@ -36,16 +36,6 @@ fluidRow(box(width = 12, solidHeader = TRUE,
                                     div(shinyjs::disabled(
                                       actionButton("demo_data_select_button", label = "Load graphml")
                                     ))
-                                  ))),
-                 
-                 fluidRow(column(
-                   width = 12,
-                   br(),
-                   pickerInput(
-                     inputId = "igd_data_select",
-                     label = div("igraphdata Datasets"),
-                     choices = c("No Datasets Found")
-                   )
-                 ))
+                                  )))
                )
              )))

@@ -63,7 +63,7 @@ collectDataButtons <-
     })
     
     observeEvent(data(), {
-      if (!is.null(data()) && nrow(data()) > 0) {
+      if (!is.null(data())) { # && nrow(data()) > 0 or $tweets
         shinyjs::enable("dl_data")
       } else {
         shinyjs::disable("dl_data")
