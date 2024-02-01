@@ -42,6 +42,8 @@ wordFreqChart <- function(word_freqs,
   saved_par <- par(no.readonly = TRUE)
   on.exit(par(saved_par))
 
+  data <- word_freqs
+  
   freq <- NULL
   word_freqs <- word_freqs[freq >= min_freq]
   word_freqs <- word_freqs[order(word_freqs, -freq)]
@@ -54,9 +56,19 @@ wordFreqChart <- function(word_freqs,
                           xlab = "Frequency")
   
   if (!is.null(family)) { plot_parameters[['scales']] <- list(fontfamily = family) }
+
+  #par(mar = rep(0, 4))
+  #do.call(lattice::barchart, plot_parameters)
   
-  par(mar = rep(0, 4))
-  do.call(lattice::barchart, plot_parameters)
+  data <- data |>
+    dplyr::arrange(dplyr::desc(freq)) |> 
+    dplyr::filter(freq >= min_freq) |>
+    dplyr::slice_head(n = top_count)
+  
+  data$word <- factor(data$word, levels = rev(data$word))
+  
+  p <- ggplot(data = data, aes(x = word, y = freq)) + geom_bar(stat = "identity")
+  p + coord_flip()
 }
 
 #' @title Create a wordcloud plot
