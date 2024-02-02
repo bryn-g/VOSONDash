@@ -1,0 +1,20 @@
+tabPanel("Metrics",
+         icon = icon("ruler-combined"),
+         fluidRow(
+           box(
+             width = 5,
+             title = "Network Metrics",
+             verbatimTextOutput("network_metrics_details_output", placeholder = TRUE)
+           ),
+           box(
+             width = 7,
+             title = "Distribution",
+             selectInput(
+               "metrics_distrib_sel",
+               label = NULL,
+               choices = c("component", "indegree", "outdegree", "degree"),
+               selected = "component"
+             ),
+             plotOutput("metrics_distrib_plot")
+           )
+         ))

@@ -13,10 +13,10 @@ hasVosonTextData(g)
 Result as logical.
 }
 \description{
-This function checks if a graph has either vertex or edge text attributes.
+This function checks if a graph has either node or edge text attributes.
 }
 \note{
-Uses the \code{VOSON} vertex and edge text attribute prefix \code{"vosonTxt_"} to determine if attributes are
+Uses the \code{VOSON} node and edge text attribute prefix \code{"vosonTxt_"} to determine if attributes are
 text attributes.
 }
 \keyword{internal}

@@ -15,7 +15,6 @@ navbar:
     - articles
     right:
     - vosonlab
-    - twitter
     - github
   components:
     home:
@@ -39,9 +38,6 @@ navbar:
       - text: "Collecting YouTube comments with VOSONDash"
         href: https://vosonlab.github.io/posts/2021-12-06-collecting-youtube-comments-with-vosondash
         icon: far fa-file-alt
-      - text: "Collecting Twitter data with VOSONDash"
-        href: https://vosonlab.github.io/posts/2021-11-25-collecting-twitter-data-with-vosondash
-        icon: far fa-file-alt
       - text: "Exploring issues in Reddit using VOSON Dash"
         href: https://vosonlab.github.io/posts/2021-08-05-exploring-issues-in-reddit-using-voson-dash
         icon: far fa-file-alt
@@ -53,7 +49,7 @@ navbar:
       href: http://vosonlab.net/
     twitter:
       icon: fa-twitter-square fa-lg
-      href: https://twitter.com/vosonlab    
+      href: https://twitter.com/vosonlab 
     github:
       icon: fa-github fa-lg
       href: https://github.com/vosonlab/VOSONDash
@@ -74,7 +70,7 @@ reference:
   - '`applyComponentFilter`'
   - '`applyCategoricalFilters`'  
   - '`applyPruneFilter`'
-  - '`getVertexCategories`'
+  - '`getNodeCategories`'
 - title: Network Metrics
   contents:
   - '`getNetworkMetrics`'  

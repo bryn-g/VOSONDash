@@ -106,29 +106,13 @@ Figure 1. Environmental activist site hyperlink network loaded from a
 Graphical interfaces for collecting network data from social media
 API’s.
 
-- Collect: Twitter, youtube and reddit network data
-- Create: different types of networks from the data such as activity,
-  actor, twomode and semantic networks
-
-![VOSONDash Twitter
-Collection](https://vosonlab.github.io/VOSONDash/images/collection-twitter-1420x980.jpg)
-
-Figure 2. Collection of recent `#auspol` tweets and generation of an
-actor network with the `vosonSML` package.
-
-![VOSONDash Twitter Network
-Creation](https://vosonlab.github.io/VOSONDash/images/creation-twitter-1420x848.jpg)
-
-Figure 3. Create an actor network and add tweet text to the network.
+- Collect: Mastodon, youtube, reddit and hyperlink network data
+- Create: Different types of networks from the data such as activity
+  and actor networks
 
 ### API Keys and Tokens
 
 - API Keys: Enter, save, load API keys and create access tokens
-
-![VOSONDash Keys and Tokens
-Interface](https://vosonlab.github.io/VOSONDash/images/api-twitter-1420x848.jpg)
-
-Figure 4. Twitter API token creation and selection.
 
 ## Special thanks
 

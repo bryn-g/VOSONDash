@@ -6,6 +6,11 @@ h1, h2, h3 {
   margin-top:10px;
 }
 
+h5, .h5 {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
 .tab-content {
   padding-top:6px;
 }
@@ -102,6 +107,7 @@ pre.shiny-text-output {
 }
 
 /* custom css ------------------------------------------------------------------------------------------------------ */
+
 .inactive_menu_link {
   pointer-events:none;
   cursor:default;
@@ -220,4 +226,88 @@ select#plot_height.form-control {
 .popover{
   max-width:300px;
 }
-    
+
+/* navbar ui style changes ---------------------------- */
+
+.navbar {
+  margin-bottom: 5px !important;
+}
+
+.content {
+ padding-top: 0px;
+ padding-left: 0px; 
+ padding-right: 0px;
+ padding-bottom: 0px; 
+}
+
+.navbar-brand {
+  padding-top: 6px;
+  padding-bottom: 0;
+}
+
+.nav-tabs-custom>.nav-tabs>li.header {
+  line-height: 35px;
+  padding: 0 10px;
+  font-size: 16px;
+  color: #444;
+}
+
+.dropdown-menu {
+  border: 1px solid #000000;
+}
+
+.vdash-div-box-heading-icon {
+  margin-right: 5px;
+}
+
+.vdash-div-box-heading {
+  font-size: 14px;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+body.skin-blue {
+  background-color: #ecf0f5;
+}
+
+.graph_sel_blue {
+  color:"#006cb7";
+}
+
+.txt_sel_blue {
+  color: #428bca;
+}
+
+[class*="col-lg-"],[class*="col-md-"],
+[class*="col-sm-"],[class*="col-xs-"] {
+    padding-right:5px;
+    padding-left:5px;
+}
+
+div.row {
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+/* #484e50 */
+.inactive_menu_link {
+  pointer-events:none;
+  cursor:default;
+  color:#ccc !important;
+}
+
+.dropdown-menu>li>a {
+    color: #000;
+}
+
+.rank-list-container {
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  padding-bottom: 5px;
+}
+
+.rank-list-item {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}

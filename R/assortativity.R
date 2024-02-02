@@ -1,18 +1,18 @@
 #' @title Create a mixing matrix
 #' 
-#' @description Function creates a mixing matrix by graph vertex attribute. 
+#' @description Function creates a mixing matrix by graph node attribute. 
 #' 
 #' @note Mixing matrix original function written by Gary Weissman. See: https://gist.github.com/gweissman/2402741.
 #'
 #' @param g \pkg{igraph} graph object.
-#' @param attrib Character string. Vertex attribute or category.
+#' @param attrib Character string. Node attribute or category.
 #' @param use_density Logical. Use edge density. Default is \code{TRUE}.
 #' 
 #' @return A mixing matrix.
 #'
 #' @examples
 #' \dontrun{
-#' # create a mixing matrix of the demonstration network based on vertex 
+#' # create a mixing matrix of the demonstration network based on node 
 #' # categorical attribute for political stance "vosonCA_Stance"
 #' g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
 #' 

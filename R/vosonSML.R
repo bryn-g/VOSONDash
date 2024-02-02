@@ -11,195 +11,6 @@ getVosonSMLVersion <- function() {
   "unknown"
 }
 
-#' @title Create an auth token with twitter app dev keys
-#' 
-#' @description This function is a wrapper for \code{vosonSML::Authenticate} with twitter app developer keys. The 
-#' properties \code{type} and \code{created} are added to the credential object to assist with \pkg{VOSONDash} token 
-#' management. 
-#' 
-#' @param app_name Character string. Twitter app name.
-#' @param keys List. Named list of twitter app API keys.
-#'
-#' @return A vosonSML twitter credential object.
-#' 
-#' @keywords internal
-#' @export
-createTwitterDevToken <- function(app_name, keys) {
-  check_keys <- sapply(keys, isNullOrEmpty)
-  if (any(check_keys == TRUE)) { return(NULL) }
-  
-  cred <- vosonSML::Authenticate("twitter", 
-                                 appName = app_name,
-                                 apiKey = keys$apiKey, 
-                                 apiSecret = keys$apiSecret,
-                                 accessToken = keys$accessToken,
-                                 accessTokenSecret = keys$accessTokenSecret)
-  
-  cred$type <- "dev"
-  cred$name <- app_name
-  cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
-  
-  cred
-}
-
-#' @title Create a auth token with twitter app consumer keys 
-#' 
-#' @description This function creates a \code{vosonSML::Authenticate} credential object with twitter app consumer keys 
-#' and interactive web authorization. \code{rtweet::create_token} is used to create the access token and the properties 
-#' \code{type} and \code{created} are added to the credential object to assist with \pkg{VOSONDash} token management. 
-#' 
-#' @param app_name Character string. Twitter app name.
-#' @param keys List. Named list of twitter app API keys.
-#'
-#' @return A \pkg{vosonSML} twitter credential object.
-#' 
-#' @keywords internal
-#' @export
-createTwitterWebToken <- function(app_name, keys) {
-  check_keys <- sapply(keys, isNullOrEmpty)
-  if (any(check_keys == TRUE)) { return(NULL) }
-  
-  cred <- vosonSML::Authenticate("twitter", 
-                                 appName = app_name,
-                                 apiKey = keys$apiKey, 
-                                 apiSecret = keys$apiSecret)
-  
-  cred$type <- "user"
-  cred$name <- app_name
-  cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
-  
-  cred
-}
-
-#' @title Create a auth token with twitter bearer token
-#' 
-#' @description This function creates a \code{vosonSML::Authenticate} credential object with twitter bearer token.
-#'
-#' @param token_name Character string. Project name or description.
-#' @param bearerToken Character string. Twitter bearer token.
-#'
-#' @return A \pkg{vosonSML} twitter credential object.
-#' 
-#' @keywords internal
-#' @export
-createTwitterBearerToken <- function(token_name, bearerToken) {
-  if (isNullOrEmpty(bearerToken)) { return(NULL) }
-  
-  cred <- vosonSML::Authenticate("twitter", bearerToken = bearerToken)
-  
-  cred$type <- "bearer"
-  cred$name <- token_name
-  cred$created <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
-  
-  cred
-}
-
-#' @title Create a twitter auth token id
-#' 
-#' @description This function uses properties of the twitter credential object to create a unique token id.
-#' 
-#' @param cred \pkg{vosonSML} twitter credential object.
-#' 
-#' @return A token id as character string. 
-#' 
-#' @keywords internal
-#' @export
-createTokenId <- function(cred) {
-  token_id <- paste0(cred$created, " ", cred$name, " (", cred$type ,")")
-}
-
-#' @title Collect twitter data
-#' 
-#' @description This function is a wrapper for collecting tweets using \code{vosonSML::Collect}.
-#' 
-#' @param cred \pkg{vosonSML} twitter credential object.
-#' @param search_term Character string. Twitter search term.
-#' @param search_type Character string. Search type \code{"mixed"}, \code{"recent"} or \code{"popular"}.
-#' @param tweet_count Numeric. Number of tweets to collect.
-#' @param include_retweets Logical. Include retweets in the results.
-#' @param retry_on_rate_limit Logical. Wait and retry when the twitter api rate limit is reached.
-#' @param language Character string. Language code of tweets to collect as two character ISO 639-1 code.
-#' @param date_until Character string. Date to collect tweets to in format \code{"YYYY-MM-DD"}.
-#' @param since_id Numeric. Collect tweets with a tweet id more recent than \code{since_id}.
-#' @param max_id Numeric. Collect tweets with a tweet id older than \code{max_id}.
-#' 
-#' @return A vosonSML twitter dataframe.
-#' 
-#' @keywords internal
-#' @export
-collectTwitterData <- function(cred, search_term, search_type, tweet_count, 
-                               include_retweets, retry_on_rate_limit,
-                               language, date_until, since_id, max_id) {
-  
-  # if (!requireNamespace("rtweet", quietly = TRUE)) { return(NULL) }
-  if (is.null(cred) || isNullOrEmpty(search_term)) { return(NULL) }
-  
-  collect_params <- list()
-  
-  collect_params[['credential']] <- cred
-  collect_params['searchTerm'] <- search_term
-  
-  if (!isNullOrEmpty(search_type)) {
-    collect_params['searchType'] <- search_type
-  }
-  
-  if (is.numeric(tweet_count) && tweet_count > 0) {
-    collect_params['numTweets'] <- tweet_count
-  }
-  
-  collect_params['includeRetweets'] <- TRUE
-  if (!include_retweets) {
-    collect_params['includeRetweets'] <- FALSE
-  }
-  
-  collect_params['retryOnRateLimit'] <- TRUE
-  if (!retry_on_rate_limit) {
-    collect_params['retryOnRateLimit'] <- FALSE
-  }
-  
-  if (!isNullOrEmpty(language)) {
-    collect_params['lang'] <- language
-  }
-  
-  if (!isNullOrEmpty(date_until)) {
-    collect_params['until'] <- date_until
-  }
-  
-  if (!isNullOrEmpty(since_id)) {
-    collect_params['since_id'] <- since_id
-  }
-  
-  if (!isNullOrEmpty(max_id)) {
-    collect_params['max_id'] <- max_id
-  }
-  
-  collect_params['writeToFile'] <- FALSE
-  collect_params['verbose'] <- TRUE
-  
-  data <- do.call(vosonSML::Collect, collect_params)
-}
-
-#' @title Create twitter actor networks
-#' 
-#' @description This function is a wrapper for creating a twitter actor networks using \code{vosonSML::Create}.
-#' 
-#' @param data \pkg{vosonSML} twitter dataframe.
-#'
-#' @return Twitter actor networks as named list.
-#' 
-#' @keywords internal
-#' @export
-createTwitterActorNetwork <- function(data) {
-  network <- vosonSML::Create(data, "actor", verbose = TRUE)
-  
-  g <- igraph::set_graph_attr(network$graph, "type", "twitter")
-  
-  g_wt <- g
-  E(g_wt)$vosonTxt_tweet <- data$text[match(E(g_wt)$status_id, data$status_id)]
-  
-  list(network = g, networkWT = g_wt)
-}
-
 #' @title Collect youtube data
 #' 
 #' @description This function is a wrapper for collecting youtube video comments using \code{vosonSML::Collect}. 
@@ -222,15 +33,15 @@ collectYoutubeData <- function(youtube_api_key, youtube_video_id_list, youtube_m
 
   cred <- vosonSML::Authenticate("youtube", apiKey = youtube_api_key)
   
-  collect_params[['credential']] <- cred
-  collect_params[['videoIDs']] <- youtube_video_id_list
+  collect_params[["credential"]] <- cred
+  collect_params[["videoIDs"]] <- youtube_video_id_list
   
   if (is.numeric(youtube_max_comments) && youtube_max_comments > 1) {
-    collect_params['maxComments'] <- youtube_max_comments
+    collect_params["maxComments"] <- youtube_max_comments
   }
   
-  collect_params['writeToFile'] <- FALSE
-  collect_params['verbose'] <- TRUE
+  collect_params["writeToFile"] <- FALSE
+  collect_params["verbose"] <- TRUE
   
   data <- do.call(vosonSML::Collect, collect_params)
 }
@@ -261,17 +72,24 @@ createYoutubeNetwork <- function(data) {
 #' @description This function is a wrapper for collecting reddit thread comments using \code{vosonSML::Collect}. 
 #' 
 #' @param reddit_url_list Character vector. Thread urls to collect comments from.
+#' @param reddit_sort Character vector. Sort type for comments in each thread.
 #'
 #' @return A vosonSML reddit dataframe.
 #' 
 #' @keywords internal
 #' @export
-collectRedditData <- function(reddit_url_list) {
+collectRedditData <- function(reddit_url_list, reddit_sort = NA) {
   data <- NULL
   
+  reddit_sort <- replace(reddit_sort, reddit_sort == "na", NA)
+  
   if (length(reddit_url_list) > 0) {
-    data <- vosonSML::Collect(vosonSML::Authenticate("reddit"), threadUrls = reddit_url_list, waitTime = 5, 
-                              writeToFile = FALSE, verbose = TRUE)
+    data <- vosonSML::Collect(vosonSML::Authenticate("reddit"),
+                              threadUrls = reddit_url_list,
+                              sort = reddit_sort,
+                              waitTime = 5, 
+                              writeToFile = FALSE,
+                              verbose = TRUE)
   }
   
   data
@@ -292,4 +110,65 @@ createRedditActorNetwork <- function(data) {
   networkWT <- vosonSML::Create(data, "actor", textData = TRUE, cleanText = TRUE, verbose = TRUE, writeToFile = FALSE)
   
   list(network = network$graph, networkWT = networkWT$graph)
+}
+
+#' @title Collect mastodon data
+#' 
+#' @description This function is a wrapper for collecting mastodon thread comments using \code{vosonSML::Collect}. 
+#' 
+#' @param mastodon_url_list Character vector. Thread urls to collect comments from.
+#'
+#' @return A vosonSML mastodon dataframe.
+#' 
+#' @keywords internal
+#' @export
+collectMastodonThreadData <- function(mastodon_url_list) {
+  data <- NULL
+
+  if (length(mastodon_url_list) > 0) {
+    data <- 
+      vosonSML::Authenticate("mastodon", verbose = FALSE) |>
+      vosonSML::Collect(
+        endpoint = "thread",
+        threadUrls = mastodon_url_list,
+        writeToFile = FALSE,
+        verbose = TRUE
+      )
+  }
+
+  data
+}
+
+#' @title Collect mastodon data
+#' 
+#' @description This function is a wrapper for collecting mastodon search comments using \code{vosonSML::Collect}. 
+#' 
+#' @param hashtag Character string. Hashtag used to search for posts.
+#' @param instance Character string. Instance to collect comments from.
+#' @param local Logical. Collect posts from local or global timeline.
+#' @param n Numeric. Number of posts to retrieve.
+#'
+#' @return A vosonSML mastodon dataframe.
+#' 
+#' @keywords internal
+#' @export
+collectMastodonSearchData <- function(hashtag, instance, local = FALSE, n = 100) {
+  data <- NULL
+  
+  if (hashtag == "") hashtag <- NULL
+  
+  data <- 
+    vosonSML::Authenticate("mastodon", verbose = FALSE) |>
+    vosonSML::Collect(
+      endpoint = "search",
+      hashtag = hashtag,
+      instance = instance,
+      local = local,
+      numPosts = n,
+      anonymous = TRUE,
+      writeToFile = FALSE,
+      verbose = TRUE
+    )
+  
+  data
 }

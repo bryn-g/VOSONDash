@@ -2,7 +2,7 @@
 % Please edit documentation in R/networkGraphs.R
 \name{addAdditionalMeasures}
 \alias{addAdditionalMeasures}
-\title{Add additional measures to graph as vertex attributes}
+\title{Add additional measures to graph as node attributes}
 \usage{
 addAdditionalMeasures(g)
 }
@@ -13,5 +13,5 @@ addAdditionalMeasures(g)
 An igraph graph object.
 }
 \description{
-Adds degree, in-degree, out-degree, betweenness and closeness measures to graph as vertex attributes.
+Adds degree, in-degree, out-degree, betweenness and closeness measures to graph as node attributes.
 }

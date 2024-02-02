@@ -1,6 +1,6 @@
-#' @title Filter out graph vertices not in component size range
+#' @title Filter out graph nodes not in component size range
 #' 
-#' @description This function removes any graph vertices that are in components that fall outside of the specified 
+#' @description This function removes any graph nodes that are in components that fall outside of the specified 
 #' component size range.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
@@ -24,7 +24,7 @@ applyComponentFilter <- function(g, component_type = "strong", component_range) 
   filter_nodes_over <- NULL
   rm_nodes <- c()
   
-  # remove vertices not part of components in component size range by name
+  # remove nodes not part of components in component size range by name
   if (min_range > min_cluster_size) {
     filter_nodes_under <- names(which(table(graph_clusters$membership) < min_range))
     
@@ -49,17 +49,17 @@ applyComponentFilter <- function(g, component_type = "strong", component_range) 
   g
 }
 
-#' @title Filter out graph vertices and edges from graph object that are isolates, multi edge or edge loops
+#' @title Filter out graph nodes and edges from graph object that are isolates, multi edge or edge loops
 #' 
-#' @description This function removes isolate vertices, multiple edges between vertices and or vertex edge loops from a 
+#' @description This function removes isolate nodes, multiple edges between nodes and or node edge loops from a 
 #' graph.
 #' 
 #' @note Removing multiple edges or edge loops from a graph will simplify it and remove other edge attributes.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param isolates Logical. Include isolate vertices in graph. Default is \code{TRUE}.
-#' @param multi_edge Logical. Include multiple edges between vertices in graph. Default is \code{TRUE}.
-#' @param loops_edge Logical. Include vertex edge loops in graph. Default is \code{TRUE}.
+#' @param isolates Logical. Include isolate nodes in graph. Default is \code{TRUE}.
+#' @param multi_edge Logical. Include multiple edges between nodes in graph. Default is \code{TRUE}.
+#' @param loops_edge Logical. Include node edge loops in graph. Default is \code{TRUE}.
 #' 
 #' @return An igraph graph object.
 #' 
@@ -81,9 +81,9 @@ applyGraphFilters <- function(g, isolates = TRUE, multi_edge = TRUE, loops_edge 
   g
 }
 
-#' @title Add additional measures to graph as vertex attributes
+#' @title Add additional measures to graph as node attributes
 #' 
-#' @description Adds degree, in-degree, out-degree, betweenness and closeness measures to graph as vertex attributes.
+#' @description Adds degree, in-degree, out-degree, betweenness and closeness measures to graph as node attributes.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
 #'
@@ -112,30 +112,30 @@ addAdditionalMeasures <- function(g) {
   g
 }
 
-#' @title Get a list of vertex category attribute names and values
+#' @title Get a list of node category attribute names and values
 #' 
-#' @description This function returns a list of graph vertex attribute names that match a category attribute prefix 
+#' @description This function returns a list of graph node attribute names that match a category attribute prefix 
 #' format and their unique values.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
 #' @param cat_prefix Character string. Category attribute prefix format to match. Default is \code{"vosonCA_"}.
 #' 
-#' @return A named list of vertex category attributes and values.
+#' @return A named list of node category attributes and values.
 #' 
 #' @examples
 #' \dontrun{
-#' # get a list of voson vertex categories and values
+#' # get a list of voson node categories and values
 #' g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
 #' 
-#' vcats <- getVertexCategories(g)
+#' cats <- getNodeCategories(g)
 #' 
-#' # vcats
+#' # cats
 #' # $Stance
 #' # [1] "conservative" "liberal"  
 #' }
 #' 
 #' @export
-getVertexCategories <- function(g, cat_prefix = "vosonCA_") {
+getNodeCategories <- function(g, cat_prefix = "vosonCA_") {
   graph_cats <- list()
   
   attr_v <- igraph::vertex_attr_names(g)
@@ -143,7 +143,7 @@ getVertexCategories <- function(g, cat_prefix = "vosonCA_") {
   
   for (voson_attr in attr_v) {
     voson_attr_rm_prefix <- sub(paste0("^", cat_prefix), "", voson_attr)
-    graph_cats[[voson_attr_rm_prefix]] <- sort(unique(vertex_attr(g, voson_attr)))
+    graph_cats[[voson_attr_rm_prefix]] <- sort(unique(igraph::vertex_attr(g, voson_attr)))
   }
   
   graph_cats
@@ -151,9 +151,9 @@ getVertexCategories <- function(g, cat_prefix = "vosonCA_") {
 
 #' @title Check if graph object has text attributes
 #' 
-#' @description This function checks if a graph has either vertex or edge text attributes.
+#' @description This function checks if a graph has either node or edge text attributes.
 #' 
-#' @note Uses the \code{VOSON} vertex and edge text attribute prefix \code{"vosonTxt_"} to determine if attributes are
+#' @note Uses the \code{VOSON} node and edge text attribute prefix \code{"vosonTxt_"} to determine if attributes are
 #' text attributes.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
@@ -163,30 +163,23 @@ getVertexCategories <- function(g, cat_prefix = "vosonCA_") {
 #' @keywords internal
 #' @export
 hasVosonTextData <- function(g) {
-  attr_v <- vertex_attr_names(g)
+  attr_v <- igraph::vertex_attr_names(g)
   attr_v <- attr_v[grep("^vosonTxt_", attr_v, perl = TRUE)]
+  
   attr_e <- edge_attr_names(g)
   attr_e <- attr_e[grep("^vosonTxt_", attr_e, perl = TRUE)]
   
-  has_text <- FALSE
-  if (length(attr_v)) {
-    attr <- c(attr_v[1], 'vertex')
-    has_text <- TRUE
-  } else if (length(attr_e)) {
-    i <- attr_e[1]
-    attr <- c(attr_e[1], 'edge')
-    has_text <- TRUE
-  }
+  if (length(attr_v) > 0 | length(attr_e) > 0) return(TRUE)
   
-  has_text
+  FALSE
 }
 
-#' @title Filter out graph vertices not in selected category
+#' @title Filter out graph nodes not in selected category
 #' 
-#' @description This function removes vertices that are not in the selected categories values list or sub-categories.   
+#' @description This function removes nodes that are not in the selected categories values list or sub-categories.   
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param selected_cat Character string. Selected vertex category without prefix.
+#' @param selected_cat Character string. Selected node category without prefix.
 #' @param selected_subcats List. Selected sub-category values to include in graph. 
 #' @param cat_prefix Character string. Category attribute prefix format to match. Default is \code{"vosonCA_"}.
 #' 
@@ -194,7 +187,7 @@ hasVosonTextData <- function(g) {
 #' 
 #' @examples
 #' \dontrun{
-#' # return a graph containing only vertices that have the vertex category 
+#' # return a graph containing only nodes that have the node category 
 #' # attribute "vosonCA_Stance" value "liberal"
 #' g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
 #' 
@@ -208,13 +201,13 @@ applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefi
     return(g)
   }
   
-  # re-create category vertex attribute name
+  # re-create category node attribute name
   vattr <- paste0(cat_prefix, selected_cat)
   
   # remove All from sub-categories list
   selected_subcats <- selected_subcats[selected_subcats != "All"]
   
-  # filter out all vertices that do not have a category value in sub-categories list
+  # filter out all nodes that do not have a category value in sub-categories list
   if (length(selected_subcats) > 0) {
     g <- igraph::delete_vertices(g, V(g)[!(igraph::vertex_attr(g, vattr) %in% selected_subcats)])
   }
@@ -222,20 +215,20 @@ applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefi
   g
 }
 
-#' @title Prune vertices from graph by vertex id
+#' @title Prune nodes from graph by node id
 #'
-#' @description This function removes a list of vertices from the graph object by vertex id value. 
+#' @description This function removes a list of nodes from the graph object by node id value. 
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param selected_prune_verts List. Selected vertex ids to remove.
+#' @param selected_prune_nodes List. Selected node ids to remove.
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-applyPruneFilter <- function(g, selected_prune_verts) {
-  if (length(selected_prune_verts) > 0) {
-    verts <- which(V(g)$id %in% selected_prune_verts)
-    g <- igraph::delete.vertices(g, verts)
+applyPruneFilter <- function(g, selected_prune_nodes) {
+  if (length(selected_prune_nodes) > 0) {
+    nodes <- which(V(g)$id %in% selected_prune_nodes)
+    g <- igraph::delete_vertices(g, nodes)
   }
   
   g

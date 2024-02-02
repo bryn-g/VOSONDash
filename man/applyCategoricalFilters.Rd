@@ -2,7 +2,7 @@
 % Please edit documentation in R/networkGraphs.R
 \name{applyCategoricalFilters}
 \alias{applyCategoricalFilters}
-\title{Filter out graph vertices not in selected category}
+\title{Filter out graph nodes not in selected category}
 \usage{
 applyCategoricalFilters(
   g,
@@ -14,7 +14,7 @@ applyCategoricalFilters(
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
 
-\item{selected_cat}{Character string. Selected vertex category without prefix.}
+\item{selected_cat}{Character string. Selected node category without prefix.}
 
 \item{selected_subcats}{List. Selected sub-category values to include in graph.}
 
@@ -24,11 +24,11 @@ applyCategoricalFilters(
 An igraph graph object.
 }
 \description{
-This function removes vertices that are not in the selected categories values list or sub-categories.
+This function removes nodes that are not in the selected categories values list or sub-categories.
 }
 \examples{
 \dontrun{
-# return a graph containing only vertices that have the vertex category 
+# return a graph containing only nodes that have the node category 
 # attribute "vosonCA_Stance" value "liberal"
 g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
 

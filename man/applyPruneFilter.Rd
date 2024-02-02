@@ -2,18 +2,18 @@
 % Please edit documentation in R/networkGraphs.R
 \name{applyPruneFilter}
 \alias{applyPruneFilter}
-\title{Prune vertices from graph by vertex id}
+\title{Prune nodes from graph by node id}
 \usage{
-applyPruneFilter(g, selected_prune_verts)
+applyPruneFilter(g, selected_prune_nodes)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
 
-\item{selected_prune_verts}{List. Selected vertex ids to remove.}
+\item{selected_prune_nodes}{List. Selected node ids to remove.}
 }
 \value{
 An igraph graph object.
 }
 \description{
-This function removes a list of vertices from the graph object by vertex id value.
+This function removes a list of nodes from the graph object by node id value.
 }

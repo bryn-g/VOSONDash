@@ -7,14 +7,12 @@
 corpusFromGraph(
   g = NULL,
   txt_attr = NULL,
-  type = "vertex",
+  type = "node",
   iconv = FALSE,
   html_decode = TRUE,
   rm_url = TRUE,
   rm_num = TRUE,
   rm_punct = TRUE,
-  rm_twit_hashtags = FALSE,
-  rm_twit_users = FALSE,
   sw_kind = "SMART",
   rm_words = NULL,
   stem = FALSE
@@ -25,7 +23,7 @@ corpusFromGraph(
 
 \item{txt_attr}{Character string. Name of graph text attribute. Default is \code{NULL}.}
 
-\item{type}{Character string. Graph attribute type. Default is \code{"vertex"}.}
+\item{type}{Character string. Graph attribute type. Default is \code{"node"}.}
 
 \item{iconv}{Logical. Use the \code{iconv} function to attempt UTF8 conversion. Default is \code{FALSE}.}
 
@@ -36,10 +34,6 @@ corpusFromGraph(
 \item{rm_num}{Logical. Remove numbers. Default is \code{TRUE}.}
 
 \item{rm_punct}{Logical. Remove punctuation. Default is \code{TRUE}.}
-
-\item{rm_twit_hashtags}{Logical. Remove twitter hashtags. Default is \code{FALSE}.}
-
-\item{rm_twit_users}{Logical. Remove twitter user names. Default is \code{FALSE}.}
 
 \item{sw_kind}{Character string. Stopword dictionary. Refer \code{stopwords} \code{kind} parameter.
 Default is \code{"SMART"}.}

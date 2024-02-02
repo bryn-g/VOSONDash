@@ -2,24 +2,24 @@
 % Please edit documentation in R/networkGraphs.R
 \name{applyGraphFilters}
 \alias{applyGraphFilters}
-\title{Filter out graph vertices and edges from graph object that are isolates, multi edge or edge loops}
+\title{Filter out graph nodes and edges from graph object that are isolates, multi edge or edge loops}
 \usage{
 applyGraphFilters(g, isolates = TRUE, multi_edge = TRUE, loops_edge = TRUE)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
 
-\item{isolates}{Logical. Include isolate vertices in graph. Default is \code{TRUE}.}
+\item{isolates}{Logical. Include isolate nodes in graph. Default is \code{TRUE}.}
 
-\item{multi_edge}{Logical. Include multiple edges between vertices in graph. Default is \code{TRUE}.}
+\item{multi_edge}{Logical. Include multiple edges between nodes in graph. Default is \code{TRUE}.}
 
-\item{loops_edge}{Logical. Include vertex edge loops in graph. Default is \code{TRUE}.}
+\item{loops_edge}{Logical. Include node edge loops in graph. Default is \code{TRUE}.}
 }
 \value{
 An igraph graph object.
 }
 \description{
-This function removes isolate vertices, multiple edges between vertices and or vertex edge loops from a
+This function removes isolate nodes, multiple edges between nodes and or node edge loops from a
 graph.
 }
 \note{

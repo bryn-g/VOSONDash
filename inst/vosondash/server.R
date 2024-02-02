@@ -1,9 +1,11 @@
 # voson dashboard shiny app server
 
+source("server/srv_utils.R")
+
 #### shiny server ----------------------------------------------------------------------------------------------------- #
 shinyServer(function(input, output, session) {
   
-  # api keys
+  # auth
   u_api_keys_path <- "NA"
   u_api_tokens_path <- "NA"
   
@@ -12,43 +14,23 @@ shinyServer(function(input, output, session) {
     u_api_tokens_path <- paste0(Sys.getenv("HOME"), "/vosondash_tokens.rds", sep = "")
   }
   
-  #### network graphs ####
-  source("server/networkGraphsServer.R", local = TRUE)
-  
-  #### text analysis ####
-  source("server/textAnalysisServer.R", local = TRUE)
-  
-  #### network metrics ####
-  source("server/networkMetricsServer.R", local = TRUE)  
-  
-  #### assortativity ####
-  source("server/assortativityServer.R", local = TRUE)
-  
-  #### twitter ####
-  source("server/twitterServer.R", local = TRUE)
-  
-  #### youtube ####
-  source("server/youtubeServer.R", local = TRUE)
-  
-  #### reddit ####
-  source("server/redditServer.R", local = TRUE)
-  
-  #### hyperlink ####
-  source("server/webServer.R", local = TRUE)
-  
-  #### api keys ####
+  source("server/srv_analysis_network.R", local = TRUE)
+  source("server/srv_analysis_text.R", local = TRUE)
+  source("server/srv_network_metrics.R", local = TRUE)  
+  source("server/srv_network_assortativity.R", local = TRUE)
+  source("server/srv_collect_mtdn.R", local = TRUE)
+  source("server/srv_collect_ytbe.R", local = TRUE)
+  source("server/srv_collect_rddt.R", local = TRUE)
+  source("server/srv_collect_web.R", local = TRUE)
   source("server/srv_auth.R", local = TRUE)
+  source("server/srv_console.R", local = TRUE)
   
-  source("server/consoleServer.R", local = TRUE)
-  
-  shinyjs::enable("twitter_semantic_assoc")
-  
-  if (VOSONDash::isMac()) { shinyjs::enable("macos_font_check") }
+  if (VOSONDash::isMac()) shinyjs::enable("macos_font_check")
   
   # reset collect consoles on startup
   observeEvent(input$sidebar_menu, {
-    resetConsole("twitter_console", FALSE)
-    resetConsole("youtube_console", FALSE)
+    resetConsole("mtdn_console", FALSE)
+    resetConsole("ytbe_console", FALSE)
     resetConsole("reddit_console", FALSE)
     resetConsole("hyperlink_console", FALSE)
   }, once = TRUE, ignoreInit = FALSE)

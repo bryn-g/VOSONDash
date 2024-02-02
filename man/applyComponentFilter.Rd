@@ -2,7 +2,7 @@
 % Please edit documentation in R/networkGraphs.R
 \name{applyComponentFilter}
 \alias{applyComponentFilter}
-\title{Filter out graph vertices not in component size range}
+\title{Filter out graph nodes not in component size range}
 \usage{
 applyComponentFilter(g, component_type = "strong", component_range)
 }
@@ -18,6 +18,6 @@ applyComponentFilter(g, component_type = "strong", component_range)
 An igraph graph object.
 }
 \description{
-This function removes any graph vertices that are in components that fall outside of the specified
+This function removes any graph nodes that are in components that fall outside of the specified
 component size range.
 }

@@ -4,10 +4,12 @@
 \alias{collectRedditData}
 \title{Collect reddit data}
 \usage{
-collectRedditData(reddit_url_list)
+collectRedditData(reddit_url_list, reddit_sort = NA)
 }
 \arguments{
 \item{reddit_url_list}{Character vector. Thread urls to collect comments from.}
+
+\item{reddit_sort}{Character vector. Sort type for comments in each thread.}
 }
 \value{
 A vosonSML reddit dataframe.
