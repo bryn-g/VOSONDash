@@ -151,26 +151,30 @@ observeEvent(input$hyperlink_create_button, {
 })
 
 # download and view actions
-callModule(collectDataButtons, "hyperlink", data = reactive({ hyperlink_rv$hyperlink_data }), file_prefix = "hyperlink")
-
-callModule(collectNetworkButtons, "hyperlink", network = reactive({ hyperlink_rv$hyperlink_network }), file_prefix = "hyperlink")
-
-
-callModule(collectGraphButtons_, "hyperlink", graph_data = reactive({ hyperlink_rv$hyperlink_graphml }), file_prefix = "hyperlink")
-
-hyperlink_view_rvalues <- callModule(collectViewGraphButtons, "hyperlink", graph_data = reactive({ hyperlink_rv$hyperlink_graphml }))
+callModule(collect_data_btns, "hyperlink", data = reactive({ hyperlink_rv$hyperlink_data }), file_prefix = "hyperlink")
+callModule(collect_network_btns, "hyperlink", network = reactive({ hyperlink_rv$hyperlink_network }), file_prefix = "hyperlink")
+callModule(collect_graph_btns, "hyperlink", graph = reactive({ hyperlink_rv$hyperlink_graphml }), file_prefix = "hyperlink")
+hyperlink_view_rvalues <- callModule(collect_view_graph_btns, "hyperlink", graph = reactive({ hyperlink_rv$hyperlink_graphml }))
 
 observeEvent(hyperlink_view_rvalues$data, {
-  ng_set_view(data = isolate(hyperlink_view_rvalues$data), 
-               desc = paste0("Hyperlink network for seed pages: ", paste0(isolate(hyperlink_rv$hyperlink_seed_urls$page), collapse = ', '), sep = ""),
-               type = "hyperlink",
-               name = "",
-               seed = get_random_seed())
-  updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  req(hyperlink_view_rvalues$data)
+  f_init_graph(
+    data = hyperlink_view_rvalues$data, 
+    meta = list(
+      desc = paste0(
+        "Hyperlink network for seed pages: ",
+         paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ', '),
+         sep = ""),
+      type = "hyperlink",
+      name = "",
+      seed = sample(1:20000, 1)
+    )
+  )
+  #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
 }, ignoreInit = TRUE)
 
 observeEvent(input$clear_hyperlink_console, {
-  resetConsole("hyperlink_console")
+  reset_console("hyperlink_console")
 })
 #### output ---------------------------------------------------------------------------------------------------------- #
 

@@ -29,6 +29,7 @@ Suggests:
     rtweet (>= 1.0.2),
     shinydashboard,
     shinyjs,
+    sortable,
     visNetwork
 Depends: R (>= 4.1)
 Encoding: UTF-8

@@ -66,5 +66,5 @@ tabPanel(
                   ))),
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
   h4("Edge Labels"),
-  source("ui/analysis_network/ui_edge_labels.R")$value
+  source("ui/network_graph/ui_edge_labels.R")$value
 )

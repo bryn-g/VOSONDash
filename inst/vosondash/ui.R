@@ -1,7 +1,7 @@
 # voson dashboard shiny app ui
 
 source("ui/ui_utils.R")
-source("ui/ui_info.R")
+source("ui/ui_tips.R")
 
 ui <-
   dashboardPage(
@@ -33,20 +33,24 @@ ui <-
         ),
         windowTitle = "VOSON Dash",
         inverse = TRUE,
-        tabPanel(
-          "Network Graphs",
-          value = "network_graphs_tab",
-          icon = icon("share-nodes"),
-          source("ui/ui_analysis_network.R")$value
+        navbarMenu(
+          "Network Analysis",
+          icon = icon("globe"),
+          tabPanel(
+            "Network Graph",
+            value = "network_graphs_tab",
+            icon = icon("circle-nodes"),
+            source("ui/ui_network_graph.R")$value
+          )
         ),
         navbarMenu(
-          "Analysis",
-          icon = icon("microscope"),
+          "Text Analysis",
+          icon = icon("quote-right"),
           tabPanel(
             "Word Frequency",
             value = "word_freq_tab",
             icon = icon("arrow-up-wide-short"),
-            source("ui/ui_analysis_text.R")$value
+            source("ui/ui_network_text.R")$value
           )
         ),
         navbarMenu(
@@ -83,8 +87,17 @@ ui <-
             icon = icon("globe"),
             source("ui/ui_collect_web.R")$value
           )
+        ),
+        navbarMenu(
+          title = NULL,
+          icon = icon("pen-to-square"),
+          tabPanel(
+            "Logging",
+            value = "app_log_tab",
+            icon = icon("pen"),
+            source("ui/ui_app_log.R")$value
+          )
         )
-        
       )
       
     )

@@ -1,21 +1,10 @@
 #' mastodon data collection and network creation
 
-# mtdn_rv <- reactiveValues(
-#   data = NULL,                   # list of dataframes
-#   network = NULL,                # list of dataframes
-#   graph = NULL,                  # igraph object
-#   
-#   endpoint = NULL,               # type of collection
-#   thread_urls = NULL,            # dataframe
-#   
-#   data_posts_col_names = NULL,
-#   data_users_col_names = NULL
-# )
-
 mtdn_rv <- reactiveValues(
   data = NULL,                   # list of dataframes
   network = NULL,                # list of dataframes
   graph = NULL,                  # igraph object
+  created = NULL
 )
 
 # mtdn_data_rv$users_colnames
@@ -26,6 +15,7 @@ mtdn_data_rv <- reactiveValues(
 
 # mtdn_collect_rv$param_urls
 mtdn_collect_rv <- reactiveValues(
+  collected = NULL,
   param_type = NULL,
   param_urls = NULL
 )
@@ -98,6 +88,7 @@ observeEvent({ input$mtdn_search_instance_text
 # collect threads button event
 observeEvent(input$mtdn_thread_collect_btn, {
   
+  mtdn_collect_rv$collected <- ts_utc()
   mtdn_collect_rv$param_type <- "thread"
   
   # disable button so it is not pushed again
@@ -131,6 +122,7 @@ observeEvent(input$mtdn_thread_collect_btn, {
 # collect search button event
 observeEvent(input$mtdn_search_collect_btn, {
   
+  mtdn_collect_rv$collected <- ts_utc()
   mtdn_collect_rv$param_type <- "search"
   
   # disable button so it is not pushed again
@@ -175,6 +167,7 @@ observeEvent(mtdn_rv$data, {
 
 # create network button event
 observeEvent(input$mtdn_network_create_btn, {
+  mtdn_rv$created <- ts_utc()
   type <- input$mtdn_network_type_sel
   add_text <- input$mtdn_network_add_text_chk
   network <- NULL
@@ -204,7 +197,12 @@ observeEvent(input$mtdn_network_create_btn, {
       
       if (!is.null(network)) {
         mtdn_rv$network <- network
-        mtdn_rv$graph <- vosonSML::Graph(network) 
+        mtdn_rv$graph <- vosonSML::Graph(network)
+        
+        mtdn_rv$network_type <- paste(type,
+                                      ifelse(input$mtdn_network_tag_chk, "(tag)", ""),
+                                      ifelse(input$mtdn_network_server_chk, "(server)", ""),
+                                      ifelse(add_text, "[text]", ""))
       }
     }) # withConsoleRedirect
   
@@ -218,6 +216,7 @@ observeEvent(input$mtdn_network_create_btn, {
 
 # set view metadata
 observeEvent(mtdn_view_rv$data, {
+  req(mtdn_view_rv$data)
   desc <- ""
   
   if (mtdn_collect_rv$param_type == "thread") {
@@ -225,17 +224,23 @@ observeEvent(mtdn_view_rv$data, {
   } else if (mtdn_collect_rv$param_type == "search") {
     desc <- paste0("Mastodon network for search.\n", mtdn_collect_search_params_text())
   }
-  
-  ng_set_view(data = mtdn_view_rv$data,
-                 desc = desc,
-                 type = "mastodon",
-                 name = "",
-                 seed = get_random_seed())
+
+  graph_rv$data <- list(
+    data = mtdn_view_rv$data,
+    meta = list(
+      desc = desc,
+      type = "mastodon",
+      subtype = mtdn_collect_rv$param_type,
+      network = mtdn_rv$network_type,
+      name = paste0("mastodon - ", mtdn_rv$network_type),
+      created = mtdn_rv$created
+    )
+  )
 }, ignoreInit = TRUE)
 
 # clear console button event
 observeEvent(input$mtdn_console_clear_btn, {
-  resetConsole("mtdn_console")
+  reset_console("mtdn_console")
 })
 
 # select all data post cols to include in table
@@ -290,11 +295,10 @@ observeEvent(input$mtdn_data_users_reset_cols_btn, {
 })
 
 # download and view actions
-callModule(collectDataButtons, "mastodon", data = reactive(mtdn_rv$data), file_prefix = "mastodon")
-callModule(collectNetworkButtons, "mastodon", network = reactive(mtdn_rv$network), file_prefix = "mastodon")
-callModule(collectGraphButtons_, "mastodon", graph_data = reactive(mtdn_rv$graph), file_prefix = "mastodon")
-
-mtdn_view_rv <- callModule(collectViewGraphButtons, "mastodon", graph_data = reactive(mtdn_rv$graph))
+callModule(collect_data_btns, "mastodon", data = reactive(mtdn_rv$data), file_prefix = "mastodon")
+callModule(collect_network_btns, "mastodon", network = reactive(mtdn_rv$network), file_prefix = "mastodon")
+callModule(collect_graph_btns, "mastodon", graph = reactive(mtdn_rv$graph), file_prefix = "mastodon")
+mtdn_view_rv <- callModule(collect_view_graph_btns, "mastodon", graph = reactive(mtdn_rv$graph))
 
 #### output ---------------------------------------------------------------------------------------------------------- #
 

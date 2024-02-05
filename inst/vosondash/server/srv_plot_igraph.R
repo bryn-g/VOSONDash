@@ -1,26 +1,43 @@
-# create graph data for a standard network plot
-igraphData <- reactive({
-  g <- graphFilters()
+# r_graph_base()
+# graph_rv$prune_verts
+# input$filter_order
+# input$graph_cat_select
+# input$graph_sub_cats_select
+
+# input$graph_components_check
+# isolate(input$graph_comp_type_sel)
+# input$graph_comp_slider
+# input$graph_comp_type_sel - maybe not isolated
+
+# input$graph_multi_edge_check
+# input$graph_loops_edge_check
+# input$graph_isolates_check
+
+# r_igraph_plot_label_params <- reactive({ })
+# r_igraph_plot_color_params <- reactive({ })
+
+r_graph_igraph_plot <- reactive({
+  g <- r_graph_filtered()
   
   if (is.null(g)) return(emptyPlotMessage("No graph data."))
-  if (vcount(g) <= 0) return(emptyPlotMessage("No nodes to plot."))
+  if (vcount(g) <= 0) return(emptyPlotMessage("No vertices to plot."))
   
-  # reactive dependencies
+  # isolate dependencies of r_graph_filters
   isolate({
-    # already dependencies of graphFilters
-    categorical_attributes <- graph_rv$graph_cats
-    selected_categorical_attribute <- input$graph_cat_select
+    # already dependencies of r_graph_filters
+    graph_cats <- graph_rv$graph_cats
+    graph_cat_sel <- input$graph_cat_select
   })
   
-  selected_rows <- input$dt_nodes_rows_selected
-  selected_edge_rows <- input$dt_edges_rows_selected
-  chosen_layout <- input$graph_layout_select
+  sel_node_rows <- input$dt_nodes_rows_selected
+  # sel_edges <- input$dt_edges_rows_selected
+  sel_layout <- input$graph_layout_select
   graph_seed <- graph_rv$graph_seed
-  graph_spread <- input$graph_spread_slider  
-  node_degree_type <- input$graph_node_size_select
-  node_size_multiplier <- input$graph_node_size_slider  
+  graph_spread <- input$igraph_spread_slider  
+  node_size_attr <- input$graph_node_size_select
+  node_size_mplr <- input$graph_node_size_slider  
   
-  node_index_check <- input$node_index_check
+  use_node_index_label <- input$node_index_check
   
   # save and restore graphics parameters
   saved_par <- par(no.readonly = TRUE)  
@@ -41,8 +58,8 @@ igraphData <- reactive({
   # if label attribute null set to name
   if (is.null(igraph::V(g)$label)) igraph::V(g)$label <- igraph::V(g)$name
   
-  # df representation of nodes
-  df <- data.frame(
+  # df representation of graph nodes
+  graph_nodes_df <- data.frame(
     label = igraph::V(g)$label,
     name = igraph::V(g)$name, 
     degree = igraph::V(g)$Degree, 
@@ -52,59 +69,58 @@ igraphData <- reactive({
     closeness = igraph::V(g)$Closeness,
     stringsAsFactors = FALSE
   )
-  row.names(df) <- igraph::V(g)$id
-  graph_nodes <- df
+  row.names(graph_nodes_df) <- igraph::V(g)$id
   
   # check if node color attribute present
-  v_color_in_data <- ifelse(("color" %in% igraph::vertex_attr_names(g)), TRUE, FALSE)
+  has_color_attr <- ifelse(("color" %in% igraph::vertex_attr_names(g)), TRUE, FALSE)
   
   # set node color
   if (input$use_node_colors_check == FALSE) {
     igraph::V(g)$color <- as.character(gbl_plot_def_node_color)  
   } else {
-    if (!v_color_in_data) {
+    if (!has_color_attr) {
       igraph::V(g)$color <- as.character(gbl_plot_def_node_color)
     }
   }
   
-  # node colors if nodes have cat attributes and one is selected
-  if (length(categorical_attributes) > 0) {
-    if (nchar(selected_categorical_attribute) && selected_categorical_attribute != "All") {
+  # node colors if nodes have cat attrs and one is selected
+  if (length(graph_cats) > 0) {
+    if (nchar(graph_cat_sel) && graph_cat_sel != "All") {
       
-      categories <- categorical_attributes[[selected_categorical_attribute]]
-      df <- data.frame('cat' = categories)
-      if (nrow(df) > 0) {
-        if (input$use_node_colors_check == FALSE || !v_color_in_data) {
-          df$color <- gbl_plot_palette()[1:nrow(df)]
-          va <- paste0('vosonCA_', selected_categorical_attribute)
-          igraph::V(g)$color <- df$color[match(igraph::vertex_attr(g, va), df$cat)]  
+      cats <- graph_cats[[graph_cat_sel]]
+      cats_df <- data.frame("cat" = cats)
+      if (nrow(cats_df) > 0) {
+        if (input$use_node_colors_check == FALSE || !has_color_attr) {
+          cats_df$color <- gbl_plot_palette()[1:nrow(cats_df)]
+          cat_attr <- paste0("vosonCA_", graph_cat_sel)
+          igraph::V(g)$color <- cats_df$color[match(igraph::vertex_attr(g, cat_attr), cats_df$cat)]  
         }
       }
 
     }
   }
   
-  selected_row_names <- c()
+  sel_node_row_names <- c()
   
   # get any selected rows in nodes data table
-  if (!is.null(selected_rows)) {
-    if (length(selected_rows) > 0) row.names(graph_nodes)[c(selected_rows)]
+  if (!is.null(sel_node_rows)) {
+    if (length(sel_node_rows) > 0) row.names(graph_nodes_df)[c(sel_node_rows)]
   }
   
   # create a list for plot parameters
-  plot_parameters <- list(g)
+  igraph_params <- list(g)
   
   # edge attributes - ADD TO UI
-  plot_parameters["edge.arrow.size"] <- input$edge_arrow_size
-  plot_parameters["edge.arrow.width"] <- input$edge_arrow_width
-  plot_parameters["edge.width"] <- input$edge_width
-  plot_parameters["edge.color"] <- input$edge_color
-  plot_parameters["edge.curved"] <- input$edge_curved
+  igraph_params["edge.arrow.size"] <- input$edge_arrow_size
+  igraph_params["edge.arrow.width"] <- input$edge_arrow_width
+  igraph_params["edge.width"] <- input$edge_width
+  igraph_params["edge.color"] <- input$edge_color
+  igraph_params["edge.curved"] <- input$edge_curved
   
   # set node color for nodes selected in nodes data table
-  plot_parameters[["vertex.color"]] <- ifelse(V(g)$id %in% selected_row_names, gbl_plot_sel_node_color, V(g)$color)
-  plot_parameters[["vertex.frame.color"]] <- ifelse(V(g)$id %in% selected_row_names, "#000000", "gray")
-  plot_parameters[["vertex.label.font"]] <- ifelse(V(g)$id %in% selected_row_names, 2, 1)
+  igraph_params[["vertex.color"]] <- ifelse(V(g)$id %in% sel_node_row_names, gbl_plot_sel_node_color, V(g)$color)
+  igraph_params[["vertex.frame.color"]] <- ifelse(V(g)$id %in% sel_node_row_names, "#000000", "gray")
+  igraph_params[["vertex.label.font"]] <- ifelse(V(g)$id %in% sel_node_row_names, 2, 1)
   
   # label.degree defines the position of the node labels, relative to the center of the nodes
   # it is interpreted as an angle in radian, zero means 'to the right', and 'pi' means to the left,
@@ -118,40 +134,40 @@ igraphData <- reactive({
   label_degree <- input$node_label_rot
   
   # multiplier for normalized node sizes
-  norm_multi <- 3
-  igraph_vsize <- function(x) base_node_size + (((norm_values(x) + 0.1) * norm_multi) * node_size_multiplier)
+  norm_mplr <- 3
+  igraph_node_size <- function(x) base_node_size + (((norm_values(x) + 0.1) * norm_mplr) * node_size_mplr)
   
   # node index mode 
-  if (node_index_check) {
-    plot_parameters[["vertex.label"]] <- sub("n", "", V(g)$id)
-    plot_parameters[["vertex.label.color"]] <- "#000000"
+  if (use_node_index_label) {
+    igraph_params[["vertex.label"]] <- sub("n", "", V(g)$id)
+    igraph_params[["vertex.label.color"]] <- "#000000"
     base_node_size <- 7
   }
 
   # set node size
-  if (node_degree_type != "None") {
-    node_size <- igraph_vsize(igraph::vertex_attr(g, node_degree_type))
+  if (node_size_attr != "None") {
+    node_size <- igraph_node_size(igraph::vertex_attr(g, node_size_attr))
   } else {
-    node_size <- ((base_node_size + 0.1) * node_size_multiplier)
+    node_size <- ((base_node_size + 0.1) * node_size_mplr)
   }
-  plot_parameters[["vertex.size"]] <- node_size
+  igraph_params[["vertex.size"]] <- node_size
 
   # set unicode font for non windows - ADD TO UI
   if (.Platform$OS.type != "windows" &
       ("Arial Unicode MS" %in% VOSONDash::getSystemFontFamilies()) &
       input$macos_font_check) {
-    plot_parameters["vertex.label.family"] <- plot_parameters["edge.label.family"] <- "Arial Unicode MS"
+    igraph_params["vertex.label.family"] <- igraph_params["edge.label.family"] <- "Arial Unicode MS"
   } else {
-    plot_parameters["vertex.label.family"] <- plot_parameters["edge.label.family"] <- "Arial"
+    igraph_params["vertex.label.family"] <- igraph_params["edge.label.family"] <- "Arial"
   }
   
   # node labels when not in node index mode
-  if (!node_index_check) {
-    if (input$node_labels_check == FALSE) plot_parameters[["vertex.label"]] <- NA
+  if (!use_node_index_label) {
+    if (input$node_labels_check == FALSE) igraph_params[["vertex.label"]] <- NA
     
-    plot_parameters["vertex.label.cex"] <- base_label_size
-    plot_parameters["vertex.label.dist"] <- label_dist
-    plot_parameters["vertex.label.degree"] <- label_degree
+    igraph_params["vertex.label.cex"] <- base_label_size
+    igraph_params["vertex.label.dist"] <- label_dist
+    igraph_params["vertex.label.degree"] <- label_degree
   
     # node label attribute present
     labels <- ifelse(!is.null(igraph::vertex_attr(g, "label")), TRUE, FALSE)
@@ -163,8 +179,8 @@ igraphData <- reactive({
       if (input$node_sel_labels_check == TRUE) {
         label_values <- ifelse(
           labels,
-          ifelse(V(g)$id %in% selected_row_names, ifelse(nchar(V(g)$label) > 0, V(g)$label, "-"), NA),
-          ifelse(V(g)$id %in% selected_row_names, ifelse(nchar(V(g)$name) > 0, V(g)$name, "-"), NA)
+          ifelse(V(g)$id %in% sel_node_row_names, ifelse(nchar(V(g)$label) > 0, V(g)$label, "-"), NA),
+          ifelse(V(g)$id %in% sel_node_row_names, ifelse(nchar(V(g)$name) > 0, V(g)$name, "-"), NA)
         )
       # label all nodes
       } else {
@@ -175,18 +191,18 @@ igraphData <- reactive({
         )
       }
       # set node labels
-      plot_parameters[["vertex.label"]] <- label_values
+      igraph_params[["vertex.label"]] <- label_values
       
       # set node label colors
-      plot_parameters[["vertex.label.color"]] <- ifelse(
-        V(g)$id %in% selected_row_names, gbl_sel_label_col,
+      igraph_params[["vertex.label.color"]] <- ifelse(
+        V(g)$id %in% sel_node_row_names, gbl_sel_label_col,
         ifelse(is.null(V(g)$label.color), gbl_plot_def_label_color, V(g)$label.color)
       )
       
       # if node label size proportional to node size
       if (input$node_label_prop_size_check) {
-        plot_parameters[["vertex.label.cex"]] <- switch(
-          node_degree_type,
+        igraph_params[["vertex.label.cex"]] <- switch(
+          node_size_attr,
           "Degree" = (norm_values(V(g)$Degree)) + base_label_size,
           "Indegree" = (norm_values(V(g)$Indegree)) + base_label_size,
           "Outdegree" = (norm_values(V(g)$Outdegree)) + base_label_size,
@@ -195,16 +211,16 @@ igraphData <- reactive({
           "None" = base_label_size
         )  
       } else {
-        plot_parameters[["vertex.label.cex"]] <- input$node_label_size  # node label size - ADD TO UI
+        igraph_params[["vertex.label.cex"]] <- input$node_label_size  # node label size - ADD TO UI
       }
     }
   }
   
   # set edge labels - ADD TO UI
-  plot_parameters[["edge.label"]] <- NA
+  igraph_params[["edge.label"]] <- NA
   if (input$edge_labels_check == TRUE & !is.null(input$edge_label_select)) {
-    plot_parameters["edge.label.cex"] <- input$edge_label_size
-    plot_parameters[["edge.label"]] <- edge_attr(g, input$edge_label_select)
+    igraph_params["edge.label.cex"] <- input$edge_label_size
+    igraph_params[["edge.label"]] <- edge_attr(g, input$edge_label_select)
   }
   
   # seed must be set before graph layout
@@ -212,7 +228,7 @@ igraphData <- reactive({
   
   # set graph layout
   graph_layout <- switch(
-    chosen_layout,
+    sel_layout,
     "Auto" = layout_nicely(g, dim = 2),
     "FR" = layout_with_fr(g, dim = 2, niter = input$graph_niter),
     "KK" = layout_with_kk(g, dim = 2),
@@ -231,7 +247,7 @@ igraphData <- reactive({
   )
   
   # if layout graphopt get additional options
-  if (chosen_layout == "Graphopt") {
+  if (sel_layout == "Graphopt") {
     graph_layout <- layout_with_graphopt(
       g,
       niter = input$graph_niter, 
@@ -244,10 +260,10 @@ igraphData <- reactive({
   
   # graph spread option changes scale
   graph_layout <- igraph::norm_coords(graph_layout, ymin = -1, ymax = 1, xmin = -1, xmax = 1)
-  plot_parameters["rescale"] <- FALSE
-  plot_parameters[["layout"]] <- graph_layout * graph_spread
+  igraph_params["rescale"] <- FALSE
+  igraph_params[["layout"]] <- graph_layout * graph_spread
   
   # plot graph
   par(mar = rep(0, 4))
-  do.call(plot.igraph, plot_parameters)
+  do.call(plot.igraph, igraph_params)
 })

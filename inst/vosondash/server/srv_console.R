@@ -16,7 +16,7 @@ addToConsole <- function(id, value) {
   )
 }
 
-resetConsole <- function(id, remove_ui = TRUE) {
+reset_console <- function(id, remove_ui = TRUE) {
   if (remove_ui) {
     removeUI(selector = paste0("div#_", id), multiple = TRUE)
   }

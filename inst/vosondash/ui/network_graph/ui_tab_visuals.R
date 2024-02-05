@@ -8,13 +8,13 @@ tabPanel("Visual",
              tabPanel("Canvas", icon = icon("chess-board"),
                       fluidRow(column(
                         width = 12,
-                        sliderInput("canvas_height_slider_input", "Canvas height (px)",
-                                    min = 300, max = 1000, value = 525, step = 25
+                        sliderInput("plot_height", "Canvas height (px)",
+                                    min = 250, max = 1400, value = 525, step = 25
                         ),
                         tags$h5("Overlay"),
-                        checkboxInput("summary", "overlay_summary_checkbox", TRUE),
-                        checkboxInput("download buttons", "overlay_download_buttons_checkbox", TRUE),
-                        checkboxInput("legend", "overlay_legend_checkbox", TRUE)
+                        disabled(checkboxInput("overlay_summary_chk", "summary", TRUE)),
+                        disabled(checkboxInput("overlay_dl_btns_chk", "download buttons", TRUE)),
+                        disabled(checkboxInput("overlay_legend_chk", "legend", TRUE))
                       )
                       )
              ),
@@ -129,7 +129,7 @@ tabPanel("Visual",
                  column(width = 12,
                         disabled(
                           sliderInput(
-                            "graph_spread_slider",
+                            "igraph_spread_slider",
                             "Spread",
                             min = 0.25,
                             max = 2.5,
@@ -139,7 +139,7 @@ tabPanel("Visual",
                           )
                         )))
              ),
-             source("ui/analysis_network/ui_tab_nodes.R")$value,
-             source("ui/analysis_network/ui_tab_edges.R")$value
+             source("ui/network_graph/ui_tab_nodes.R")$value,
+             source("ui/network_graph/ui_tab_edges.R")$value
          )
 ))

@@ -105,9 +105,9 @@ output$comparison_cloud_plot <- renderPlot({
 
 output$ta_plot_height_ui <- renderUI({
   tagList(
-    div(selectInput("ta_plot_height", label = NULL, 
+    div(selectInput("ta_plot_height", label = NULL,
                     choices = c("200px", "250px", "300px", "350px", "400px", "450px", "500px", "550px", "600px", "650px",
-                                "700px", "750px", "800px"), 
+                                "700px", "750px", "800px"),
                     multiple = FALSE, selectize = FALSE, selected = ta_rv$plot_height)))
 })
 
@@ -212,19 +212,21 @@ getFiltersDesc <- reactive({
   }
   
   output <- append(output, paste0("Filter Component Size: ", 
-                                  input$graph_component_slider[1], " - ", 
-                                  input$graph_component_slider[2]))
+                                  input$graph_comp_slider[1], " - ", 
+                                  input$graph_comp_slider[2]))
 })
 
 # text analysis summary
 textAnalysisDetailsOutput <- reactive({
-  g <- graphFilters()
-  plot_data_list <- ta_rv$plot_data_list
+  req(r_graph_filtered(), ta_rv$plot_data_list)
+  
+  g <- r_graph_filtered()
+  plot_data_list <- req(ta_rv$plot_data_list)
   
   output <- c()
   
   if (!is.null(g)) {
-    graph_clusters <- components(g, mode = input$graph_component_type_select) # moved here from below
+    graph_clusters <- components(g, mode = input$graph_comp_type_sel) # moved here from below
     
     selected_sub_cats <- input$graph_sub_cats_select
     if (length(selected_sub_cats) == 1 && selected_sub_cats == "All") {
@@ -235,7 +237,7 @@ textAnalysisDetailsOutput <- reactive({
     
     output <- append(output, getFiltersDesc())
     
-    output <- append(output, c(paste0("Components (", input$graph_component_type_select, "): ", graph_clusters$no),
+    output <- append(output, c(paste0("Components (", input$graph_comp_type_sel, "): ", graph_clusters$no),
                                paste("Nodes:", vcount(g)),
                                paste("Edges:", ecount(g)), ""))
     
@@ -350,9 +352,7 @@ taPlotListData <- reactive({
 })
 
 taTextCorpusData <- function(graph_attr) {
-  g <- graphFilters()
-  
-  if (is.null(g)) { return(NULL) }
+  g <- req(r_graph_filtered())
   
   plot_cat <- plot_sub_cats <- ""
   

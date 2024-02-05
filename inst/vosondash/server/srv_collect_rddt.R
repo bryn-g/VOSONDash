@@ -132,26 +132,27 @@ observeEvent(input$reddit_create_button, {
 })
 
 # download and view actions
-callModule(collectDataButtons, "reddit", data = reactive({ red_rv$reddit_data }), file_prefix = "reddit")
-
-callModule(collectNetworkButtons, "reddit", network = reactive({ red_rv$reddit_network }), file_prefix = "reddit")
-
-
-callModule(collectGraphButtons_, "reddit", graph_data = reactive({ red_rv$reddit_graphml }), file_prefix = "reddit")
-
-reddit_view_rvalues <- callModule(collectViewGraphButtons, "reddit", graph_data = reactive({ red_rv$reddit_graphml }))
+callModule(collect_data_btns, "reddit", data = reactive({ red_rv$reddit_data }), file_prefix = "reddit")
+callModule(collect_network_btns, "reddit", network = reactive({ red_rv$reddit_network }), file_prefix = "reddit")
+callModule(collect_graph_btns, "reddit", graph = reactive({ red_rv$reddit_graphml }), file_prefix = "reddit")
+reddit_view_rvalues <- callModule(collect_view_graph_btns, "reddit", graph = reactive({ red_rv$reddit_graphml }))
 
 observeEvent(reddit_view_rvalues$data, {
-  ng_set_view(data = isolate(reddit_view_rvalues$data), 
-               desc = paste0("Reddit network for threads: ", paste0(isolate(red_rv$rd_urls$url), collapse = ', '), sep = ""),
-               type = "reddit",
-               name = "",
-               seed = get_random_seed())
-  updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  req(reddit_view_rvalues$data)
+  f_init_graph(
+    data = reddit_view_rvalues$data,
+    meta = list(
+      desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
+      type = "reddit",
+      name = "",
+      seed = sample(1:20000, 1)
+    )
+  )
+  #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
 }, ignoreInit = TRUE)
 
 observeEvent(input$clear_reddit_console, {
-  resetConsole("reddit_console")
+  reset_console("reddit_console")
 })
 #### output ---------------------------------------------------------------------------------------------------------- #
 

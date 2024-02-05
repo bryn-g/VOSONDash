@@ -15,8 +15,9 @@ fluidRow(column(
     conditionalPanel(condition = 'input.node_labels_check',
                      fluidRow(column(
                        width = 6,
+                       # uiOutput("node_label_sel_ui"),
                        pickerInput(
-                         "node_label_select",
+                         "node_label_sel",
                          label = NULL,
                          choices = c("None"),
                          selected = "None",

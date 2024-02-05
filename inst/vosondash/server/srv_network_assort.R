@@ -33,14 +33,14 @@ output$mixing_matrix_details_output <- renderText({
 
 # returns selected categorical attribute output message
 assortativityPrelimOutput <- reactive({
-  g <- graphFilters()
+  g <- req(r_graph_filtered())
   
   output <- c()
   
   if (!is.null(g)) {
-    CA_sel <- graph_rv$graph_cat_selected
-    if (nchar(CA_sel) && CA_sel != "All") {   # eventually will have cat attr selected by default...
-      output <- append(output, paste0("Selected categorical attribute is: ", CA_sel))
+    cat_sel <- graph_rv$graph_cat_selected
+    if (nchar(cat_sel) && cat_sel != "All") {   # eventually will have cat attr selected by default...
+      output <- append(output, paste0("Selected categorical attribute is: ", cat_sel))
       output <- append(output, "")
     } else { return(NULL) }
   } else { return(NULL) }
@@ -50,37 +50,37 @@ assortativityPrelimOutput <- reactive({
 
 # creates and returns mixing matrix dataframe, or returns null and sets an output message
 assortativityMMOutput <- reactive({
-  g <- graphFilters()
+  g <- r_graph_filtered()
   
-  if (!is.null(g)) {
-    CA_sel <- graph_rv$graph_cat_selected
-    if (nchar(CA_sel) && CA_sel != "All") {  # eventually will have cat attr selected by default...
-      assort_rvalues$mixmat_message <- NULL
-      df <- VOSONDash::mixmat(g, paste0("vosonCA_", CA_sel), use_density = FALSE)
-      return(df)
-    } else {
-      assort_rvalues$mixmat_message <- "Categorical attribute not present, or not selected."
-      return(NULL)      
-    }
-  } else {
+  if (!isTruthy(g)) {
     assort_rvalues$mixmat_message <- "No Data."
     return(NULL)
+  }
+  
+  cat_sel <- graph_rv$graph_cat_selected
+  if (nchar(cat_sel) && cat_sel != "All") {  # eventually will have cat attr selected by default...
+    assort_rvalues$mixmat_message <- NULL
+    df <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
+    return(df)
+  } else {
+    assort_rvalues$mixmat_message <- "Categorical attribute not present, or not selected."
+    return(NULL)      
   }
 })
 
 # returns output for homophily index calculations
 homophilyOutput <- reactive({
-  g <- graphFilters()
+  g <- r_graph_filtered()
   
   output <- c()
   
   if (!is.null(g)) {
-    CA_sel <- graph_rv$graph_cat_selected
-    if (nchar(CA_sel) && CA_sel != "All") {   # eventually will have cat attr selected by default...
-      vattr <- paste0('vosonCA_', CA_sel)
-      mm <- VOSONDash::mixmat(g, paste0("vosonCA_", CA_sel), use_density = FALSE)
+    cat_sel <- graph_rv$graph_cat_selected
+    if (nchar(cat_sel) && cat_sel != "All") {   # eventually will have cat attr selected by default...
+      vattr <- paste0('vosonCA_', cat_sel)
+      mm <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
       
-      attr_list <- graph_rv$graph_cats[[CA_sel]]
+      attr_list <- graph_rv$graph_cats[[cat_sel]]
       
       # if subset of attributes selected
       if (input$graph_sub_cats_select[1] != "All") {

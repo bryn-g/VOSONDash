@@ -8,15 +8,15 @@ tabPanel(
     disabled(checkboxInput("node_labels_check", "Label attribute", FALSE)),
     conditionalPanel(condition = 'input.node_labels_check',
                      fluidRow(column(
-                       width = 6, shinyjs::disabled(
+                       width = 6, #shinyjs::disabled(
                          selectInput(
-                           "node_label_select",
+                           "node_label_sel",
                            label = NULL,
                            choices = c("None"),
                            selected = "None",
                            multiple = FALSE
                          )
-                       )
+                       #)
                      )),
                      checkboxInput("node_sel_labels_check", "Only selected nodes", FALSE)),
     disabled(checkboxInput("visnet_id_select_check", "visnet id select control", FALSE)),

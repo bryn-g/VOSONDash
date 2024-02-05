@@ -1,5 +1,6 @@
 tabPanel("Metrics",
          icon = icon("ruler-combined"),
+         id = "metrics_tab_panel",
          fluidRow(
            box(
              width = 5,

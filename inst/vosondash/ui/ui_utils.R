@@ -36,10 +36,10 @@ ui_collect_data_btns <- function(id) {
     width = 12,
     class = "custom_well_for_buttons",
     fluidRow(
-      collectDataButtonsUI(id),
-      collectNetworkButtonsUI(id),
-      collectGraphButtonsUI(id),
-      collectViewGraphButtonsUI(id)
+      collect_data_btns_ui(id),
+      collect_network_btns_ui(id),
+      collect_graph_btns_ui(id),
+      collect_view_graph_btns_ui(id)
     )
   )  
 }

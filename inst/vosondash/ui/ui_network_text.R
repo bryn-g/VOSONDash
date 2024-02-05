@@ -1,4 +1,6 @@
-tabItem(tabName="text_analysis_tab",
+#tabItem(tabName="text_analysis_tab",
+tabPanel(
+  "Word Frequency1",
         fluidRow(
           column(width=3, offset=0,
                  fluidRow(

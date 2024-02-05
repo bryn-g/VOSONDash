@@ -196,8 +196,8 @@ logMessage <- function(messages, add_message, txt = FALSE, count = 20) {
   add_message <- c(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), add_message))
   log_messages <- c(add_message, messages)
 
-  if (length(log_messages) > count) { log_messages <- log_messages[1:count] }
-  if (txt) { return(paste0(log_messages, collapse = '\n')) }
+  if (length(log_messages) > count) log_messages <- log_messages[1:count]
+  if (txt) return(paste0(log_messages, collapse = '\n'))
   
   log_messages
 }

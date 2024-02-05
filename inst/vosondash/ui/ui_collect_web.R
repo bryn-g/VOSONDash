@@ -79,12 +79,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                           )
                    ),
                    
-                   sidebarPanel(width = 12, class = "custom_well_for_buttons",
-                                fluidRow(collectDataButtonsUI("hyperlink"),
-                                         collectNetworkButtonsUI("hyperlink"),
-                                         collectGraphButtonsUI("hyperlink"),
-                                         collectViewGraphButtonsUI("hyperlink"))
-                   )
+                   ui_collect_data_btns("hyperlink")
                  )
           )
         ),

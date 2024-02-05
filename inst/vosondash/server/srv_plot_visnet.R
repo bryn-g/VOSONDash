@@ -1,9 +1,9 @@
-visNetworkData <- reactive({
-  nodes <- graphNodes()
-  edges <- graphEdges()
+r_graph_visnet_plot <- reactive({
+  nodes <- r_graph_nodes_df()
+  edges <- r_graph_edges_df()
   
-  if (is.null(nodes) | is.null(edges)) { return(NULL) }
-  if (nrow(nodes) < 1) { return(NULL) }
+  if (is.null(nodes) | is.null(edges)) return(NULL)
+  if (nrow(nodes) < 1) return(NULL)
   
   isolate({
     # already dependencies of graphFilters, nodes, edges
@@ -145,7 +145,7 @@ visNetworkData <- reactive({
     if ("weight" %in% names(edges)) {
       edges$width <- edges$weight
     } else {
-      medge <- isolate(input$graph_multi_edge_check)
+      medge <- input$graph_multi_edge_check # isolate(input$graph_multi_edge_check)
       if (medge == FALSE) {
         edges <- edges |>
           group_by(to, from) |>
@@ -216,7 +216,7 @@ visNetworkData <- reactive({
   
   e_arrows <- e_smooth <- NULL
   if (graph_rv$graph_dir) { e_arrows <- "to" }
-  if (input$graph_multi_edge_check) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
+  if (isTruthy(input$graph_multi_edge_check) && input$graph_multi_edge_check == TRUE) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
   
   vis_net <- vis_net |> visEdges(arrows = e_arrows,
                                   smooth = e_smooth,

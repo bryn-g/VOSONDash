@@ -74,14 +74,7 @@ tabItem(tabName = "mtdn_collection_tab",
           )
         ), # end tabBox
                    
-        sidebarPanel(width = 12, class = "custom_well_for_buttons",
-          fluidRow(
-            collectDataButtonsUI("mastodon"),
-            collectNetworkButtonsUI("mastodon"),
-            collectGraphButtonsUI("mastodon"),
-            collectViewGraphButtonsUI("mastodon")
-          )
-        )
+        ui_collect_data_btns("mastodon")
       )
     ) # end column
   ),

@@ -1,5 +1,6 @@
 tabPanel("Assortativity",
          icon = icon("braille"),
+         id = "assort_tab_panel",
          fluidRow(
            box(
              width = 5,

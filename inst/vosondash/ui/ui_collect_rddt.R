@@ -76,12 +76,7 @@ tabItem(tabName = "reddit_collection_tab",
                           )
                    ),
                    
-                   sidebarPanel(width = 12, class = "custom_well_for_buttons",
-                                fluidRow(collectDataButtonsUI("reddit"),
-                                         collectNetworkButtonsUI("reddit"),
-                                         collectGraphButtonsUI("reddit"),
-                                         collectViewGraphButtonsUI("reddit"))
-                   )
+                   ui_collect_data_btns("reddit")
                  )
           )
         ),

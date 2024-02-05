@@ -141,25 +141,26 @@ observeEvent(input$youtube_create_button, {
 })
 
 # download and view actions
-callModule(collectDataButtons, "youtube", data = reactive({ yt_rv$yt_data }), file_prefix = "youtube")
-
-callModule(collectNetworkButtons, "youtube", network = reactive({ yt_rv$yt_network }), file_prefix = "youtube")
-
-callModule(collectGraphButtons_, "youtube", graph_data = reactive({ yt_rv$yt_graphml }), file_prefix = "youtube")
-
-youtube_view_rvalues <- callModule(collectViewGraphButtons, "youtube", graph_data = reactive({ yt_rv$yt_graphml }))  
+callModule(collect_data_btns, "youtube", data = reactive({ yt_rv$yt_data }), file_prefix = "youtube")
+callModule(collect_network_btns, "youtube", network = reactive({ yt_rv$yt_network }), file_prefix = "youtube")
+callModule(collect_graph_btns, "youtube", graph = reactive({ yt_rv$yt_graphml }), file_prefix = "youtube")
+youtube_view_rvalues <- callModule(collect_view_graph_btns, "youtube", graph = reactive(yt_rv$yt_graphml))  
 
 observeEvent(youtube_view_rvalues$data, {
-  ng_set_view(data = isolate(youtube_view_rvalues$data), 
-               desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), 
-                             sep = ""),
-               type = "youtube",
-               name = "",
-               seed = get_random_seed())
-  updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  req(youtube_view_rvalues$data)
+  f_init_graph(
+    data = youtube_view_rvalues$data, 
+    meta = list(
+      desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), sep = ""),
+      type = "youtube",
+      name = "",
+      seed = sample(1:20000, 1)
+    )
+  )
+  #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
 }, ignoreInit = TRUE)
 
-observeEvent(input$ytbe_console_clear_btn, resetConsole("ytbe_console"))
+observeEvent(input$ytbe_console_clear_btn, reset_console("ytbe_console"))
 
 #### output ---------------------------------------------------------------------------------------------------------- #
 
