@@ -22,24 +22,24 @@ dlGraphButtonOutput <- reactive({
 output$graph_dl_button_ui <- renderUI({
   tagList(div(div(
     dlGraphButtonOutput(),
-    style = paste0("position:absolute; z-index:1; top:", (as.numeric(graph_rv$plot_height)+16),
+    style = paste0("position:absolute; z-index:1; top:", (as.numeric(g_plot_rv$height)+16),
                    "px; right:14px; font-size:0.9em;")),
     style = "position:relative; z-index:0;"))
 })
 
 # network graph save file name based on selected network graph tab
 saveGraphFileName <- reactive({
-  switch(input$selected_graph_tab,
+  switch(input$canvas_tab,
          "visNetwork" = systemTimeFilename("visNetwork-graph", "html"))
 })
 
 # network graph data based on selected network graph tab
 # saveGraphFileData
 r_graph_visnet_save_data <- reactive({
-  data <- switch(input$selected_graph_tab,
+  data <- switch(input$canvas_tab,
                  "visNetwork" = r_graph_visnet_plot())
   
-  if (input$selected_graph_tab == "visNetwork") {
+  if (input$canvas_tab == "visNetwork") {
     data$height <- "800px"
     data$sizingPolicy$defaultWidth <- "100%"
     

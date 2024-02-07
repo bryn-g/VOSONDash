@@ -4,7 +4,7 @@ fluidRow(column(
     column(width = 4,
            shinyjs::disabled(
              selectInput(
-               "graph_comp_type_sel",
+               "comp_type_sel",
                div("Type", style = "font-weight: normal;"),
                choices = c("weak", "strong"),
                selected = "weak",
@@ -14,7 +14,7 @@ fluidRow(column(
     column(width = 8,
            disabled(
              sliderInput(
-               "graph_comp_slider",
+               "comp_slider",
                div("Size", style = "font-weight: normal;"),
                min = 1,
                max = 500,
@@ -30,13 +30,11 @@ fluidRow(column(
   fluidRow(column(
     width = 12,
     verbatimTextOutput("comp_count_ui")
-  )),  
+  )),
   fluidRow(column(
     width = 12,
-    actionButton(
-      "graph_comps_recalc",
-      "Recalculate",
-      icon = icon("calculator")
-    )
-  )))
-)
+    actionButton("comp_recalc",
+                 "Recalculate",
+                 icon = icon("calculator"))
+  ))
+))

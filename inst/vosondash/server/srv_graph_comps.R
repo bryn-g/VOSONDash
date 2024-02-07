@@ -11,7 +11,7 @@ output$comp_summary_ui <- renderText({
 
 r_comp_summary_txt <- reactive({
   cat(file=stderr(), "running r_comp_summary_txt\n")
-  mode <- input$graph_comp_type_sel
+  mode <- input$comp_type_sel
   comp_attrs <- comp_rv[[mode]]
   
   output <- c(output, paste0("Components (", mode, "): ", comp_attrs$no))
@@ -40,30 +40,30 @@ output$comp_count_ui <- renderText({
 r_graph_comp_current <- reactive({
   cat(file=stderr(), "running r_graph_comp_current\n")
   g <- r_graph_filtered()
-  mode <- input$graph_comp_type_sel
+  mode <- input$comp_type_sel
   if (isTruthy(g)) return(f_calc_graph_comp_ranges(g, mode = mode))
   NULL
 })
 
-observeEvent(input$graph_comp_type_sel, {
-  cat(file=stderr(), "running event - graph_comp_type_sel\n")
+observeEvent(input$comp_type_sel, {
+  cat(file=stderr(), "running event - comp_type_sel\n")
   f_set_comp_slider_range()
 }, ignoreInit = TRUE)
 
-observeEvent(input$graph_comps_recalc, {
-  cat(file=stderr(), "running event - graph_comps_recalc\n")
+observeEvent(input$comp_recalc, {
+  cat(file=stderr(), "running event - comp_recalc\n")
   f_set_comp_slider_range()
-  updateCheckboxInput(session, inputId = "graph_comps_chk", value = FALSE)
+  updateCheckboxInput(session, inputId = "fltr_comp_chk", value = FALSE)
 }, ignoreInit = TRUE)
 
 f_set_comp_slider_range <- function() {
   cat(file=stderr(), "running f_set_comp_slider_range\n")
   range <- comp_rv$weak
-  if (input$graph_comp_type_sel == "strong") range <- comp_rv$strong
+  if (input$comp_type_sel == "strong") range <- comp_rv$strong
   
   updateSliderInput(
     session,
-    inputId = "graph_comp_slider",
+    inputId = "comp_slider",
     min = range$min,
     max = range$max,
     value = c(range$min, range$max)

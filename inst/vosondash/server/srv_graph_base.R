@@ -1,213 +1,74 @@
-graph_rv <- reactiveValues(
+# graph reactive variables
+g_rv <- reactiveValues(
   data = NULL,
-  graph_dir = NULL,
-  
-  plot_height = gbl_plot_height,
-  legend_height = 42,
-  graph_seed = NULL,
-  
-  graph_cats = c(),
-  graph_cat_selected = "",
-  
-  prune_nodes = c()
+  dir = NULL,
+  seed = NULL,
+  is_igraph = FALSE
 )
 
-observeEvent(graph_rv$data, {
-  req(graph_rv$data)
-  updateNavbarPage(session, "nav_sel_tab_id", selected = "network_graphs_tab")
-}, ignoreInit = TRUE, ignoreNULL = TRUE)
+g_pkg_rv <- reactiveValues(
+  files = NULL,
+  meta_files = NULL
+)
 
-# set the base graph and initiate ui
-r_graph_base <- reactive({
-  req(graph_rv$data)
-  
-  # clean base graph
-  g <- graph_rv$data$data
-  
-  if (!"igraph" %in% class(g)) return(NULL)
+# graph metadata reactive variables
+g_meta_rv <- reactiveValues(
+  data = NULL
+)
+
+# graph nodes reactive variables
+g_nodes_rv <- reactiveValues(
+  attrs = NULL,
+  labels = NULL,
+  label_type = "none",
+  label_selected = NULL,
+  cats = NULL,
+  cat_selected = "All",
+  cat_sub_selected = "All",
+  pruned = NULL
+)
+
+# plot reactive variables
+g_plot_rv <- reactiveValues(
+  height = gbl_plot_height,
+  height_legend = 42,
+  width = gbl_plot_width
+)
+
+# if data becomes invalid then disable the controls
+observeEvent(g_rv$is_igraph, {
+  if (!isTruthy(g_rv$is_igraph)) {
+    dash_logger("igraph data object invalid.")
     
-  # add node ids and labels if not present
-  attr_v <- igraph::vertex_attr_names(g)
-  if (!("id" %in% attr_v)) {
-    igraph::V(g)$id <- paste0("n", as.numeric(igraph::V(g))-1) # n0, n1 ..
-  }
-  
-  if ("label" %in% attr_v) {
-    igraph::V(g)$imported_label <- igraph::V(g)$label
+    disable_g_ctrls()
+    
   } else {
-    # if no labels set label to node name
-    igraph::V(g)$label <- ifelse(nchar(igraph::V(g)$name) > 0, igraph::V(g)$name, "-")
+    dash_logger(paste0("igraph data object loaded: ", g_meta_rv$data$name))
   }
-  
-  # graph directed
-  graph_rv$graph_dir <- igraph::is_directed(g)
-  graph_rv$graph_seed <- sample(1:20000, 1)
-  
-  # graph components
-  f_set_comp_ranges(g)
-  comp_rv$mode <- "weak"
-  f_set_comp_slider_range()
-  
-  f_reset_filter_ctrls(g)
-  
-  graph_rv$graph_cats <- getNodeCategories(g)
-  graph_rv$graph_cat_selected <- ""
-  
-  #setGraphTabControls()
-  # get ui seed and layout and keep full node positions
-  cat(file=stderr(), "running r_graph_base\n")
-  
-  g  
-})
-
-# init disable tabs with css
-addCssClass(selector = "a[data-value = 'metrics_tab_panel']", class = "inactive_menu_link")
-addCssClass(selector = "a[data-value = 'assort_tab_panel']", class = "inactive_menu_link")
-
-# generate a new random seed
-observeEvent(input$graph_reseed_button, graph_rv$graph_seed <- sample(1:20000, 1))
-
-# update seed input
-observeEvent(graph_rv$graph_seed, updateNumericInput(session, "graph_seed_input", value = graph_rv$graph_seed))
-
-# set seed value
-observeEvent(input$graph_seed_set_button, {
-  req(input$graph_seed_input)
-  if (is.numeric(input$graph_seed_input) && (input$graph_seed_input > 0) && !is.infinite(input$graph_seed_input)) {
-    graph_rv$graph_seed <- round(input$graph_seed_input, digits = 0)
-  }
-})
-
-# update plot height
-observeEvent(input$plot_height, {
-  graph_rv$plot_height <- input$plot_height
 }, ignoreInit = TRUE)
 
-# update legend position
-observeEvent(input$visnet_id_select_check, {
-  graph_rv$legend_height <- ifelse(input$visnet_id_select_check, 85, 42)
-})
+# reset node size slider when changed to none
+observeEvent(input$node_size_sel, {
+  if (input$node_size_sel == "None") shinyjs::reset("node_size_slider")
+}, ignoreInit = TRUE)
 
-# set hide state for overlays
-observeEvent(c(
-  input$selected_graph_tab,
-  input$overlay_summary_chk,
-  input$overlay_dl_btns_chk,
-  input$overlay_legend_chk
-  ), {
-    req(input$selected_graph_tab)
-    tab <- input$selected_graph_tab
-    
-    shinyjs::toggle("graph_summary_ui", condition = input$overlay_summary_chk)
-    shinyjs::toggle("graph_legend_ui", condition = input$overlay_legend_chk)
-    shinyjs::toggle("graph_graphml_dl_btn", condition = input$overlay_dl_btns_chk)
-    
-    if (!(tab %in% c("igraph", "visNetwork"))) {
-      shinyjs::hide("graph_summary_ui")
-      shinyjs::hide("graph_legend_ui")
-      shinyjs::hide("graph_graphml_dl_btn")
-      shinyjs::hide("visnet_html_dl_btn")
-    }
-      
-    if (tab == "igraph") {
-      if (input$overlay_legend_chk) graph_rv$legend_height <- 42
-      shinyjs::disable("visnet_html_dl_btn")
-      shinyjs::hide("visnet_html_dl_btn")
-    } else if (tab == "visNetwork") {
-      if (input$overlay_legend_chk) graph_rv$legend_height <- ifelse(input$visnet_id_select_check, 85, 42)
-      shinyjs::enable("visnet_html_dl_btn")
-      shinyjs::toggle("visnet_html_dl_btn", condition = input$overlay_dl_btns_chk)
-    }
-})
+# normalize continuous values
+norm_values <- function(x) {
+  # all values the same
+  if (var(x) == 0) return(rep(0.1, length(x)))
+  
+  min_x <- min(x)
+  diff_x <- max(x) - min_x
+  s <- sapply(x, function(y) ((y - min_x) / diff_x))
+}
 
-# graph summary text
-r_graph_summary_html <- reactive({
-  g <- req(r_graph_filtered())
-  paste0(c(
-    paste("Nodes:", igraph::vcount(g)),
-    paste("Edges:", igraph::ecount(g)),
-    paste("Isolates:", sum(igraph::degree(g) == 0))
-  ), collapse = "<br>")
-})
-
-
-# graph edges as dataframe
-r_graph_edges_df <- reactive({
-  g <- req(r_graph_filtered())
-  igraph::as_data_frame(g, what = c("edges"))
-})
-
-# graph nodes as dataframe
-r_graph_nodes_df <- reactive({
-  g <- req(r_graph_filtered())
+# event for graph data set by upload or collection
+observeEvent(g_rv$data, {
+  g_rv$is_igraph <- ifelse((isTruthy(g_rv$data) & ("igraph" %in% class(g_rv$data))), TRUE, FALSE)
   
-  df_parameters <- list()
+  updateNavbarPage(session, "nav_sel_tab_id", selected = "network_graphs_tab")
   
-  df_parameters[["name"]] <- igraph::V(g)$name
-  if (!(is.null(igraph::vertex_attr(g, "label")))) { df_parameters[["label"]] <- igraph::V(g)$label }
-  if ("color" %in% igraph::vertex_attr_names(g)) { df_parameters[["color"]] <- igraph::V(g)$color }
-  
-  if (input$mast_images) {
-    if ("user.avatar" %in% igraph::vertex_attr_names(g)) {
-      df_parameters[["user.avatar"]] <- igraph::V(g)$user.avatar
-    }
-  }
-  
-  df_parameters[["degree"]] <- igraph::V(g)$Degree
-  df_parameters[["indegree"]] <- igraph::V(g)$Indegree
-  df_parameters[["outdegree"]] <- igraph::V(g)$Outdegree
-  df_parameters[["betweenness"]] <- igraph::V(g)$Betweenness
-  df_parameters[["closeness"]] <- igraph::V(g)$Closeness
-  
-  attr_v <- igraph::vertex_attr_names(g)
-  voson_txt_attrs <- attr_v[grep(voson_txt_prefix, attr_v, perl = T)]
-  if (length(voson_txt_attrs)) {
-    attr <- voson_txt_attrs[1]
-    df_txt_attr <- gsub(voson_txt_prefix, "", attr, perl = TRUE)
-    df_parameters[[df_txt_attr]] <- igraph::vertex_attr(g, attr, index = V(g))
-  }
-  
-  voson_cat_attrs <- attr_v[grep(voson_cat_prefix, attr_v, perl = T)]
-  if (length(voson_cat_attrs) > 0) {
-    for (i in 1:length(voson_cat_attrs)) {
-      attr <- voson_cat_attrs[i]
-      df_txt_attr <- gsub(voson_cat_prefix, "", attr, perl = TRUE) # vosonCA_
-      df_parameters[[df_txt_attr]] <- igraph::vertex_attr(g, attr, index = V(g))
-    }  
-  }
-  
-  for (attr in attr_v) {
-    values <- igraph::vertex_attr(g, attr)
-    if (is.numeric(values) &
-        (!attr %in% voson_txt_attrs) &
-        (!attr %in% voson_cat_attrs) &
-        (!attr %in% names(df_parameters)) &
-        (!tolower(attr) %in% names(df_parameters))) {
-      df_parameters[[attr]] <- values
-    }
-  }
-  
-  df_parameters["stringsAsFactors"] <- FALSE
-  df <- do.call(data.frame, df_parameters)
-  
-  row.names(df) <- igraph::V(g)$id
-  
-  return(df)
-})
-
-
-
-# observeEvent(r_graph_base , {
-#   r_node_cat_lst()
-#   f_reset_filter_ctrls()
-# })
-
-# base graph node category list
-r_node_cat_lst <- reactive({
-  g <- req(r_graph_base())
-  
-  getNodeCategories(g)
-})
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 # base graph node attribute list
 r_node_attr_lst <- reactive({
@@ -220,20 +81,188 @@ r_node_attr_lst <- reactive({
   list(attrs = node_attr, sel = init_attr_sel)
 })
 
-# update node attribute label select
-observeEvent(r_node_attr_lst(), {
-  shinyjs::enable("node_label_sel")
-  updateSelectInput(
-    session,
-    "node_label_sel",
-    label = NULL,
-    choices = c("None", r_node_attr_lst()$attrs),
-    selected = r_node_attr_lst()$sel
-  )
+# set the base graph object from initial processing
+r_graph_base <- reactive({
+  req(g_rv$data)
+  
+  # clean base graph
+  g <- g_rv$data
+  
+  # check igraph
+  if (!"igraph" %in% class(g)) return(NULL)
+  
+  g <- f_set_id_and_label(g)
+  
+  g
 })
 
+observeEvent(r_graph_base(), {
+  g <- r_graph_base()
+  
+  dash_logger("graph base changed.")
+  
+  g_nodes_rv$cats <- getNodeCategories(g)
+  
+  g_rv$seed <- sample(1:20000, 1)
+  
+  g_nodes_rv$pruned <- c()
+  dt_prev_sel$nodes <- c()
+  
+  ta_rv$plot_data_list <- NULL
+  
+  # reset / enable / disable ctrls
+  reset_enable_g_ctrls()
+})
+
+f_unchk_disable_cat_fltr <- function() {
+  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+  filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
+  # shinyjs::disable("fltr_cat_chk")
+}
+
+observeEvent(g_nodes_rv$cats, {
+  if (!isTruthy(g_nodes_rv$cats)) f_unchk_disable_cat_fltr()
+  if (length(names(g_nodes_rv$cats)) < 1) f_unchk_disable_cat_fltr()
+    
+  shinyjs::enable("cat_sel")
+  cats <- append("All", names(g_nodes_rv$cats))
+  updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
+  
+  updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
+  shinyjs::disable("cat_sub_sel")
+  
+  g_nodes_rv$cat_selected <- "All"
+  g_nodes_rv$cat_sub_selected <- "All"
+  
+  shinyjs::enable("fltr_cat_chk")
+  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+})
+
+observeEvent(input$cat_sel, {
+  req(g_nodes_rv$cats, input$cat_sel)
+  
+  if (input$cat_sel != "All") {
+    shinyjs::enable("cat_sub_sel")
+    sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
+    updateSelectInput(session, "cat_sub_sel", choices = sub_cats, selected = "All")
+    
+    g_nodes_rv$cat_selected <- input$cat_sel
+    g_nodes_rv$cat_sub_selected <- "All"
+  } else {
+    shinyjs::disable("cat_sub_sel")
+    updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
+  }
+
+}, ignoreInit = TRUE)
+
+observeEvent(input$cat_sub_sel, {
+  req(g_nodes_rv$cats, input$cat_sel, input$cat_sub_sel)
+  
+  g_nodes_rv$cat_sub_selected <- input$cat_sub_sel
+}, ignoreInit = TRUE)
+
+
+
+# -----------------------
+f_init_graph_ctrls2 <- function(g) {
+  # reset pruned list
+  g_nodes_rv$pruned <- c()
+  updateSelectInput(session, "prune_nodes_sel", choices = character(0))
+  
+  # reset text analysis plot list
+  ta_rv$plot_data_list <- NULL
+  
+  # is graph data present
+  if (is.null(g)) {
+    # disable controls if no data
+    disable_graph_controls()
+    disable_ta_ctrls()
+    
+    # shinyjs::hide("visnet_html_dl_btn")
+    # shinyjs::hide("graph_graphml_dl_btn")
+    
+    return(NULL)
+  }
+  
+  # if graph nodes
+  if (igraph::gorder(g) > 0) {
+    # reset and enable graph filter controls
+    reset_enable_graph_controls()
+    
+    # shinyjs::show("graph_graphml_dl_btn")
+    # shinyjs::enable("graph_reseed_btn")
+    # shinyjs::enable("comp_slider")
+    
+    # f_update_comp_slider_range(g, isolate(input$comp_type_sel))
+    # f_set_comp_ranges(g)
+    # comp_rv$mode <- "weak"
+    # f_set_comp_slider_range()
+    
+    dt_prev_sel$nodes <- c()
+    shinyjs::reset("nbh_undo_btn")
+    
+    # update the categorical attribute select box
+    # if (!is.null(g_nodes_rv$cats) && length(g_nodes_rv$cats) > 0) {
+    #   shinyjs::reset("cat_sel")
+    #   shinyjs::enable("cat_sel")
+    #   
+    #   category_choices <- c("All")
+    #   category_choices <- append(category_choices, names(g_nodes_rv$cats))
+    #   
+    #   updateSelectInput(session, "cat_sel", choices = category_choices, selected = "All")
+    #   
+    #   shinyjs::reset("reset_on_change_check")
+    #   shinyjs::enable("reset_on_change_check")
+    #   
+    # } else {
+    #   shinyjs::reset("cat_sel")
+    #   shinyjs::disable("cat_sel")
+    #   
+    #   shinyjs::reset("cat_sub_sel")
+    #   shinyjs::disable("cat_sub_sel")   
+    #   
+    #   shinyjs::reset("reset_on_change_check")
+    #   shinyjs::disable("reset_on_change_check")      
+    # }
+    
+    # text analysis controls
+    if (hasVosonTextData(g)) {
+      ta_rv$has_text <- TRUE
+      
+      # reset and enable text analysis controls
+      reset_enable_ta_ctrls()
+      
+    } else {
+      ta_rv$has_text <- FALSE
+      
+      # disable controls if no text data
+      disable_ta_ctrls()
+    }
+  }
+  cat(file=stderr(), "running f_init_graph_ctrls\n")
+  
+}
+
+# init disable tabs with css
+# addCssClass(selector = "a[data-value = 'metrics_tab_panel']", class = "inactive_menu_link")
+# addCssClass(selector = "a[data-value = 'assort_tab_panel']", class = "inactive_menu_link")
+
+# observeEvent(r_graph_base , {
+#   r_node_cat_lst()
+#   f_reset_filter_ctrls()
+# })
+
+# base graph node category list
+# r_node_cat_lst <- reactive({
+#   g <- req(r_graph_base())
+#   
+#   getNodeCategories(g)
+# })
+
+
+
 # r_graph_labels <- reactive({
-#   g <- req(graph_rv$data)
+#   g <- req(g_rv$data)
 #   
 #   # add node ids and labels if not present
 #   attr_v <- igraph::vertex_attr_names(g)
@@ -249,12 +278,12 @@ observeEvent(r_node_attr_lst(), {
 #   }
 #   
 #   g
-# }) # > bindEvent(graph_rv$data)
+# }) # > bindEvent(g_rv$data)
 
 # # when graphml data loaded or changed
-# observeEvent(r_graph_labels(), { #graph_rv$data, {
+# observeEvent(r_graph_labels(), { #g_rv$data, {
 #   g <- req(r_graph_labels())
-#   #g <- req(graph_rv$data)
+#   #g <- req(g_rv$data)
 #     
 #   # add node ids and labels if not present
 #   # attr_v <- igraph::vertex_attr_names(g)
@@ -271,13 +300,13 @@ observeEvent(r_node_attr_lst(), {
 #   # }
 #   
 #   # set directed
-#   #graph_rv$graph_dir <- igraph::is_directed(g)
+#   #g_rv$dir <- igraph::is_directed(g)
 #   
 #   # enable network metrics tab
 #   #removeCssClass(selector = "a[data-value = 'metrics_tab_panel']", class = "inactive_menu_link")
 #   
 #   # set directed
-#   graph_rv$graph_dir <- igraph::is_directed(g)
+#   g_rv$dir <- igraph::is_directed(g)
 #   
 #   # enable network metrics tab
 #   #removeCssClass(selector = "a[data-value = 'network_metrics_tab']", class = "inactive_menu_link")
@@ -286,14 +315,12 @@ observeEvent(r_node_attr_lst(), {
 #   f_set_comp_slider_range()
 # })
 
-
-
 # # apply all filters to graph data and return modified graph
 # graphFilters <- reactive({
 #   g <- NULL
 #   
-#   if (!is.null(graph_rv$data)) {
-#     g <- graph_rv$data
+#   if (!is.null(g_rv$data)) {
+#     g <- g_rv$data
 #     
 #     # ----
 #     # add node ids and labels if not present
@@ -311,12 +338,12 @@ observeEvent(r_node_attr_lst(), {
 #     }    
 #     # ----
 #     
-#     g <- applyPruneFilterSrv(g, graph_rv$prune_nodes)
-#     g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
-#     # isolate as graph_comp_type_sel has event
-#     g <- applyComponentFilter(g, isolate(input$graph_comp_type_sel), input$graph_comp_slider)    
-#     g <- applyGraphFilters(g, input$graph_isolates_check, input$graph_multi_edge_check, 
-#                            input$graph_loops_edge_check)
+#     g <- applyPruneFilterSrv(g, g_rv$prune_nodes)
+#     g <- applyCategoricalFilters(g, input$cat_sel, input$cat_sub_sel)
+#     # isolate as comp_type_sel has event
+#     g <- applyComponentFilter(g, isolate(input$comp_type_sel), input$comp_slider)    
+#     g <- applyGraphFilters(g, input$fltr_iso_chk, input$fltr_edge_multi_chk, 
+#                            input$fltr_edge_loops_chk)
 #     g <- addAdditionalMeasures(g)
 #     
 #     # enable network metrics tab
@@ -330,19 +357,19 @@ observeEvent(r_node_attr_lst(), {
 
 # ** check this is not redundant
 # update component slider when graph component or category changed
-# observeEvent({ input$graph_comp_type_sel
-#   input$graph_sub_cats_select
-#   graph_rv$prune_nodes
+# observeEvent({ input$comp_type_sel
+#   input$cat_sub_sel
+#   g_rv$prune_nodes
 #   input$reset_on_change_check }, {
 #     
-#     g <- graph_rv$data
-#     g <- applyPruneFilterSrv(g, graph_rv$prune_nodes)
+#     g <- g_rv$data
+#     g <- applyPruneFilterSrv(g, g_rv$prune_nodes)
 #     
 #     if (input$reset_on_change_check == TRUE) {
-#       g <- applyCategoricalFilters(g, input$graph_cat_select, input$graph_sub_cats_select)
+#       g <- applyCategoricalFilters(g, input$cat_sel, input$cat_sub_sel)
 #     }
 #     
-#     f_update_comp_slider_range(g, input$graph_comp_type_sel)
+#     f_update_comp_slider_range(g, input$comp_type_sel)
 #   }, ignoreInit = TRUE)
 
 # r_comp_summary_txt <- reactive({
@@ -351,9 +378,9 @@ observeEvent(r_node_attr_lst(), {
 #   output <- c()
 #   
 #   if (!is.null(g)) {
-#     graph_clusters <- components(g, mode = isolate(input$graph_comp_type_sel))
+#     graph_clusters <- components(g, mode = isolate(input$comp_type_sel))
 #     
-#     output <- append(output, paste0("Components (", isolate(input$graph_comp_type_sel), "): ", 
+#     output <- append(output, paste0("Components (", isolate(input$comp_type_sel), "): ", 
 #                                     graph_clusters$no))
 #     
 #     min_value <- max_value <- 0
@@ -382,45 +409,7 @@ observeEvent(r_node_attr_lst(), {
 
 ## GRAPH NODE PROPERTIES ------------------------------------------------
 
-observeEvent(input$node_index_check, {
-  if (input$node_index_check) {
-    updateCheckboxInput(session, "node_labels_check", value = FALSE)
-  }
-})
 
-observeEvent(input$node_labels_check, {
-  if (input$node_labels_check) {
-    updateCheckboxInput(session, "node_index_check", value = FALSE)
-  }  
-})
-
-observeEvent(input$node_label_sel, {
-  g <- req(r_graph_base())
-  igraph::V(g)$label <- igraph::vertex_attr(g, input$node_label_sel)
-}, ignoreInit = TRUE)
-
-# observeEvent(input$node_label_sel, {
-#   if (!is.null(graph_rv$data)) {
-#     igraph::V(graph_rv$data)$label <- igraph::vertex_attr(graph_rv$data, input$node_label_sel)
-#   }
-# }, ignoreInit = TRUE)
-
-# reset node size slider when changed to none
-observeEvent(input$graph_node_size_select, {
-  if (input$graph_node_size_select == "None") { 
-    shinyjs::reset("graph_node_size_slider")
-  }
-})
-
-# normalize continuous values
-norm_values <- function(x) {
-  # all values the same
-  if (var(x) == 0) return(rep(0.1, length(x)))
-  
-  min_x <- min(x)
-  diff_x <- max(x) - min_x
-  s <- sapply(x, function(y) ((y - min_x) / diff_x))
-}
 
 # observeEvent(node_label_sel_lst(), {
 #   freezeReactiveValue(input, "node_label_sel")
@@ -435,7 +424,7 @@ norm_values <- function(x) {
 # }
 
 # cont_attr_sel_lst <- reactive({
-#   g <- graph_rv$data
+#   g <- g_rv$data
 #   if (is.null(g)) return(NULL)
 #   attr_names <- sapply(
 #     igraph::vertex_attr_names(g),
@@ -446,9 +435,9 @@ norm_values <- function(x) {
 # })
 # 
 # observeEvent(cont_attr_sel_lst(), {
-#   freezeReactiveValue(input, "graph_node_size_select")
+#   freezeReactiveValue(input, "node_size_sel")
 #   updateSelectInput(session,
-#                     "graph_node_size_select",
+#                     "node_size_sel",
 #                     label = NULL,
 #                     choices = append(
 #                       c("None", "Degree", "Indegree", "Outdegree", "Betweenness", "Closeness"),

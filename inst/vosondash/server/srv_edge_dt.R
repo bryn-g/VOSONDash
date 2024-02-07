@@ -1,3 +1,10 @@
+# graph edges as dataframe
+r_graph_edges_df <- reactive({
+  g <- r_graph_filtered()
+  
+  igraph::as_data_frame(g, what = c("edges"))
+})
+
 # graph edges data table
 output$dt_edges <- DT::renderDataTable({
   data <- r_graph_edges_df()

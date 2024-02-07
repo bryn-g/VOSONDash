@@ -9,7 +9,7 @@
 
 output$network_metrics_details_output <-
   renderText({
-    networkMetricsDetailsOutput()
+    r_graph_metrics_txt()
   })
 
 #### reactives ------------------------------------------------------------------------------------------------------- #
@@ -17,20 +17,20 @@ output$network_metrics_details_output <-
 distrib_data <- reactive({
   g <- r_graph_filtered()
   
-  if (!isTruthy(g)) {
+  if (is.null(g)) {
     return(VOSONDash::emptyPlotMessage("No graph data."))
   }
 
   type <- input$metrics_distrib_sel
   
   if (type == "component") {
-    cc <- igraph::components(g, mode = input$graph_comp_type_sel)
+    cc <- igraph::components(g, mode = input$comp_type_sel)
     plot(
       table(cc$csize),
       type = "b",
       xlab = paste0(
         "Size of component (",
-        input$graph_comp_type_sel,
+        input$comp_type_sel,
         ")"
       ),
       ylab = "N components"
@@ -74,10 +74,10 @@ output$metrics_distrib_plot <- renderPlot({
   distrib_data()
 })
 
-networkMetricsDetailsOutput <- reactive({
+r_graph_metrics_txt <- reactive({
   g <- r_graph_filtered()
   
-  if (!isTruthy(g)) {
+  if (is.null(g)) {
     return("No graph data.\n")
   }
   
@@ -85,7 +85,7 @@ networkMetricsDetailsOutput <- reactive({
   
   # if (!is.null(g)) {
     metrics <-
-      getNetworkMetrics(g, component_type = input$graph_comp_type_sel)
+      getNetworkMetrics(g, component_type = input$comp_type_sel)
     
     output <- append(
       output,

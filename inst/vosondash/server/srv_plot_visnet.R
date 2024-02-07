@@ -7,20 +7,20 @@ r_graph_visnet_plot <- reactive({
   
   isolate({
     # already dependencies of graphFilters, nodes, edges
-    categorical_attributes <- graph_rv$graph_cats
-    selected_categorical_attribute <- input$graph_cat_select
-    gcs <- graph_rv$graph_cat_selected
+    categorical_attributes <- g_nodes_rv$cats
+    selected_categorical_attribute <- input$cat_sel
+    gcs <- g_nodes_rv$cat_selected
   })
   
   nodes_rows_selected <- input$dt_nodes_rows_selected
   chosen_layout <- input$graph_layout_select
-  graph_seed <- graph_rv$graph_seed
-  node_degree_type <- input$graph_node_size_select
-  node_size_multiplier <- input$graph_node_size_slider
-  plot_height <- graph_rv$plot_height
+  graph_seed <- g_rv$seed
+  node_degree_type <- input$node_size_sel
+  node_size_multiplier <- input$node_size_slider
+  plot_height <- g_plot_rv$height
   
-  use_v_colors <- input$use_node_colors_check
-  node_index_check <- input$node_index_check
+  use_v_colors <- input$node_use_g_cols_chk
+  node_index_chk <- input$node_index_chk
   
   graph_layout <- switch(chosen_layout,
                          "Auto" = "layout_nicely",
@@ -44,7 +44,7 @@ r_graph_visnet_plot <- reactive({
   base_font_size <- 24
   
   # base_node_size <- 20
-  base_node_size <- input$visgraph_node_base_size_slider
+  base_node_size <- input$visnet_node_base_size_slider
   norm_multi <- 5
   
   vis_vsize <- function(x) {
@@ -67,7 +67,7 @@ r_graph_visnet_plot <- reactive({
     }
     if (!is.null(v)) {
       node_size <- vis_vsize(v) 
-      if (input$node_label_prop_size_check) {
+      if (input$node_label_prop_chk) {
         lab_size <- vis_lab_size(v)
       }
     }
@@ -115,7 +115,7 @@ r_graph_visnet_plot <- reactive({
   }
 
   # node index
-  if (node_index_check) {
+  if (node_index_chk) {
     nodes$label <- sub("n", "", row.names(nodes))
     nodes$title <- nodes$id
     nodes$shape <- "circle"
@@ -125,12 +125,12 @@ r_graph_visnet_plot <- reactive({
   }
   
   # node labels
-  if (input$node_labels_check == TRUE) {
+  if (input$node_labels_chk == TRUE) {
     nodes$title <- row.names(nodes)
     nodes <- dplyr::mutate(nodes, label = ifelse(is.na(.data$label), .data$id, .data$label))
     
     # selected only
-    if (input$node_sel_labels_check == TRUE) {
+    if (input$node_sel_labels_chk == TRUE) {
       if (length(sel_subset)) {
         nodes$sel_label[sel_subset] <- nodes$label[sel_subset]
         nodes <- dplyr::mutate(nodes, label = ifelse(!is.na(.data$sel_label), .data$sel_label, ""),
@@ -138,19 +138,19 @@ r_graph_visnet_plot <- reactive({
       }
     }
   } else {
-    if (!node_index_check) nodes$label <- ""
+    if (!node_index_chk) nodes$label <- ""
   }
   
   if (!"width" %in% names(edges)) {
     if ("weight" %in% names(edges)) {
       edges$width <- edges$weight
     } else {
-      medge <- input$graph_multi_edge_check # isolate(input$graph_multi_edge_check)
-      if (medge == FALSE) {
+      medge <- input$fltr_edge_multi_chk # isolate(input$fltr_edge_multi_chk)
+      if (!is.null(medge) && medge == FALSE) {
         edges <- edges |>
-          group_by(to, from) |>
-          summarise(width = n(), .groups = "drop") |>
-          ungroup()
+          dplyr::group_by(to, from) |>
+          dplyr::summarise(width = n(), .groups = "drop") |>
+          dplyr::ungroup()
       }
     }
   }
@@ -160,17 +160,17 @@ r_graph_visnet_plot <- reactive({
     category_selection <- list(variable = gcs, multiple = TRUE)
   }
   
-  if (!input$visnet_id_select_check) category_selection <- NULL
+  if (!input$visnet_id_sel_chk) category_selection <- NULL
   
   if ("color" %in% names(nodes)) nodes <- dplyr::select(nodes, -color)
 
-  use_mast_images <- FALSE
+  use_node_mtdn_img_chk <- FALSE
   # mast images
-  if (input$mast_images) {
+  if (input$node_mtdn_img_chk) {
     if ("user.avatar" %in% colnames(nodes)) {
-      use_mast_images <- TRUE
+      use_node_mtdn_img_chk <- TRUE
       img_shape <- "circularImage"
-      if (input$mast_square_images) img_shape <- "image"
+      if (input$node_mtdn_img_sq_chk) img_shape <- "image"
       nodes <- nodes |>
         dplyr::mutate(image = ifelse(is.na(.data$user.avatar),
                                      "www/mast.png",
@@ -195,7 +195,7 @@ r_graph_visnet_plot <- reactive({
     visOptions(collapse = FALSE, 
                highlightNearest = list(enabled = TRUE, hover = TRUE),
                selectedBy = category_selection,
-               nodesIdSelection = input$visnet_id_select_check,
+               nodesIdSelection = input$visnet_id_sel_chk,
                height = plot_height) |>
     visInteraction(multiselect = TRUE) |>
     visEvents(click = "function(v) { 
@@ -206,8 +206,8 @@ r_graph_visnet_plot <- reactive({
                 // }
                 }")
   
-  if (input$mast_border_images) {
-    if (use_mast_images) {
+  if (input$node_mtdn_img_bord_chk) {
+    if (use_node_mtdn_img_chk) {
       vis_net <- vis_net |> visNodes(shapeProperties = list(useBorderWithImage = TRUE))
     } else {
       vis_net <- vis_net |> visNodes(shapeProperties = list(useBorderWithImage = FALSE))
@@ -215,8 +215,8 @@ r_graph_visnet_plot <- reactive({
   }
   
   e_arrows <- e_smooth <- NULL
-  if (graph_rv$graph_dir) { e_arrows <- "to" }
-  if (isTruthy(input$graph_multi_edge_check) && input$graph_multi_edge_check == TRUE) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
+  if (g_rv$dir) { e_arrows <- "to" }
+  if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
   
   vis_net <- vis_net |> visEdges(arrows = e_arrows,
                                   smooth = e_smooth,

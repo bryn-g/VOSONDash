@@ -26,6 +26,6 @@ reset_console <- function(id, remove_ui = TRUE) {
   } else {
     vosonsml_version <- "vosonSML unknown"
   }
-  reset_message <- paste0(vosonsml_version, " - ", Sys.time(), "\n")
+  reset_message <- paste0(vosonsml_version, "\n[Built:", gsub(" ; ", "|", packageDescription("vosonSML", fields = c("Built"))), "]\n")
   addToConsole(id, reset_message)
 }

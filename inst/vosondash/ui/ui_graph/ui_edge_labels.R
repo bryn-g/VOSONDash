@@ -1,16 +1,15 @@
 fluidRow(column(width = 12,
-                
                 fluidRow(
                   column(
                     width = 12,
                     div(disabled(
-                      checkboxInput("edge_labels_check", "Attribute", FALSE)
+                      checkboxInput("edge_labels_chk", "Attribute", FALSE)
                     ), class = "div_inline", style = "margin-right:8px; margin-top:0px;"),
-                    conditionalPanel(condition = 'input.edge_labels_check',
+                    conditionalPanel(condition = 'input.edge_labels_chk',
                                      fluidRow(column(
                                        width = 6,
                                        pickerInput(
-                                         "edge_label_select",
+                                         "edge_label_sel",
                                          label = NULL,
                                          choices = c("None"),
                                          selected = "None",

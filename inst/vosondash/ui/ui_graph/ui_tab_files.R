@@ -10,15 +10,15 @@ tabPanel(
     width = 12,
     div(shinyjs::disabled(
       selectInput(
-        "demo_data_select",
+        "pkg_data_sel",
         label = "Package Datasets",
-        choices = c("No Demo Dataset Files Found"),
+        choices = c("No Dataset Files Found"),
         selected = NULL,
         multiple = FALSE
       )
     )),
     div(shinyjs::disabled(
-      actionButton("demo_data_select_button", label = "Load graphml")
+      actionButton("pkg_data_sel_btn", label = "Load graphml")
     ))
   ))
 )

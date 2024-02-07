@@ -8,14 +8,16 @@ ui_inline_input <- function(label, input) {
 
 # div style for console title
 ui_console_title <- function(title, ico, ico_color_cls, id_clear_btn) {
-  div(
-    span(
-      actionButton(id_clear_btn, label = icon("erase", lib = "glyphicon"), 
-        style = "padding: 2px 8px;", title = "Clear Console"),
-      style = "padding-right: 10px;"
+  div(span(
+    actionButton(
+      id_clear_btn,
+      label = icon("erase", lib = "glyphicon"),
+      style = "padding: 2px 8px;",
+      title = "Clear Console"
     ),
-    span(icon(ico, class = ico_color_cls), title)
-  )
+    style = "padding-right: 10px;"
+  ),
+  span(icon(ico, class = ico_color_cls), title))
 }
 
 # collect console
@@ -23,9 +25,14 @@ ui_console_tabbox <- function(title, id_params_out, id_console, height = "300") 
   tabBox(
     width = 12,
     title = title,
-    tabPanel("Console", width = 12,
+    tabPanel(
+      "Console",
+      width = 12,
       verbatimTextOutput(id_params_out),
-      pre(id = id_console, style = paste0("height:", height, "px;overflow-y:scroll"))
+      pre(
+        id = id_console,
+        style = paste0("height:", height, "px;overflow-y:scroll")
+      )
     )
   )
 }
@@ -41,5 +48,5 @@ ui_collect_data_btns <- function(id) {
       collect_graph_btns_ui(id),
       collect_view_graph_btns_ui(id)
     )
-  )  
+  )
 }

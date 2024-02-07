@@ -8,7 +8,7 @@ ta_rv <- reactiveValues(
 )
 
 # ui has a disable issue
-disableTextAnalysisControls()
+disable_ta_ctrls()
 
 # enable text analysis tab if text data 
 observeEvent(ta_rv$has_text, {
@@ -121,7 +121,7 @@ plotWordFrequencies <- reactive({
   # create placeholders and plot word frequency charts from list of base text corpus data
   withProgress(message = "Processing word frequencies...", {
     callModule(taPlotPlaceholders, "word_freqs", ta_rv$plot_data_list, h = ta_rv$plot_height)
-    callModule(taPlotList, "word_freqs", ta_rv$plot_data_list, NULL, isolate(graph_rv$graph_cats), 
+    callModule(taPlotList, "word_freqs", ta_rv$plot_data_list, NULL, isolate(g_nodes_rv$cats), 
                min_freq, NULL, top_count, "wf", col_palette = gbl_plot_palette(),
                word_len, mac_arial)
   })
@@ -142,8 +142,8 @@ plotWordClouds <- reactive({
   # create placeholders and plot word clouds from list of base text corpus data
   withProgress(message = "Processing word clouds...", {      
     callModule(taPlotPlaceholders, "word_clouds", ta_rv$plot_data_list, h = ta_rv$plot_height)
-    callModule(taPlotList, "word_clouds", ta_rv$plot_data_list, isolate(graph_rv$graph_seed), 
-               isolate(graph_rv$graph_cats), min_freq, max_words, NULL, "wc",
+    callModule(taPlotList, "word_clouds", ta_rv$plot_data_list, isolate(g_rv$seed), 
+               isolate(g_nodes_rv$cats), min_freq, max_words, NULL, "wc",
                col_palette = gbl_plot_palette(),
                word_len, mac_arial,
                wc_seed, wc_random_order, wc_random_col, wc_vert_prop, wc_scale)
@@ -154,7 +154,7 @@ plotWordClouds <- reactive({
 # does not yet support selected subset category comparison as they are combined in ta_rv$plot_data_list
 comparisonCloudPlotData <- reactive({
   plot_data_list <- ta_rv$plot_data_list
-  # cats <- isolate(graph_rv$graph_cats)
+  # cats <- isolate(g_nodes_rv$cats)
   
   max_words <- input$ta_cc_max_word_count
   word_len <- input$ta_word_length_slider
@@ -205,15 +205,15 @@ comparisonCloudPlotData <- reactive({
 getFiltersDesc <- reactive({
   output <- c()
   
-  if (graph_rv$graph_cat_selected != "All") {
-    if (!("All" %in% input$graph_sub_cats_select)) {
-      output <- append(output, paste0(input$graph_sub_cats_select, collapse = ', '))
+  if (g_nodes_rv$cat_selected != "All") {
+    if (!("All" %in% input$cat_sub_sel)) {
+      output <- append(output, paste0(input$cat_sub_sel, collapse = ', '))
     }
   }
   
   output <- append(output, paste0("Filter Component Size: ", 
-                                  input$graph_comp_slider[1], " - ", 
-                                  input$graph_comp_slider[2]))
+                                  input$comp_slider[1], " - ", 
+                                  input$comp_slider[2]))
 })
 
 # text analysis summary
@@ -226,18 +226,18 @@ textAnalysisDetailsOutput <- reactive({
   output <- c()
   
   if (!is.null(g)) {
-    graph_clusters <- components(g, mode = input$graph_comp_type_sel) # moved here from below
+    graph_clusters <- components(g, mode = input$comp_type_sel) # moved here from below
     
-    selected_sub_cats <- input$graph_sub_cats_select
+    selected_sub_cats <- input$cat_sub_sel
     if (length(selected_sub_cats) == 1 && selected_sub_cats == "All") {
       output <- append(output, c("All Categories"))
     } else {
-      output <- append(output, c(paste0("Filter Categories (", graph_rv$graph_cat_selected, "):")))
+      output <- append(output, c(paste0("Filter Categories (", g_nodes_rv$cat_selected, "):")))
     }
     
     output <- append(output, getFiltersDesc())
     
-    output <- append(output, c(paste0("Components (", input$graph_comp_type_sel, "): ", graph_clusters$no),
+    output <- append(output, c(paste0("Components (", input$comp_type_sel, "): ", graph_clusters$no),
                                paste("Nodes:", vcount(g)),
                                paste("Edges:", ecount(g)), ""))
     
@@ -293,9 +293,9 @@ textAnalysisDetailsOutput <- reactive({
 #     ...
 #
 taPlotListData <- reactive({
-  category_list <- graph_rv$graph_cats
-  selected_cat <- graph_rv$graph_cat_selected
-  selected_sub_cats <- input$graph_sub_cats_select
+  category_list <- g_nodes_rv$cats
+  selected_cat <- g_nodes_rv$cat_selected
+  selected_sub_cats <- input$cat_sub_sel
   
   ta_rv$plot_data_list <- NULL
 
@@ -352,7 +352,7 @@ taPlotListData <- reactive({
 })
 
 taTextCorpusData <- function(graph_attr) {
-  g <- req(r_graph_filtered())
+  g <- r_graph_filtered()
   
   plot_cat <- plot_sub_cats <- ""
   

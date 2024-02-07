@@ -1,5 +1,3 @@
-# voson dashboard shiny app ui
-
 source("ui/ui_utils.R")
 source("ui/ui_tips.R")
 
@@ -56,12 +54,6 @@ ui <-
         navbarMenu(
           "Collection",
           icon = icon("cloud-arrow-down"),
-          "API Access",
-          tabPanel("Keys",
-            icon = icon("key"),
-            source("ui/ui_auth.R")$value
-          ),
-          "---",
           "Social Media",
           tabPanel(
             "Mastodon",
@@ -93,9 +85,9 @@ ui <-
           icon = icon("pen-to-square"),
           tabPanel(
             "Logging",
-            value = "app_log_tab",
+            value = "dash_logger_tab",
             icon = icon("pen"),
-            source("ui/ui_app_log.R")$value
+            source("ui/ui_console_log.R")$value
           )
         )
       )

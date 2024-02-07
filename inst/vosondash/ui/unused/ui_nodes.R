@@ -8,7 +8,7 @@ tabPanel(
       width = 4,
       div("Node Size", style = "font-weight: bold;", class = "custom_node_size_div"),
       pickerInput(
-        "graph_node_size_select",
+        "node_size_sel",
         label = NULL,
         choices = c("None"),
         multiple = FALSE
@@ -17,7 +17,7 @@ tabPanel(
     column(width = 6,
            disabled(
              sliderInput(
-               "graph_node_size_slider",
+               "node_size_slider",
                label = "Multiplier",
                min = 0.1,
                max = 15,
@@ -45,7 +45,7 @@ tabPanel(
            column(width = 6,
                   disabled(
                     sliderInput(
-                      "visgraph_node_base_size_slider",
+                      "visnet_node_base_size_slider",
                       label = "visnet base size",
                       min = 1,
                       max = 40,
@@ -60,7 +60,7 @@ tabPanel(
   fluidRow(column(
     width = 12,
     checkboxInput(
-      "use_node_colors_check",
+      "node_use_g_cols_chk",
       div("Node colors from graphml", style = "margin-bottom:5px;")
       ,
       TRUE
@@ -68,7 +68,7 @@ tabPanel(
   )),
   fluidRow(column(
     width = 12,
-    actionButton("node_attr_reset_button", "Reset")
+    actionButton("node_attr_reset_btn", "Reset")
   )),
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
   h4("Node Labels"),
@@ -76,7 +76,7 @@ tabPanel(
   source("ui/ui_graph_node_labels.R")$value,
   fluidRow(column(
     width = 12,
-    actionButton("node_labels_reset_button", "Reset")
+    actionButton("node_labels_reset_btn", "Reset")
   ))
   
 ) # end top tabpanel
