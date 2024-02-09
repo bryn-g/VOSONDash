@@ -4,18 +4,18 @@
 #' component size range.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param component_type Character string. Use strongly or weakly connected components by specifying \code{"strong"} or 
+#' @param mode Character string. Use strongly or weakly connected components by specifying \code{"strong"} or 
 #' \code{"weak"}. Ignored for undirected graphs. Default is \code{"strong"}.
 #' @param component_range Numeric vector. Min and max values or size range of component.
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-applyComponentFilter <- function(g, component_type = "strong", component_range) {
+apply_comp_filter <- function(g, mode = "strong", component_range) {
   min_range <- component_range[1]
   max_range <- component_range[2]
   
-  graph_clusters <- igraph::components(g, mode = component_type)
+  graph_clusters <- igraph::components(g, mode = mode)
   
   min_cluster_size <- suppressWarnings(min(graph_clusters$csize)) # suppress no non-missing arguments to min;
   max_cluster_size <- suppressWarnings(max(graph_clusters$csize)) # returning Inf warning
@@ -64,7 +64,7 @@ applyComponentFilter <- function(g, component_type = "strong", component_range) 
 #' @return An igraph graph object.
 #' 
 #' @export
-applyGraphFilters <- function(g, isolates = TRUE, multi_edge = TRUE, loops_edge = TRUE) {
+apply_feature_filter <- function(g, isolates = TRUE, multi_edge = TRUE, loops_edge = TRUE) {
   
   # remove multiple edges and self loops
   if (multi_edge == FALSE || loops_edge == FALSE) {
@@ -81,7 +81,7 @@ applyGraphFilters <- function(g, isolates = TRUE, multi_edge = TRUE, loops_edge 
   g
 }
 
-#' @title Add additional measures to graph as node attributes
+#' @title Add centrality measures to graph as node attributes
 #' 
 #' @description Adds degree, in-degree, out-degree, betweenness and closeness measures to graph as node attributes.
 #' 
@@ -90,23 +90,23 @@ applyGraphFilters <- function(g, isolates = TRUE, multi_edge = TRUE, loops_edge 
 #' @return An igraph graph object.
 #' 
 #' @export
-addAdditionalMeasures <- function(g) {
+add_centrality_measures <- function(g) {
   # add degree
-  V(g)$Degree <- igraph::degree(g, mode = "total")
+  igraph::V(g)$Degree <- igraph::degree(g, mode = "total")
   if (igraph::is_directed(g)) {
-    V(g)$Indegree <- igraph::degree(g, mode = "in")
-    V(g)$Outdegree <- igraph::degree(g, mode = "out")
+    igraph::V(g)$Indegree <- igraph::degree(g, mode = "in")
+    igraph::V(g)$Outdegree <- igraph::degree(g, mode = "out")
   } else {
-    V(g)$Indegree <- V(g)$Outdegree <- 0
+    igraph::V(g)$Indegree <- igraph::V(g)$Outdegree <- 0
   }
   
   # add centrality
-  if (vcount(g) > 1) {
-    V(g)$Betweenness <- as.numeric(sprintf(fmt = "%#.3f", igraph::betweenness(g)))
+  if (igraph::gorder(g) > 1) {
+    igraph::V(g)$Betweenness <- as.numeric(sprintf(fmt = "%#.3f", igraph::betweenness(g)))
     # suppress disconnected graph warnings
-    V(g)$Closeness <- as.numeric(sprintf(fmt = "%#.3f", suppressWarnings(igraph::closeness(g))))    
+    igraph::V(g)$Closeness <- as.numeric(sprintf(fmt = "%#.3f", suppressWarnings(igraph::closeness(g))))    
   } else {
-    V(g)$Betweenness <- V(g)$Closeness <- 0
+    igraph::V(g)$Betweenness <- igraph::V(g)$Closeness <- 0
   }
 
   g
@@ -209,7 +209,7 @@ applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefi
   
   # filter out all nodes that do not have a category value in sub-categories list
   if (length(selected_subcats) > 0) {
-    g <- igraph::delete_vertices(g, V(g)[!(igraph::vertex_attr(g, vattr) %in% selected_subcats)])
+    g <- igraph::delete_vertices(g, igraph::V(g)[!(igraph::vertex_attr(g, vattr) %in% selected_subcats)])
   }
   
   g
@@ -227,7 +227,7 @@ applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefi
 #' @export
 applyPruneFilter <- function(g, selected_prune_nodes) {
   if (length(selected_prune_nodes) > 0) {
-    nodes <- which(V(g)$id %in% selected_prune_nodes)
+    nodes <- which(igraph::V(g)$id %in% selected_prune_nodes)
     g <- igraph::delete_vertices(g, nodes)
   }
   

@@ -2,25 +2,26 @@
 #' 
 #' @description This function launches the \pkg{VOSONDash} Shiny app in the default web browser. 
 #' 
-#' @param pkgStartupMsgs Logical. Display app package loading messages. Default is \code{FALSE}.
-#' @param isLocal Logical. Manually set app local or server mode flag.
-#' 
+#' @param startup_msgs Logical. Display app package loading messages. Default is \code{FALSE}.
+#' @param local Logical. Manually set app local or server mode flag.
+#' @inheritDotParams shiny::runApp display.mode launch.browser
+
 #' @return None
 #' 
 #' @export
-runVOSONDash <- function(pkgStartupMsgs = FALSE, isLocal = NULL) {
+dash <- function(startup_msgs = FALSE, local = NULL, ...) {
   app_dir <- system.file("", "vosondash", package = "VOSONDash")
   if (app_dir == "") {
     stop("Could not find the app try re-installing the VOSONDash package.", call. = FALSE)
   }
   
-  if (!is.logical(pkgStartupMsgs)) { pkgStartupMsgs = FALSE }
-  if (!is.logical(isLocal)) { isLocal <- NULL }
+  if (!is.logical(startup_msgs)) startup_msgs = FALSE
+  if (!is.logical(local)) local <- NULL
   
   # set verbose package loading by app
-  # .GlobalEnv$.VOSONPkgMsgs <- pkgStartupMsgs
+  # .GlobalEnv$.VOSONPkgMsgs <- startup_msgs
   # gbl_vars <- c(".VOSONPkgMsgs")
-  shiny::shinyOptions(VOSONPkgMsgs = pkgStartupMsgs, VOSONIsLocal = isLocal)
+  shiny::shinyOptions(VOSONPkgMsgs = startup_msgs, VOSONIsLocal = local)
   
   # set app mode if specified
   # if (!missing(isLocal) && is.logical(isLocal)) {
@@ -41,5 +42,5 @@ runVOSONDash <- function(pkgStartupMsgs = FALSE, isLocal = NULL) {
     options(voson.msg = saved_voson_msg)
   })
   
-  shiny::runApp(app_dir, display.mode = "normal", launch.browser = TRUE)
+  shiny::runApp(app_dir, display.mode = "normal", launch.browser = TRUE, ...)
 }

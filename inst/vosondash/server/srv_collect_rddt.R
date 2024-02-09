@@ -72,7 +72,7 @@ observeEvent(input$reddit_collect_button, {
         
       # collect reddit data and print any output to console
       tryCatch({
-        red_rv$reddit_data <- collectRedditData(url_list, sort_list)
+        red_rv$reddit_data <- get_reddit_data(url_list, sort_list)
         red_rv$data_cols <- names(red_rv$reddit_data)
       }, error = function(err) {
         incProgress(1, detail = "Error")

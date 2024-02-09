@@ -6,87 +6,80 @@
 #' 
 #' @keywords internal
 #' @export
-getVosonSMLVersion <- function() {
-  if ("vosonSML" %in% loadedNamespaces()) { return(utils::packageVersion("vosonSML")) }
+get_voson_ver <- function() {
+  if ("vosonSML" %in% loadedNamespaces()) return(utils::packageVersion("vosonSML"))
   "unknown"
 }
 
 #' @title Collect youtube data
 #' 
-#' @description This function is a wrapper for collecting youtube video comments using \code{vosonSML::Collect}. 
+#' @description This function is a wrapper for collecting youtube video comments via \code{vosonSML::Collect}. 
 #' 
-#' @param youtube_api_key Character string. Youtube api key.
-#' @param youtube_video_id_list Character vector. Youtube video ids to collect comments from.
-#' @param youtube_max_comments Numeric. Maximum number of comments to collect.
+#' @param api_key Character string. Youtube api key.
+#' @param video_ids Character vector. Youtube video ids to collect comments from.
+#' @param max_comments Numeric. Maximum number of comments to collect.
 #' 
 #' @return A vosonSML youtube dataframe.
 #' 
 #' @keywords internal
 #' @export
-collectYoutubeData <- function(youtube_api_key, youtube_video_id_list, youtube_max_comments) {
+get_youtube_data <- function(api_key = NULL, video_ids = NULL, max_comments = NULL) {
+  stopifnot(
+    "api_key must be a character string." = (is.character(api_key) && length(api_key) == 1),
+    "video_ids must be a vector of character strings." = is.character(video_ids),
+    "max_comments must be numeric, > 0 and not infinite." = (
+      is.numeric(max_comments) && max_comments > 0 && !is.infinite(min)
+    )
+  )
   
-  if (is.null(youtube_api_key) || (length(youtube_video_id_list) < 1)) {
-    return(NULL)
-  }
-  
-  collect_params <- list()
+  params <- list()
 
-  cred <- vosonSML::Authenticate("youtube", apiKey = youtube_api_key)
+  cred <- vosonSML::Authenticate("youtube", apiKey = api_key)
   
-  collect_params[["credential"]] <- cred
-  collect_params[["videoIDs"]] <- youtube_video_id_list
+  params[["credential"]] <- cred
+  params[["videoIDs"]] <- video_ids
   
-  if (is.numeric(youtube_max_comments) && youtube_max_comments > 1) {
-    collect_params["maxComments"] <- youtube_max_comments
-  }
+  if (is.numeric(max_comments) && max_comments > 1) params["maxComments"] <- max_comments
   
-  collect_params["writeToFile"] <- FALSE
-  collect_params["verbose"] <- TRUE
+  params["writeToFile"] <- FALSE
+  params["verbose"] <- TRUE
   
-  data <- do.call(vosonSML::Collect, collect_params)
+  do.call(vosonSML::Collect, params)
 }
 
-#' @title Create youtube actor networks
-#' 
-#' @description This function is a wrapper for creating a youtube actor networks using \code{vosonSML::Create}.
-#' 
-#' @param data \pkg{vosonSML} youtube dataframe.
-#'
-#' @return Youtube actor networks as named list.
-#' 
-#' @keywords internal
-#' @export
-createYoutubeNetwork <- function(data) {
-  network <- Create(data, 'actor', verbose = TRUE, writeToFile = FALSE)
-  
-  g <- igraph::set_graph_attr(network$graph, "type", "youtube")
-  
-  g_wt <- g
-  E(g_wt)$vosonTxt_comment <- data$Comment[match(E(g_wt)$commentId, data$CommentId)]
-  
-  list(network = g, networkWT = g_wt)
+get_errors <- function(errs) {
+  sapply(errs, function(x) ifelse(x[1], NULL, x[2]))
 }
 
 #' @title Collect reddit data
 #' 
 #' @description This function is a wrapper for collecting reddit thread comments using \code{vosonSML::Collect}. 
 #' 
-#' @param reddit_url_list Character vector. Thread urls to collect comments from.
-#' @param reddit_sort Character vector. Sort type for comments in each thread.
+#' @param thread_urls Character vector. Thread urls to collect comments from.
+#' @param sort_type Character vector. Sort type for comments in each thread.
 #'
 #' @return A vosonSML reddit dataframe.
 #' 
 #' @keywords internal
 #' @export
-collectRedditData <- function(reddit_url_list, reddit_sort = NA) {
-  data <- NULL
+get_reddit_data <- function(thread_urls = NULL, sort_type = NULL) {
+  errs <- get_errors(
+    c((is.character(api_key) && length(api_key) == 1), "api_key must be a character string."),
+    c(is.character(video_ids), "video_ids must be a vector of character strings."),
+    c((is.numeric(max_comments) && max_comments > 0 && !is.infinite(min)),
+      "max_comments must be numeric, > 0 and not infinite.")
+    )
+  if (length(errs)) {
+    message(paste0(errs, collapse = "\n"))
+    return(NULL)
+  }
   
-  reddit_sort <- replace(reddit_sort, reddit_sort == "na", NA)
+  sort_type <- replace(sort_type, sort_type == "na", NA)
   
-  if (length(reddit_url_list) > 0) {
+  if (length(thread_urls) > 0) {
     data <- vosonSML::Collect(vosonSML::Authenticate("reddit"),
-                              threadUrls = reddit_url_list,
-                              sort = reddit_sort,
+                              threadUrls = thread_urls,
+                              sort = sort_type,
                               waitTime = 5, 
                               writeToFile = FALSE,
                               verbose = TRUE)

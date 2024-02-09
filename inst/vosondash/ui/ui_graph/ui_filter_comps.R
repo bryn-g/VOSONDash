@@ -4,7 +4,7 @@ fluidRow(column(
     column(width = 4,
            shinyjs::disabled(
              selectInput(
-               "comp_type_sel",
+               "comp_mode_sel",
                div("Type", style = "font-weight: normal;"),
                choices = c("weak", "strong"),
                selected = "weak",

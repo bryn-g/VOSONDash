@@ -59,6 +59,9 @@ r_graph_filtered <- reactive({
             filter_btn_txt_sel("fltr_cat_chk_label", TRUE)
             
             g <- applyCategoricalFilters(g, cat_sel, sub_cat_sel)
+          } else {
+            # updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+            filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
           }
         }
       } else if (cmd == "rm_components") {
@@ -67,7 +70,7 @@ r_graph_filtered <- reactive({
         
         # filter component selection
         if (input$fltr_comp_chk) {
-          # g <- applyComponentFilter(g, isolate(input$comp_type_sel), input$comp_slider)
+          # g <- apply_comp_filter(g, isolate(input$comp_mode_sel), input$comp_slider)
         } else {
           # f_set_comp_ranges(g)
           # f_set_comp_slider_range()
@@ -75,12 +78,12 @@ r_graph_filtered <- reactive({
         
       } else if (cmd == "rm_multiedges" & input$fltr_edge_multi_chk == TRUE) {
         
-        g <- applyGraphFilters(g, input$fltr_edge_multi_chk, input$fltr_edge_loops_chk)
+        g <- apply_feature_filter(g, input$fltr_edge_multi_chk, input$fltr_edge_loops_chk)
         filter_btn_txt_sel("fltr_edge_multi_chk_label", TRUE)
         
       } else if (cmd == "rm_loops" & input$fltr_edge_loops_chk == TRUE) {
         
-        g <- applyGraphFilters(g, input$fltr_edge_multi_chk, input$fltr_edge_loops_chk)
+        g <- apply_feature_filter(g, input$fltr_edge_multi_chk, input$fltr_edge_loops_chk)
         filter_btn_txt_sel("fltr_edge_loops_chk_label", TRUE)
         
       } else if (cmd == "rm_isolates" & input$fltr_iso_chk == TRUE) {
@@ -92,7 +95,7 @@ r_graph_filtered <- reactive({
   }
   
   # measures of centrality
-  g <- VOSONDash::addAdditionalMeasures(g)
+  g <- VOSONDash::add_centrality_measures(g)
   
   # update node attributes will also update labels
   g_nodes_rv$attrs <- igraph::vertex_attr_names(g)

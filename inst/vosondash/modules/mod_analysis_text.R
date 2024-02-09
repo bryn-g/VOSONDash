@@ -133,7 +133,7 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
       # renders empty plot to namespace id "no-data" placeholder
       if (length(data) < 1) {
         output[["no-data"]] <- renderPlot({
-          VOSONDash::emptyPlotMessage("No text data.")
+          VOSONDash::get_empty_plot("No text data.")
         })
       }
       
@@ -175,7 +175,7 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
       # renders empty plot to namespace id "no-data" placeholder
       if (length(data) < 1) {
         output[["no-data"]] <- renderPlot({
-          VOSONDash::emptyPlotMessage("No text data.")
+          VOSONDash::get_empty_plot("No text data.")
         })
       }
     }) })

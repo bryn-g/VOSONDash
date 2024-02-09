@@ -1,20 +1,3 @@
-#' @title Create an empty plot with text
-#'
-#' @description This function creates an empty plot that can be used to display a text message. Intended to be used in
-#' a series of plots to indicate that an individual plot cannot be created for some reason and still maintain a plot
-#' aesthetic.
-#'
-#' @param message Character string. Text message to centre on empty plot. Default text is \code{"No plot available."}.
-#'
-#' @return An empty plot with text message.
-#'
-#' @keywords internal
-#' @export
-emptyPlotMessage <- function(message = "No plot available.") {
-  return({ plot(1:10, 1:10, type = "n", axes = FALSE, xlab = "", ylab = "")
-    text(5, 5, message, cex = 1.2) })
-}
-
 #' @title Create a word frequency chart
 #'
 #' @description This function creates a horizontal barchart of word frequencies.
@@ -36,7 +19,7 @@ wordFreqChart <- function(word_freqs,
 
   # returns empty plot with message if no data to chart
   if (is.null(word_freqs) || nrow(word_freqs) < 1) {
-    return(emptyPlotMessage("No text data."))
+    return(get_empty_plot("No text data."))
   }
 
   saved_par <- par(no.readonly = TRUE)
@@ -85,7 +68,7 @@ wordCloudPlot <- function(word_freqs,
   
   # returns empty plot with message if no data to plot
   if (is.null(word_freqs) || nrow(word_freqs) < 1) {
-    return(emptyPlotMessage("No text data."))
+    return(get_empty_plot("No text data."))
   }
   
   if (!is.null(seed)) set.seed(seed)

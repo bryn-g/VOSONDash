@@ -95,7 +95,7 @@ filter_ctrls <- function() {
 
 # component filter ctrls
 filter_comp_ctrls <- function() {
-  c("comp_type_sel",
+  c("comp_mode_sel",
     "comp_slider",
     "comp_recalc")
 }

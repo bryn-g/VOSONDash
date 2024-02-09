@@ -160,11 +160,11 @@ comparisonCloudPlotData <- reactive({
   word_len <- input$ta_word_length_slider
   mac_arial <- setArialUnicodeMS(input$macos_font_check)
   
-  if (is.null(plot_data_list)) { return(VOSONDash::emptyPlotMessage("No text data.")) }
-  if (length(plot_data_list) < 1) { return(VOSONDash::emptyPlotMessage("No text data.")) }
+  if (is.null(plot_data_list)) { return(VOSONDash::get_empty_plot("No text data.")) }
+  if (length(plot_data_list) < 1) { return(VOSONDash::get_empty_plot("No text data.")) }
   
   if (length(plot_data_list) == 1) {
-    VOSONDash::emptyPlotMessage("No comparison plot: requires a Categorical variable and selected View as \"All\".")
+    VOSONDash::get_empty_plot("No comparison plot: requires a Categorical variable and selected View as \"All\".")
   } else {
     # to get a comparison cloud, need new corpus with N documents where N is the number of categories
     #    i.e. collapse all content for each category into single document
@@ -186,7 +186,7 @@ comparisonCloudPlotData <- reactive({
     colnames(tdm) <- df$catval
     
     if (ncol(tdm) < 2) {
-      VOSONDash::emptyPlotMessage("No comparison plot: only one categorical variable present.")
+      VOSONDash::get_empty_plot("No comparison plot: only one categorical variable present.")
     } else {
       plot_parameters <- list(tdm,
                               max.words = max_words,
@@ -226,7 +226,7 @@ textAnalysisDetailsOutput <- reactive({
   output <- c()
   
   if (!is.null(g)) {
-    graph_clusters <- components(g, mode = input$comp_type_sel) # moved here from below
+    graph_clusters <- components(g, mode = input$comp_mode_sel) # moved here from below
     
     selected_sub_cats <- input$cat_sub_sel
     if (length(selected_sub_cats) == 1 && selected_sub_cats == "All") {
@@ -237,7 +237,7 @@ textAnalysisDetailsOutput <- reactive({
     
     output <- append(output, getFiltersDesc())
     
-    output <- append(output, c(paste0("Components (", input$comp_type_sel, "): ", graph_clusters$no),
+    output <- append(output, c(paste0("Components (", input$comp_mode_sel, "): ", graph_clusters$no),
                                paste("Nodes:", vcount(g)),
                                paste("Edges:", ecount(g)), ""))
     

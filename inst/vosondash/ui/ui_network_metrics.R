@@ -5,7 +5,7 @@ tabPanel("Metrics",
            box(
              width = 5,
              title = "Network Metrics",
-             verbatimTextOutput("network_metrics_details_output", placeholder = TRUE)
+             verbatimTextOutput("net_metrics_txt", placeholder = TRUE)
            ),
            box(
              width = 7,

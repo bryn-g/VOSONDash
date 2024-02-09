@@ -67,7 +67,7 @@ observeEvent(input$youtube_collect_button, {
       
       # collect youtube data and print any output to console
       tryCatch({
-        yt_rv$yt_data <- collectYoutubeData(youtube_api_key, youtube_video_id_list, youtube_max_comments)
+        yt_rv$yt_data <- get_youtube_data(youtube_api_key, youtube_video_id_list, youtube_max_comments)
         
         yt_rv$data_cols <- names(yt_rv$yt_data)
       }, error = function(err) {

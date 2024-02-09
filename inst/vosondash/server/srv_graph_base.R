@@ -126,15 +126,21 @@ observeEvent(g_nodes_rv$cats, {
     
   shinyjs::enable("cat_sel")
   cats <- append("All", names(g_nodes_rv$cats))
+  
+  freezeReactiveValue(input, "cat_sel")
   updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
   
+  freezeReactiveValue(input, "cat_sub_sel")
   updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
   shinyjs::disable("cat_sub_sel")
   
+  freezeReactiveValue(g_nodes_rv, "cat_selected")
+  freezeReactiveValue(g_nodes_rv, "cat_sub_selected")
   g_nodes_rv$cat_selected <- "All"
   g_nodes_rv$cat_sub_selected <- "All"
   
   shinyjs::enable("fltr_cat_chk")
+  freezeReactiveValue(input, "fltr_cat_chk")
   updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
 })
 
@@ -144,12 +150,20 @@ observeEvent(input$cat_sel, {
   if (input$cat_sel != "All") {
     shinyjs::enable("cat_sub_sel")
     sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
+    freezeReactiveValue(input, "cat_sub_sel")
     updateSelectInput(session, "cat_sub_sel", choices = sub_cats, selected = "All")
     
+    updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
     g_nodes_rv$cat_selected <- input$cat_sel
     g_nodes_rv$cat_sub_selected <- "All"
   } else {
+    updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+    filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
+    
+    g_nodes_rv$cat_selected <- input$cat_sel
+    
     shinyjs::disable("cat_sub_sel")
+    freezeReactiveValue(input, "cat_sub_sel")
     updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
   }
 
@@ -159,6 +173,8 @@ observeEvent(input$cat_sub_sel, {
   req(g_nodes_rv$cats, input$cat_sel, input$cat_sub_sel)
   
   g_nodes_rv$cat_sub_selected <- input$cat_sub_sel
+  freezeReactiveValue(input, "fltr_cat_chk")
+  updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
 }, ignoreInit = TRUE)
 
 
@@ -193,7 +209,7 @@ f_init_graph_ctrls2 <- function(g) {
     # shinyjs::enable("graph_reseed_btn")
     # shinyjs::enable("comp_slider")
     
-    # f_update_comp_slider_range(g, isolate(input$comp_type_sel))
+    # f_update_comp_slider_range(g, isolate(input$comp_mode_sel))
     # f_set_comp_ranges(g)
     # comp_rv$mode <- "weak"
     # f_set_comp_slider_range()
@@ -340,11 +356,11 @@ f_init_graph_ctrls2 <- function(g) {
 #     
 #     g <- applyPruneFilterSrv(g, g_rv$prune_nodes)
 #     g <- applyCategoricalFilters(g, input$cat_sel, input$cat_sub_sel)
-#     # isolate as comp_type_sel has event
-#     g <- applyComponentFilter(g, isolate(input$comp_type_sel), input$comp_slider)    
-#     g <- applyGraphFilters(g, input$fltr_iso_chk, input$fltr_edge_multi_chk, 
+#     # isolate as comp_mode_sel has event
+#     g <- apply_comp_filter(g, isolate(input$comp_mode_sel), input$comp_slider)    
+#     g <- apply_feature_filter(g, input$fltr_iso_chk, input$fltr_edge_multi_chk, 
 #                            input$fltr_edge_loops_chk)
-#     g <- addAdditionalMeasures(g)
+#     g <- add_centrality_measures(g)
 #     
 #     # enable network metrics tab
 #     removeCssClass(selector = "a[data-value = 'metrics_tab_panel']", class = "inactive_menu_link")
@@ -357,7 +373,7 @@ f_init_graph_ctrls2 <- function(g) {
 
 # ** check this is not redundant
 # update component slider when graph component or category changed
-# observeEvent({ input$comp_type_sel
+# observeEvent({ input$comp_mode_sel
 #   input$cat_sub_sel
 #   g_rv$prune_nodes
 #   input$reset_on_change_check }, {
@@ -369,7 +385,7 @@ f_init_graph_ctrls2 <- function(g) {
 #       g <- applyCategoricalFilters(g, input$cat_sel, input$cat_sub_sel)
 #     }
 #     
-#     f_update_comp_slider_range(g, input$comp_type_sel)
+#     f_update_comp_slider_range(g, input$comp_mode_sel)
 #   }, ignoreInit = TRUE)
 
 # r_comp_summary_txt <- reactive({
@@ -378,9 +394,9 @@ f_init_graph_ctrls2 <- function(g) {
 #   output <- c()
 #   
 #   if (!is.null(g)) {
-#     graph_clusters <- components(g, mode = isolate(input$comp_type_sel))
+#     graph_clusters <- components(g, mode = isolate(input$comp_mode_sel))
 #     
-#     output <- append(output, paste0("Components (", isolate(input$comp_type_sel), "): ", 
+#     output <- append(output, paste0("Components (", isolate(input$comp_mode_sel), "): ", 
 #                                     graph_clusters$no))
 #     
 #     min_value <- max_value <- 0

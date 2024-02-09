@@ -5,16 +5,14 @@ comp_rv <- reactiveValues(
 )
 
 output$comp_summary_ui <- renderText({
-  cat(file=stderr(), "running comp_summary_ui\n")
   r_comp_summary_txt()
 })
 
 r_comp_summary_txt <- reactive({
-  cat(file=stderr(), "running r_comp_summary_txt\n")
-  mode <- input$comp_type_sel
+  mode <- input$comp_mode_sel
   comp_attrs <- comp_rv[[mode]]
-  
-  output <- c(output, paste0("Components (", mode, "): ", comp_attrs$no))
+
+  output <- c(paste0("Components (", mode, "): ", comp_attrs$no))
   if (comp_attrs$no > 0) {
     if (comp_attrs$no == 1) {
       output <- append(output, paste0("Size: ", comp_attrs$min, sep = ""))
@@ -28,7 +26,6 @@ r_comp_summary_txt <- reactive({
 })
 
 output$comp_count_ui <- renderText({
-  cat(file=stderr(), "running comp_count_ui\n")
   comp_attr <- r_graph_comp_current()
   comp_no <- 0
   if (isTruthy(comp_attr)) {
@@ -38,28 +35,24 @@ output$comp_count_ui <- renderText({
 })
 
 r_graph_comp_current <- reactive({
-  cat(file=stderr(), "running r_graph_comp_current\n")
   g <- r_graph_filtered()
-  mode <- input$comp_type_sel
+  mode <- input$comp_mode_sel
   if (isTruthy(g)) return(f_calc_graph_comp_ranges(g, mode = mode))
   NULL
 })
 
-observeEvent(input$comp_type_sel, {
-  cat(file=stderr(), "running event - comp_type_sel\n")
+observeEvent(input$comp_mode_sel, {
   f_set_comp_slider_range()
 }, ignoreInit = TRUE)
 
 observeEvent(input$comp_recalc, {
-  cat(file=stderr(), "running event - comp_recalc\n")
   f_set_comp_slider_range()
   updateCheckboxInput(session, inputId = "fltr_comp_chk", value = FALSE)
 }, ignoreInit = TRUE)
 
 f_set_comp_slider_range <- function() {
-  cat(file=stderr(), "running f_set_comp_slider_range\n")
   range <- comp_rv$weak
-  if (input$comp_type_sel == "strong") range <- comp_rv$strong
+  if (input$comp_mode_sel == "strong") range <- comp_rv$strong
   
   updateSliderInput(
     session,
@@ -71,7 +64,6 @@ f_set_comp_slider_range <- function() {
 }
 
 f_set_comp_ranges <- function(g) {
-  cat(file=stderr(), "running f_set_comp_ranges\n")
   if (!is.null(g)) {
     ranges <- f_calc_graph_comp_ranges(g)
     comp_rv$weak <- ranges$weak
@@ -80,7 +72,6 @@ f_set_comp_ranges <- function(g) {
 }
 
 f_calc_graph_comp_ranges <- function(g, mode = NULL) {
-  cat(file=stderr(), "running f_calc_graph_comp_ranges\n")
   modes <- list(weak = "weak", strong = "strong")
   if (!is.null(mode)) modes <- modes[which(names(modes) != mode)]
   comp_ranges <- sapply(

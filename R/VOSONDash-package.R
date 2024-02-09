@@ -25,4 +25,5 @@
 #' @importFrom utils packageVersion
 #' @importFrom vosonSML Authenticate Collect Create
 #' @importFrom wordcloud wordcloud
+#' @import igraph
 NULL

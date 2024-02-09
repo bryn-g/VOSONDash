@@ -1,10 +1,10 @@
 r_graph_igraph_plot <- reactive({
-  if (!isTruthy(g_rv$is_igraph)) return(emptyPlotMessage("No graph data."))
+  if (!isTruthy(g_rv$is_igraph)) return(get_empty_plot("No graph data."))
     
   g <- req(r_graph_filtered())
   
-  if (is.null(g)) return(emptyPlotMessage("No graph data."))
-  if (igraph::gorder(g) <= 0) return(emptyPlotMessage("No nodes to plot."))
+  if (is.null(g)) return(get_empty_plot("No graph data."))
+  if (igraph::gorder(g) <= 0) return(get_empty_plot("No nodes to plot."))
   
   # isolate dependencies of r_graph_filters
   isolate({

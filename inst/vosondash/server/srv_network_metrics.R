@@ -1,161 +1,107 @@
-#' VOSON Dashboard networkMetricsServer
-#'
-#' Network metrics and line plots.
-#'
+# network metrics summary
+output$net_metrics_txt <- renderText({
+    r_graph_metrics()
+})
 
-#### values ---------------------------------------------------------------------------------------------------------- #
-#### events ---------------------------------------------------------------------------------------------------------- #
-#### output ---------------------------------------------------------------------------------------------------------- #
+# wrapper for standard distribution plot
+get_std_plot <- function(x, type = "b", xlab = "", ylab = "N nodes", ...) {
+  plot(x, type = type, xlab = xlab, ylab = ylab, ...)
+}
 
-output$network_metrics_details_output <-
-  renderText({
-    r_graph_metrics_txt()
-  })
-
-#### reactives ------------------------------------------------------------------------------------------------------- #
-
-distrib_data <- reactive({
+# generate distribution plot
+# todo: ctrl for whether to include loops in degree calculations
+r_node_distrib_plot <- reactive({
   g <- r_graph_filtered()
   
-  if (is.null(g)) {
-    return(VOSONDash::emptyPlotMessage("No graph data."))
-  }
+  if (!isTruthy(g)) return(VOSONDash::get_empty_plot("No graph data."))
 
-  type <- input$metrics_distrib_sel
+  distrib_type <- input$metrics_distrib_sel
   
-  if (type == "component") {
-    cc <- igraph::components(g, mode = input$comp_type_sel)
-    plot(
-      table(cc$csize),
-      type = "b",
-      xlab = paste0(
-        "Size of component (",
-        input$comp_type_sel,
-        ")"
-      ),
-      ylab = "N components"
-    )
-  } else if (type == "degree") {
+  if (distrib_type == "component") {
+    cc <- igraph::components(g, mode = input$comp_mode_sel)
+    get_std_plot(table(cc$csize), xlab = paste0("N components [mode = ", input$comp_mode_sel, "]"))
+
+  } else if (distrib_type == "component2") {
+    dist <- igraph::component_distribution(g)
+    get_std_plot(as.table(dist), xlab = "unknown", xlab = "unknown")
+    
+  } else if (distrib_type == "degree") {
     if (igraph::is_directed(g)) {
-      VOSONDash::emptyPlotMessage("Not defined for network.")
+      VOSONDash::get_empty_plot("Not defined for network.")
+
     } else {
-      plot(table(degree(g)),
-           type = "b",
-           xlab = "Degree",
-           ylab = "N nodes")
+      get_std_plot(table(igraph::degree(g)), xlab = "Degree")
+
+    }
+  } else if (distrib_type == "indegree") {
+    if (igraph::is_directed(g)) {
+      get_std_plot(table(igraph::degree(g, mode = "in")), xlab = "Indegree")
+    } else {
+      VOSONDash::get_empty_plot("Not defined for undirected network.")
+    }
+  } else if (distrib_type == "outdegree") {
+    if (igraph::is_directed(g)) {
+      get_std_plot(table(igraph::degree(g, mode = "out")), xlab = "Outdegree")
       
-      # as.data.frame.matrix(table_gfg)
-      # ggplot::ggplot(table(degree(g)))
-    }
-  } else if (type == "indegree") {
-    if (igraph::is_directed(g)) {
-      plot(table(degree(g, mode = "in")),
-           type = "b",
-           xlab = "Indegree",
-           ylab = "N nodes")
     } else {
-      VOSONDash::emptyPlotMessage("Not defined for undirected network.")
-    }
-  } else if (type == "outdegree") {
-    if (igraph::is_directed(g)) {
-      plot(table(degree(g, mode = "out")),
-           type = "b",
-           xlab = "Outdegree",
-           ylab = "N nodes")
-    } else {
-      VOSONDash::emptyPlotMessage("Not defined for undirected network.")
+      VOSONDash::get_empty_plot("Not defined for undirected network.")
+      
     }
   } else {
-    VOSONDash::emptyPlotMessage("No graph data.")
+    VOSONDash::get_empty_plot("No graph data.")
+    
   }
 })
 
+# degree and component distribution plot
 output$metrics_distrib_plot <- renderPlot({
-  distrib_data()
+  r_node_distrib_plot()
 })
 
-r_graph_metrics_txt <- reactive({
+# format any double numbers in a list to a precision of 3 decimal places
+fmt_double_values <- function(values, n = 3) {
+  sapply(values, function(x, n) {
+    ifelse(!is.numeric(x), x,
+      ifelse(is.nan(x), x,
+        ifelse(round(x) != x, format(round(x, n), nsmall = n), x)))
+  }, n = n, simplify = FALSE, USE.NAMES = TRUE)
+}
+
+# format network metrics into summary text
+# todo: ctrl for whether to include loops in centralization calculations
+r_graph_metrics <- reactive({
   g <- r_graph_filtered()
-  
-  if (is.null(g)) {
-    return("No graph data.\n")
+
+  if (!isTruthy(g)) return("No graph data.")
+
+  metrics <- fmt_double_values(get_network_metrics(g, mode = input$comp_mode_sel))
+  out <- c(
+    paste("Num of nodes:", metrics$nodes_n),
+    paste("Num of edges:", metrics$edges_n),
+    paste("Edges:", ifelse(metrics$directed, "directed", "undirected")),
+    paste("Number of components:", metrics$comps_n),
+    paste("Component mode:", metrics$comps_mode),
+    paste("Num of isolates :", metrics$isos_loops_n),
+    paste("Num of isolates (deg = 0):", metrics$isos_n),
+    paste("Density:", metrics$density),
+    paste("Average geodesic distance:", metrics$ave_geodesic_dist), "",
+    paste("(Global) clustering coefficient:", metrics$global_clust_coeff),
+      "  Proportion of connected triples that close to\n  form triangles.",
+    paste("Reciprocity - 1:", metrics$reciprocity_def),
+      "  Ratio of num of dyads with reciprocated (mutual)\n  edges to num of dyads with single edge.",
+    paste("Reciprocity - 2:", metrics$reciprocity_ratio),
+      "  Ratio of total num of reciprocated edges to\n  total num of edges.", "")
+
+  centrlzn <- fmt_double_values(get_graph_centralization(g))
+  out <- c(out, "Graph Centralization", "", paste("Degree:", centrlzn$degree))
+  if (metrics$directed) {
+    out <- c(out, c(
+      paste("Indegree:", centrlzn$indegree),
+      paste("Outdegree:", centrlzn$outdegree)))
   }
-  
-  output <- c()
-  
-  # if (!is.null(g)) {
-    metrics <-
-      getNetworkMetrics(g, component_type = input$comp_type_sel)
-    
-    output <- append(
-      output,
-      c(
-        paste("Number of nodes (network size):", metrics$nodes),
-        paste("Number of edges:", metrics$edges),
-        paste(
-          "Edges:",
-          ifelse(metrics$directed, "directed", "undirected")
-        ),
-        paste("Number of components:", metrics$components),
-        paste("Component mode:", metrics$components_type),
-        paste("Number of isolates:", metrics$isolates),
-        paste("Density:", sprintf("%.3f", metrics$density)),
-        paste(
-          "Average geodesic distance:",
-          sprintf("%.3f", metrics$ave_geodesic_dist)
-        ),
-        "",
-        paste(
-          "(Global) clustering coefficient:",
-          sprintf("%.3f", metrics$global_clust_coeff)
-        ),
-        "  Proportion of connected triples that close to\n  form triangles.",
-        paste(
-          "Reciprocity - 1:",
-          sprintf("%.3f", metrics$reciprocity_def)
-        ),
-        "  Ratio of number of dyads with reciprocated (mutual)\n  edges to number of dyads with single edge.",
-        paste(
-          "Reciprocity - 2:",
-          sprintf("%.3f", metrics$reciprocity_ratio)
-        ),
-        "  Ratio of total number of reciprocated edges to\n  total number of edges.",
-        ""
-      )
-    )
-    
-    if (metrics$directed) {
-      output <- append(output, c(
-        paste(
-          "Indegree centralization:",
-          sprintf("%.3f", metrics$indegree)
-        ),
-        paste(
-          "Outdegree centralization:",
-          sprintf("%.3f", metrics$outdegree)
-        )
-      ))
-    } else{
-      output <-
-        append(output, paste(
-          "Degree centralization:",
-          sprintf("%.3f", metrics$degree)
-        ))
-    }
-    
-    output <- append(output, c(
-      paste(
-        "Betweenness centralization:",
-        sprintf("%.3f", metrics$betweenness)
-      ),
-      paste(
-        "Closeness centralization:",
-        sprintf("%.3f", metrics$closeness)
-      )
-    ))
-  # } else {
-  #   output <- append(output, "No graph data.")
-  # }
-  
-  paste0(output, collapse = '\n')
+  out <- c(out, c(
+    paste("Betweenness centralization:", centrlzn$betweenness),
+    paste("Closeness centralization:", centrlzn$closeness)))
+
+  paste0(out, collapse = "\n")
 })

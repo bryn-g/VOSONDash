@@ -20,7 +20,7 @@ reset_console <- function(id, remove_ui = TRUE) {
   if (remove_ui) {
     removeUI(selector = paste0("div#_", id), multiple = TRUE)
   }
-  vosonsml_version <- VOSONDash::getVosonSMLVersion()
+  vosonsml_version <- VOSONDash::get_voson_ver()
   if (!is.null(vosonsml_version)) {
     vosonsml_version <- paste0("vosonSML v", vosonsml_version)
   } else {
