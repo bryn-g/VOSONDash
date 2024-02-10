@@ -1,7 +1,8 @@
 # voson dashboard shiny app globals
 
 # app version
-app_version <- paste0("v", VOSONDash::getVOSONDashVer())
+voson_pkg_vers <- VOSONDash::get_voson_vers()
+app_ver <- paste0("v", voson_pkg_vers$VOSONDash)
 
 isLocal <- Sys.getenv('SHINY_PORT') == ""
 if (!is.null(getShinyOption("VOSONIsLocal"))) isLocal <- getShinyOption("VOSONIsLocal")
@@ -72,7 +73,7 @@ gbl_disable_tab_css <- "
 
 # for shiny javascript conditional
 gbl_is_macos <- "false"
-if (VOSONDash::isMac()) gbl_is_macos <- "true"
+if (VOSONDash::is_macos()) gbl_is_macos <- "true"
 
 # modules
 source("modules/mod_collect.R")

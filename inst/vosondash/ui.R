@@ -38,7 +38,7 @@ ui <-
             "Network Graph",
             value = "network_graphs_tab",
             icon = icon("circle-nodes"),
-            source("ui/ui_network_graph.R")$value
+            source("ui/ui_graph/ui_graph.R")$value
           )
         ),
         navbarMenu(
@@ -48,7 +48,7 @@ ui <-
             "Word Frequency",
             value = "word_freq_tab",
             icon = icon("arrow-up-wide-short"),
-            source("ui/ui_network_text.R")$value
+            source("ui/ui_text/ui_text.R")$value
           )
         ),
         navbarMenu(
@@ -59,25 +59,25 @@ ui <-
             "Mastodon",
             value = "mastodon_ui",
             icon = icon("mastodon"),
-            source("ui/ui_collect_mtdn.R")$value
+            source("ui/ui_data/ui_collect_mtdn.R")$value
           ),
           tabPanel(
             "Youtube",
             value = "youtube_ui",
             icon = icon("youtube"),
-            source("ui/ui_collect_ytbe.R")$value
+            source("ui/ui_data/ui_collect_ytbe.R")$value
           ),
           tabPanel(
             "Reddit",
             value = "reddit_ui",
             icon = icon("reddit"),
-            source("ui/ui_collect_rddt.R")$value
+            source("ui/ui_data/ui_collect_rddt.R")$value
           ),
           tabPanel(
             "Web",
             value = "web_ui",
             icon = icon("globe"),
-            source("ui/ui_collect_web.R")$value
+            source("ui/ui_data/ui_collect_web.R")$value
           )
         ),
         navbarMenu(
@@ -87,7 +87,7 @@ ui <-
             "Logging",
             value = "dash_logger_tab",
             icon = icon("pen"),
-            source("ui/ui_console_log.R")$value
+            source("ui/ui_logger.R")$value
           )
         )
       )

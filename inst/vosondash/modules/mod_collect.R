@@ -34,7 +34,7 @@ collect_data_btns <- function(input, output, session, data, file_prefix = "") {
   
   output$dl_data <- downloadHandler(
     filename = function() {
-      systemTimeFilename(paste0(ifelse(file_prefix == "", "", paste0(file_prefix, "-")), "data"), "rds")
+      create_dtm_filename(paste0(ifelse(file_prefix == "", "", paste0(file_prefix, "-")), "data"), "rds")
     },
     content = function(file) {
       saveRDS(rv(), file)
@@ -49,7 +49,7 @@ collect_network_btns <- function(input, output, session, network, file_prefix = 
   
   output$dl_network <- downloadHandler(
     filename = function() {
-      systemTimeFilename(paste0(ifelse(file_prefix == "", "", paste0(file_prefix, "-")), "network"), "rds")
+      create_dtm_filename(paste0(ifelse(file_prefix == "", "", paste0(file_prefix, "-")), "network"), "rds")
     },
     content = function(file) {
       saveRDS(rv(), file)
@@ -63,7 +63,7 @@ collect_graph_btns <- function(input, output, session, graph, file_prefix = "") 
   
   output$dl_graph <- downloadHandler(
     filename = function() {
-      systemTimeFilename(ifelse(file_prefix == "", "graph", file_prefix), "graphml")
+      create_dtm_filename(ifelse(file_prefix == "", "graph", file_prefix), "graphml")
     },
     content = function(file) {
       write_graph(rv(), file, format = c("graphml"))

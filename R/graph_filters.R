@@ -11,7 +11,7 @@
 #' @return An igraph graph object.
 #' 
 #' @export
-apply_comp_filter <- function(g, mode = "strong", component_range) {
+filter_comps <- function(g, mode = "strong", component_range) {
   min_range <- component_range[1]
   max_range <- component_range[2]
   
@@ -51,35 +51,31 @@ apply_comp_filter <- function(g, mode = "strong", component_range) {
 
 #' @title Filter out graph nodes and edges from graph object that are isolates, multi edge or edge loops
 #' 
-#' @description This function removes isolate nodes, multiple edges between nodes and or node edge loops from a 
+#' @description This function removes multiple edges between nodes and or node edge loops from a 
 #' graph.
 #' 
 #' @note Removing multiple edges or edge loops from a graph will simplify it and remove other edge attributes.
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param isolates Logical. Include isolate nodes in graph. Default is \code{TRUE}.
-#' @param multi_edge Logical. Include multiple edges between nodes in graph. Default is \code{TRUE}.
-#' @param loops_edge Logical. Include node edge loops in graph. Default is \code{TRUE}.
+#' @param multi_edges Logical. Include multiple edges between nodes in graph. Default is \code{TRUE}.
+#' @param loop_edges Logical. Include node edge loops in graph. Default is \code{TRUE}.
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-apply_feature_filter <- function(g, isolates = TRUE, multi_edge = TRUE, loops_edge = TRUE) {
+filter_edges <- function(g, multi_edges = TRUE, loop_edges = TRUE) {
   
   # remove multiple edges and self loops
-  if (multi_edge == FALSE || loops_edge == FALSE) {
-    remove_multiple <- ifelse(multi_edge == FALSE, TRUE, FALSE)
-    remove_loops <- ifelse(loops_edge == FALSE, TRUE, FALSE)
-    g <- igraph::simplify(g, remove.multiple = remove_multiple, remove.loops = remove_loops)
-  }
-  
-  # remove isolates
-  if (isolates == FALSE) {
-    g <- igraph::delete_vertices(g, degree(g) == 0)
-  }
-  
-  g
+  g <- igraph::simplify(g, remove.multiple = multi_edges, remove.loops = loop_edges)
 }
+
+# lo1 = layout_with_fr(g)
+
+# i = which(degree(g) == 0)
+# g2 = delete.vertices(g, i)
+# lo2 = lo1[-i, ]
+
+# g.new <- delete.vertices(g.new, V(g.new)[degree(g.new)==0]) 
 
 #' @title Add centrality measures to graph as node attributes
 #' 
@@ -125,9 +121,9 @@ add_centrality_measures <- function(g) {
 #' @examples
 #' \dontrun{
 #' # get a list of voson node categories and values
-#' g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
+#' g <- get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
 #' 
-#' cats <- getNodeCategories(g)
+#' cats <- get_node_cats(g)
 #' 
 #' # cats
 #' # $Stance
@@ -135,7 +131,7 @@ add_centrality_measures <- function(g) {
 #' }
 #' 
 #' @export
-getNodeCategories <- function(g, cat_prefix = "vosonCA_") {
+get_node_cats <- function(g, cat_prefix = "vosonCA_") {
   graph_cats <- list()
   
   attr_v <- igraph::vertex_attr_names(g)
@@ -162,7 +158,7 @@ getNodeCategories <- function(g, cat_prefix = "vosonCA_") {
 #' 
 #' @keywords internal
 #' @export
-hasVosonTextData <- function(g) {
+has_voson_txt_attr <- function(g) {
   attr_v <- igraph::vertex_attr_names(g)
   attr_v <- attr_v[grep("^vosonTxt_", attr_v, perl = TRUE)]
   
@@ -189,13 +185,13 @@ hasVosonTextData <- function(g) {
 #' \dontrun{
 #' # return a graph containing only nodes that have the node category 
 #' # attribute "vosonCA_Stance" value "liberal"
-#' g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
+#' g <- get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
 #' 
-#' g <- applyCategoricalFilters(g, "Stance", c("liberal"))
+#' g <- filter_cats(g, "Stance", c("liberal"))
 #' }
 #' 
 #' @export
-applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefix = "vosonCA_") {
+filter_cats <- function(g, selected_cat, selected_subcats, cat_prefix = "vosonCA_") {
   
   if (selected_cat == "All") {
     return(g)
@@ -215,22 +211,24 @@ applyCategoricalFilters <- function(g, selected_cat, selected_subcats, cat_prefi
   g
 }
 
-#' @title Prune nodes from graph by node id
+#' @title Remove nodes from graph by node id
 #'
 #' @description This function removes a list of nodes from the graph object by node id value. 
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
-#' @param selected_prune_nodes List. Selected node ids to remove.
+#' @param ids List. Selected node ids to remove.
+#' @param rm_iso Logical. Remove isolate nodes from graph (degree == 0).
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-applyPruneFilter <- function(g, selected_prune_nodes) {
-  if (length(selected_prune_nodes) > 0) {
-    nodes <- which(igraph::V(g)$id %in% selected_prune_nodes)
-    g <- igraph::delete_vertices(g, nodes)
+filter_nodes <- function(g, ids = NULL, rm_iso = FALSE) {
+  if (rm_iso) ids <- V(g)[degree(g) == 0]
+  if (is.null(ids)) return(g)
+  if (length(ids) > 0) {
+    rm_ids <- which(igraph::V(g)$id %in% ids)
+    g <- igraph::delete_vertices(g, rm_ids)
   }
-  
   g
 }
 
@@ -246,11 +244,11 @@ applyPruneFilter <- function(g, selected_prune_nodes) {
 #' @examples
 #' \dontrun{
 #' # load the "Divided They Blog" package included network graph by file name
-#' g <- loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
+#' g <- get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
 #' }
 #' 
 #' @export
-loadPackageGraph <- function(fname) {
+get_pkg_data <- function(fname) {
   tryCatch({
     f <- system.file("extdata", fname, package = "VOSONDash", mustWork = TRUE)
     g <- igraph::read_graph(f, format = c('graphml'))  
@@ -270,13 +268,13 @@ loadPackageGraph <- function(fname) {
 #' @examples
 #' \dontrun{
 #' # load the "Divided They Blog" network graph
-#' g <- dtbGraph()
+#' g <- get_dtb_graph()
 #' }
 #' 
 #' @keywords internal
 #' @export
-dtbGraph <- function() {
-  loadPackageGraph("DividedTheyBlog_40Alist_release.graphml")
+get_dtb_graph <- function() {
+  get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
 }
 
 #' @title Load the package included "Enviro Activist Websites 2006" network graph
@@ -288,11 +286,11 @@ dtbGraph <- function() {
 #' @examples
 #' \dontrun{
 #' # load the "Enviro Activist Websites 2006" network graph
-#' g <- eawGraph()
+#' g <- get_eaw_graph()
 #' }
 #' 
 #' @keywords internal
 #' @export
-eawGraph <- function() {
-  loadPackageGraph("enviroActivistWebsites_2006.graphml")
+get_eaw_graph <- function() {
+  get_pkg_data("enviroActivistWebsites_2006.graphml")
 }

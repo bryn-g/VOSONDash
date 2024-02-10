@@ -11,7 +11,7 @@
 #' 
 #' @return None
 #'
-taPlotContainerUI <- function(id) {
+plot_container_ui <- function(id) {
   ns <- NS(id)
   uiOutput(ns("ta_plot"))
 }
@@ -29,10 +29,10 @@ taPlotContainerUI <- function(id) {
 #'
 #' @return None
 #' 
-taPlotPlaceholders <- function(input, output, session, data, sub_plots = 1, h = "450px") {
+create_plot_placeholders <- function(input, output, session, data, sub_plots = 1, h = "450px") {
   ns <- session$ns
   
-  plotPlaceholders <- reactive({
+  plot_placeholders <- reactive({
     tag_list <- tagList()
     plot_ids <- names(data)
 
@@ -63,7 +63,7 @@ taPlotPlaceholders <- function(input, output, session, data, sub_plots = 1, h = 
   })
   
   output$ta_plot <- renderUI({
-    plotPlaceholders()
+    plot_placeholders()
   })
 }
 
@@ -80,7 +80,7 @@ taPlotPlaceholders <- function(input, output, session, data, sub_plots = 1, h = 
 #'                                             sub_cats = c("sub category", "sub category 2")), 
 #'                           corp = VCorpus)
 #' @param seed value to seed rendering of word clouds
-#' @param categories list of all categorical attribures in the data set
+#' @param cats list of all categorical attribures in the data set
 #' @param min_freq minimum word frequency for word frequency charts or word clouds
 #' @param max_words maximum number of words to render in word clouds
 #' @param top_count number of words to render in word frequency charts
@@ -96,13 +96,14 @@ taPlotPlaceholders <- function(input, output, session, data, sub_plots = 1, h = 
 #'  
 #' @return None
 #'
-taPlotList <- function(input, output, session, data, seed, categories, min_freq, max_words, top_count, type, 
+text_plot_lst <- function(input, output, session, data, seed, cats, min_freq, max_words, top_count, type, 
                        col_palette, word_length = c(3, 26), mac_arial = TRUE,
                        wc_seed = 100, wc_random_order = FALSE, wc_random_col = FALSE, wc_vert_prop = 0.1,
                        wc_scale = c(4, 0.5)) {
   ns <- session$ns
   
-  wordFreqPlotList <- reactive({
+  # word frequency plot list
+  wf_plot_lst <- reactive({
     plot_ids <- names(data)
     
     isolate({ withProgress(message = "Processing frequency plots...", {
@@ -114,20 +115,23 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
           output[[plot_id]] <- renderPlot({
             data_item <- data[[local_i]]
             
-            pcolors <- getColors(categories, 
-                                 unlist(data_item$graph_attr$cat), 
-                                 unlist(data_item$graph_attr$sub_cats), 
-                                 "#f5f5f5", col_palette)
+            pcolors <- get_plot_colors(
+              cats,
+              unlist(data_item$graph_attr$cat),
+              unlist(data_item$graph_attr$sub_cats),
+              "#f5f5f5",
+              col_palette
+            )
             
-            wf <- VOSONDash::wordFreqFromCorpus(data_item$corp, word_len = word_length)
-
-            VOSONDash::wordFreqChart(wf,
-                                     min_freq,
-                                     top_count,
-                                     pcolors,
-                                     family = setArialUnicodeMS(mac_arial))
+            wf <- VOSONDash::get_word_freqs(data_item$corp, word_len = word_length)
+            
+            VOSONDash::get_word_freq_chart(wf,
+                                           min_freq,
+                                           top_count,
+                                           pcolors,
+                                           family = set_arial_unicode_ms(mac_arial))
           })
-        })
+        }) # end local
       }
       
       # renders empty plot to namespace id "no-data" placeholder
@@ -140,79 +144,94 @@ taPlotList <- function(input, output, session, data, seed, categories, min_freq,
     }) })
   })
   
-  wordCloudPlotList <- reactive({
+  # wordcloud plot list
+  wc_plot_lst <- reactive({
     plot_ids <- names(data)
     
-    isolate({ withProgress(message = "Processing cloud plots...", {
-      
-      for (i in seq_along(data)) {
-        local({
-          local_i <- i
-          plot_id <- plot_ids[local_i]
-          output[[plot_id]] <- renderPlot({
-            data_item <- data[[local_i]]
+    isolate({
+      withProgress(message = "Processing cloud plots...", {
+        for (i in seq_along(data)) {
+          
+          local({
+            local_i <- i
+            plot_id <- plot_ids[local_i]
             
-            pcolors <- getColors(categories, 
-                                 unlist(data_item$graph_attr$cat), 
-                                 unlist(data_item$graph_attr$sub_cats), 
-                                 "#000000", col_palette)
-            
-            if (wc_random_col) {
-              pcolors <- col_palette
-            }
-            
-            wf <- VOSONDash::wordFreqFromCorpus(data_item$corp, word_len = word_length)
-            
-            VOSONDash::wordCloudPlot(wf,
-                                     wc_seed, min_freq, max_words, pcolors,
-                                     random.order = wc_random_order, random.color = wc_random_col,
-                                     rot.per = wc_vert_prop,
-                                     family = setArialUnicodeMS(mac_arial), scale = wc_scale)
+            output[[plot_id]] <- renderPlot({
+              data_item <- data[[local_i]]
+              
+              pcolors <- get_plot_colors(
+                cats,
+                unlist(data_item$graph_attr$cat),
+                unlist(data_item$graph_attr$sub_cats),
+                "#000000",
+                col_palette
+              )
+              
+              if (wc_random_col) pcolors <- col_palette
+              
+              wf <- VOSONDash::get_word_freqs(data_item$corp, word_len = word_length)
+              
+              VOSONDash::get_wordcloud_plot(
+                wf,
+                wc_seed,
+                min_freq,
+                max_words,
+                pcolors,
+                random.order = wc_random_order,
+                random.color = wc_random_col,
+                rot.per = wc_vert_prop,
+                family = set_arial_unicode_ms(mac_arial),
+                scale = wc_scale
+              )
+            })
+          }) # end local
+        }
+        
+        # renders empty plot to namespace id "no-data" placeholder
+        if (length(data) < 1) {
+          output[["no-data"]] <- renderPlot({
+            VOSONDash::get_empty_plot("No text data.")
           })
-        })
-      }
-      
-      # renders empty plot to namespace id "no-data" placeholder
-      if (length(data) < 1) {
-        output[["no-data"]] <- renderPlot({
-          VOSONDash::get_empty_plot("No text data.")
-        })
-      }
-    }) })
+        }
+      })
+    })
   })
   
   # determine type of plots to generate
   if (type == "wf") {
-    wordFreqPlotList()
+    wf_plot_lst()
   } else if (type == "wc") {
-    wordCloudPlotList()
+    wc_plot_lst()
   }
 }
 
-setArialUnicodeMS <- function(enabled) {
-  if (.Platform$OS.type != "windows" & ("Arial Unicode MS" %in% VOSONDash::getSystemFontFamilies()) &
+# set arial unicode font most likely to be on macos
+set_arial_unicode_ms <- function(enabled) {
+  if (.Platform$OS.type != "windows" &
+      ("Arial Unicode MS" %in% VOSONDash::get_sysfont_names()) &
       enabled) {
     return("Arial Unicode MS")
   }
   NULL
 }
 
-getColors <- function(categories, plot_category, plot_category_attrs, default_col, col_palette) {
-  if (plot_category != "") {
-    df <- data.frame("cat" = categories[[plot_category]])
-    
-    if (nrow(df)) {
-      ncats <- ifelse(nrow(df) == 0, 1, nrow(df))
-      df$color <- col_palette[1:ncats]
+# match graph colors for plots
+get_plot_colors <- function(cats, plot_cat, plot_cat_attrs, def_color, col_palette) {
+    if (plot_cat != "") {
+      df <- data.frame("cat" = cats[[plot_cat]])
       
-      match_t <- match(plot_category_attrs, df$cat)
-      colx <- ifelse(!is.na(match_t), df$color[match_t], default_col)
+      if (nrow(df)) {
+        ncats <- ifelse(nrow(df) == 0, 1, nrow(df))
+        df$color <- col_palette[1:ncats]
+        
+        match_t <- match(plot_cat_attrs, df$cat)
+        colx <- ifelse(!is.na(match_t), df$color[match_t], def_color)
+        
+        return(colx)
+      }
       
-      return(colx)
+      # return(def_color)
     }
     
-    return(default_col)
+    def_color
   }
-  
-  default_col
-}

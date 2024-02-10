@@ -1,0 +1,409 @@
+ta_rv <- reactiveValues(
+  plot_data_list = list(),          # list of base text corpus data sets
+  has_text = FALSE,                 # does graphml have voson text data
+  txt_attr_type = "",               # is text atttribute a node or edge
+  txt_attr_name = "",               # text attribute name in graphml
+  wc_seed = 100,                    # wordcloud seed value
+  plot_height = gbl_ta_plot_height
+)
+
+# ui has a disable issue
+disable_ta_ctrls()
+
+# enable text analysis tab if text data 
+observeEvent(ta_rv$has_text, {
+  if (ta_rv$has_text == FALSE) {
+    addCssClass(selector = "a[data-value = 'text_analysis_tab']", class = "inactive_menu_link")
+  } else {
+    removeCssClass(selector = "a[data-value = 'text_analysis_tab']", class = "inactive_menu_link")
+  }
+})
+
+# enter text analysis section or controls changed
+observeEvent({
+    input$nav_sel_tab_id
+    input$ta_stopwords_check
+    input$ta_stem_check
+    input$ta_word_length_slider
+    input$ta_rem_url_check
+    input$ta_rem_num_check
+    input$ta_html_decode_check
+    input$ta_iconv_check
+    input$ta_rem_punc_check
+  }, {
+    
+    if (input$nav_sel_tab_id == "word_freq_tab") {
+        text_plot_lstData()
+        plotWordFrequencies()
+        plotWordClouds()
+    }
+  }, ignoreInit = TRUE)
+
+# replot when word cloud sliders change
+observeEvent({ input$ta_wc_min_word_freq
+  input$ta_wc_max_word_count
+  input$wc_random_col
+  input$ta_wc_vert_prop
+  input$ta_wc_scale
+  input$ta_plot_height }, {
+    
+    plotWordClouds()           
+  }, ignoreInit = TRUE)
+
+# replot when word frequency sliders change
+observeEvent({ input$ta_wf_top_count
+  input$ta_wf_min_word_freq }, {
+    
+    plotWordFrequencies()           
+  }, ignoreInit = TRUE)
+
+# generate plots data and plot if user stop words selected
+observeEvent(input$ta_user_stopwords_check, {
+  if (input$ta_user_stopwords_check == TRUE && !nchar(input$ta_user_stopwords_input)) {
+    showModal(modalDialog("You need to enter some stopwords!"))
+    updateCheckboxInput(session, "ta_user_stopwords_check", value = FALSE)
+  } else {
+    text_plot_lstData()
+    plotWordFrequencies()
+    plotWordClouds()
+  }
+}, ignoreInit = TRUE)
+
+observeEvent(input$ta_user_stopwords_input, {
+  updateCheckboxInput(session, "ta_user_stopwords_check", value = FALSE)
+})
+
+observeEvent(input$wc_reseed_button, {
+  ta_rv$wc_seed <- get_random_seed()
+  plotWordClouds()
+}, ignoreInit = TRUE)
+
+observeEvent(ta_rv$wc_seed, {
+  html("wc_seed", ta_rv$wc_seed)
+})
+
+# set reactive value plot height when height input changes
+observeEvent(input$ta_plot_height, {
+  ta_rv$plot_height <- input$ta_plot_height
+  
+    plotWordFrequencies()
+    plotWordClouds()
+    
+}, ignoreInit = FALSE)
+
+output$ta_details_output <- renderText({
+  textAnalysisDetailsOutput()
+})
+
+output$comparison_cloud_plot <- renderPlot({
+  saved_par <- par(no.readonly = TRUE)
+  on.exit(par(saved_par))
+  
+  par(mar = rep(0, 4))
+  comparisonCloudPlotData()
+})
+
+output$ta_plot_height_ui <- renderUI({
+  tagList(
+    div(selectInput("ta_plot_height", label = NULL,
+                    choices = c("200px", "250px", "300px", "350px", "400px", "450px", "500px", "550px", "600px", "650px",
+                                "700px", "750px", "800px"),
+                    multiple = FALSE, selectize = FALSE, selected = ta_rv$plot_height)))
+})
+
+# plot word frequencies
+plotWordFrequencies <- reactive({
+  top_count <- input$ta_wf_top_count
+  min_freq <- input$ta_wf_min_word_freq
+  word_len <- input$ta_word_length_slider
+  mac_arial <- input$macos_font_check
+  
+  # create placeholders and plot word frequency charts from list of base text corpus data
+  withProgress(message = "Processing word frequencies...", {
+    callModule(create_plot_placeholders, "word_freqs", ta_rv$plot_data_list, h = ta_rv$plot_height)
+    callModule(text_plot_lst, "word_freqs", ta_rv$plot_data_list, NULL, isolate(g_nodes_rv$cats), 
+               min_freq, NULL, top_count, "wf", col_palette = gbl_plot_palette(),
+               word_len, mac_arial)
+  })
+})
+
+# plot word clouds
+plotWordClouds <- reactive({
+  min_freq <- input$ta_wc_min_word_freq
+  max_words <- input$ta_wc_max_word_count
+  wc_seed <- ta_rv$wc_seed
+  wc_random_order <- FALSE
+  wc_random_col <- input$wc_random_col
+  wc_vert_prop <- (input$ta_wc_vert_prop/100)
+  wc_scale <- c(input$ta_wc_scale[2], input$ta_wc_scale[1]) # c(input$ta_wc_width_adj, input$ta_wc_height_adj)
+  word_len <- input$ta_word_length_slider
+  mac_arial <- input$macos_font_check
+  
+  # create placeholders and plot word clouds from list of base text corpus data
+  withProgress(message = "Processing word clouds...", {      
+    callModule(create_plot_placeholders, "word_clouds", ta_rv$plot_data_list, h = ta_rv$plot_height)
+    callModule(text_plot_lst, "word_clouds", ta_rv$plot_data_list, isolate(g_rv$seed), 
+               isolate(g_nodes_rv$cats), min_freq, max_words, NULL, "wc",
+               col_palette = gbl_plot_palette(),
+               word_len, mac_arial,
+               wc_seed, wc_random_order, wc_random_col, wc_vert_prop, wc_scale)
+  })
+})
+
+# plot a combined comparison word cloud
+# does not yet support selected subset category comparison as they are combined in ta_rv$plot_data_list
+comparisonCloudPlotData <- reactive({
+  plot_data_list <- ta_rv$plot_data_list
+  # cats <- isolate(g_nodes_rv$cats)
+  
+  max_words <- input$ta_cc_max_word_count
+  word_len <- input$ta_word_length_slider
+  mac_arial <- set_arial_unicode_ms(input$macos_font_check)
+  
+  if (is.null(plot_data_list)) { return(VOSONDash::get_empty_plot("No text data.")) }
+  if (length(plot_data_list) < 1) { return(VOSONDash::get_empty_plot("No text data.")) }
+  
+  if (length(plot_data_list) == 1) {
+    VOSONDash::get_empty_plot("No comparison plot: requires a Categorical variable and selected View as \"All\".")
+  } else {
+    # to get a comparison cloud, need new corpus with N documents where N is the number of categories
+    #    i.e. collapse all content for each category into single document
+    #
+    # probably better way to do this, but for time being...
+    df <- NULL
+    for (i in 2:length(plot_data_list)) {   # first corpus in list is "All"
+      df_t <- data.frame(text = unlist(sapply(plot_data_list[[i]]$corp, `[`, "content")), stringsAsFactors = FALSE)
+      
+      tmp <- paste0(unlist(plot_data_list[[i]]$graph_attr$sub_cats), collapse = " / ")
+      df <- rbind(df, data.frame(catval = tmp, text = paste(df_t$text, collapse = " ", stringsAsFactors = FALSE)))
+    }
+    
+    corp <- tm::VCorpus(tm::VectorSource(df$text))
+    corp <- tm::tm_map(corp, tm::stripWhitespace)   # do not need to do any more text processing, already done in base corpus
+    tdm <- tm::TermDocumentMatrix(corp, control = list(wordLengths = word_len))
+    tdm <- removeSparseTerms(tdm, 0.99)
+    tdm <- as.matrix(tdm)
+    colnames(tdm) <- df$catval
+    
+    if (ncol(tdm) < 2) {
+      VOSONDash::get_empty_plot("No comparison plot: only one categorical variable present.")
+    } else {
+      plot_parameters <- list(tdm,
+                              max.words = max_words,
+                              random.order = FALSE,
+                              use.r.layout = FALSE, 
+                              title.size = 2, 
+                              colors = gbl_plot_palette())
+      
+      if (!is.null(mac_arial)) { plot_parameters["family"] <- mac_arial }
+      
+      do.call(wordcloud::comparison.cloud, plot_parameters)
+    }
+  }
+})
+
+getFiltersDesc <- reactive({
+  output <- c()
+  
+  if (g_nodes_rv$cat_selected != "All") {
+    if (!("All" %in% input$cat_sub_sel)) {
+      output <- append(output, paste0(input$cat_sub_sel, collapse = ', '))
+    }
+  }
+  
+  output <- append(output, paste0("Filter Component Size: ", 
+                                  input$comp_slider[1], " - ", 
+                                  input$comp_slider[2]))
+})
+
+# text analysis summary
+textAnalysisDetailsOutput <- reactive({
+  req(r_graph_filtered(), ta_rv$plot_data_list)
+  
+  g <- r_graph_filtered()
+  plot_data_list <- req(ta_rv$plot_data_list)
+  
+  output <- c()
+  
+  if (!is.null(g)) {
+    graph_clusters <- components(g, mode = input$comp_mode_sel) # moved here from below
+    
+    selected_sub_cats <- input$cat_sub_sel
+    if (length(selected_sub_cats) == 1 && selected_sub_cats == "All") {
+      output <- append(output, c("All Categories"))
+    } else {
+      output <- append(output, c(paste0("Filter Categories (", g_nodes_rv$cat_selected, "):")))
+    }
+    
+    output <- append(output, getFiltersDesc())
+    
+    output <- append(output, c(paste0("Components (", input$comp_mode_sel, "): ", graph_clusters$no),
+                               paste("Nodes:", vcount(g)),
+                               paste("Edges:", ecount(g)), ""))
+    
+    if (ta_rv$has_text) {
+      output <- append(output, c(paste("Text attribute type:", ta_rv$txt_attr_type),
+                                 paste("Text attribute name:", ta_rv$txt_attr_name), "",
+                                 "Word Counts", "-----------",
+                                 paste("Stopwords:", input$ta_stopwords_check)))
+      
+      if (length(plot_data_list) > 0) {
+        data_names <- names(plot_data_list)
+        
+        for (i in seq_along(plot_data_list)) {
+          title_cat <- unlist(plot_data_list[[i]]$graph_attr$cat)
+          title_attr <- unlist(plot_data_list[[i]]$graph_attr$sub_cats)
+          title <- ""
+          if (trimws(title_cat) != "") {
+            title <- paste0(title, title_cat, " - ", sep = "")
+          }
+          title <- paste0(title, paste0(title_attr, collapse = ' / '), "", sep = "")
+          output <- append(output, title)
+          
+          isolate({
+            wf <- get_word_freqs(plot_data_list[[i]]$corp,
+                                     word_len = input$ta_word_length_slider)
+          })
+          
+          output <- append(output, paste("Words:", sum(wf$freq)))
+          output <- append(output, "")
+        }
+      }
+    }else{
+      output <- append(output, "There is no text data.")
+    }
+  }else {
+    output <- append(output, "No data.")
+  }
+  
+  paste0(output, collapse = '\n')
+})
+
+# create named list of base text corpus data sets for categories
+# 
+# named list item data structure is:
+#     ta_rv$plot_data_list[plot-id] <- list(graph_attr = list(attribute_name, attribute_value), VCorpus)
+# 
+# i.e data with text and no categorical attributes:
+#     ta_rv$plot_data_list["plot-all"] <- list(list("", "Non-categorical Text"), VCorpus)
+#
+# i.e data with text and categorical attributes:
+#     ta_rv$plot_data_list["plot-all"] <- list(list("", "All Categories"), VCorpus)
+#     ta_rv$plot_data_list["plot-1"] <- list(list("Type", "Bio"), VCorpus)
+#     ...
+#
+text_plot_lstData <- reactive({
+  category_list <- g_nodes_rv$cats
+  selected_cat <- g_nodes_rv$cat_selected
+  selected_sub_cats <- input$cat_sub_sel
+  
+  ta_rv$plot_data_list <- NULL
+
+  # remove All if other values selected
+  if ("All" %in% selected_sub_cats && length(selected_sub_cats) > 1) {
+    selected_sub_cats <- selected_sub_cats[selected_sub_cats != "All"]
+  }
+  
+  withProgress(message = "Processing corpus...", {
+    
+    if (selected_cat == "All" || selected_sub_cats == "All") {
+      # if no categories then one corpus for text data
+      # if categories present then first corpus is for all categories
+      # first corpus id in plot_list_data is "plot-all"
+      all_plot_title <- list("", c("Non-categorical Text"))
+      if (length(names(category_list)) > 0) {
+        all_plot_title <- list("", c("All Categories"))
+      }
+      ta_rv$plot_data_list[["plot-all"]] <- taTextCorpusData(graph_attr = all_plot_title) # <<
+    }
+    
+    # create plot id and corpus for each category
+    # id in plot_list_data is numbered "plot-1", "plot-2"
+    # corpus is created by the taTextCorpusData for each selected attribute in graph category
+    if (!(selected_cat %in% c("All", ""))) {
+      value_list <- category_list[[selected_cat]]
+      plot_counter <- 1
+      
+      # corpus created for all attributes in graph category
+      if ("All" %in% selected_sub_cats && length(selected_sub_cats) == 1) {
+        for (i in 1:length(value_list)) {
+          local({
+            local_i <- i
+            
+            attribute_name <- selected_cat
+            attribute_value <- value_list[local_i]
+            
+            plot_id <- paste0("plot-", plot_counter, sep = "")
+            ta_rv$plot_data_list[[plot_id]] <<- taTextCorpusData(graph_attr = list(attribute_name, attribute_value))
+          })
+          
+          plot_counter <- plot_counter + 1
+        }
+        
+      } else {
+        attribute_name <- selected_cat
+        attribute_value <- selected_sub_cats
+        
+        ta_rv$plot_data_list[["plot-1"]] <- taTextCorpusData(graph_attr = list(attribute_name, attribute_value)) # <<
+      }
+    }
+    
+  })
+})
+
+taTextCorpusData <- function(graph_attr) {
+  g <- r_graph_filtered()
+  
+  plot_cat <- plot_sub_cats <- ""
+  
+  if (missing(graph_attr)) {
+    graph_attr <- NULL
+  } else {
+    plot_cat <- graph_attr[1]
+    plot_sub_cats <- graph_attr[[2]]
+  }
+  
+  if (plot_cat != "") { g <- VOSONDash::filter_cats(g, plot_cat, plot_sub_cats) }
+  
+  # voson text attributes
+  attr_v <- igraph::vertex_attr_names(g)
+  attr_v <- attr_v[grep(voson_txt_prefix, attr_v, perl = TRUE)]
+  attr_e <- igraph::edge_attr_names(g)
+  attr_e <- attr_e[grep(voson_txt_prefix, attr_e, perl = TRUE)]
+  
+  ta_rv$has_text <- FALSE
+  if (length(attr_v)) {
+    attr <- c(attr_v[1], "node")
+    ta_rv$has_text <- TRUE
+  } else if (length(attr_e)) {
+    i <- attr_e[1]
+    attr <- c(attr_e[1], "edge")
+    ta_rv$has_text <- TRUE
+  }
+  
+  if (ta_rv$has_text) {
+    ta_rv$txt_attr_type <- attr[2]
+    ta_rv$txt_attr_name <- gsub(voson_txt_prefix, "", attr[1]) # "vosonTxt_"
+    
+    sw <- usw <- NULL
+    if (input$ta_stopwords_check) { sw <- "SMART" }
+    if (input$ta_user_stopwords_check) { usw <- input$ta_user_stopwords_input }
+    
+    corp <- VOSONDash::graph_text_as_corpus(g,
+                                       txt_attr = attr[1],
+                                       type = ta_rv$txt_attr_type,
+                                       iconv = input$ta_iconv_check,
+                                       html_decode = input$ta_html_decode_check,
+                                       rm_url = input$ta_rem_url_check,
+                                       rm_num = input$ta_rem_num_check,
+                                       rm_punct = input$ta_rem_punc_check,
+                                       sw_kind = sw,
+                                       rm_words = usw,
+                                       stem = input$ta_stem_check)
+    
+    return(list(graph_attr = list(cat = graph_attr[1], sub_cats = graph_attr[2]), 
+                corp = corp))
+  } else {
+    return(NULL)
+  }
+}

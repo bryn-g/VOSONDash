@@ -25,6 +25,9 @@
     <loc>http://vosonlab.github.io/VOSONDash/reference/addLine.html</loc>
   </url>
   <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/add_centrality_measures.html</loc>
+  </url>
+  <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/applyCategoricalFilters.html</loc>
   </url>
   <url>
@@ -38,6 +41,12 @@
   </url>
   <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/applyPruneFilterX.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/apply_comp_filter.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/apply_feature_filter.html</loc>
   </url>
   <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/collectRedditData.html</loc>
@@ -73,6 +82,12 @@
     <loc>http://vosonlab.github.io/VOSONDash/reference/createYoutubeNetwork.html</loc>
   </url>
   <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/create_dtm_filename.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/dash.html</loc>
+  </url>
+  <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/dtbGraph.html</loc>
   </url>
   <url>
@@ -83,6 +98,9 @@
   </url>
   <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/getNetworkMetrics.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/getNodeCategories.html</loc>
   </url>
   <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/getRedditUrlSubreddit.html</loc>
@@ -106,6 +124,57 @@
     <loc>http://vosonlab.github.io/VOSONDash/reference/getYoutubeVideoId.html</loc>
   </url>
   <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_empty_plot.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_graph_centrlzn.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_graph_metrics.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_mastodon_data.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_mastodon_search_data.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_rddt_data.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_rddt_lst_data.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_rddt_url_id.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_rddt_url_subrddt.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_sysfont_names.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_voson_vers.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_wordcloud_plot.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_word_freqs.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_word_freq_chart.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_youtube_data.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/get_ytbe_video_id.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/graph_text_as_corpus.html</loc>
+  </url>
+  <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/hasVosonTextData.html</loc>
   </url>
   <url>
@@ -121,6 +190,9 @@
     <loc>http://vosonlab.github.io/VOSONDash/reference/isVosonSML0290.html</loc>
   </url>
   <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/is_macos.html</loc>
+  </url>
+  <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/loadDemoGraph.html</loc>
   </url>
   <url>
@@ -128,6 +200,9 @@
   </url>
   <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/logMessage.html</loc>
+  </url>
+  <url>
+    <loc>http://vosonlab.github.io/VOSONDash/reference/log_queue.html</loc>
   </url>
   <url>
     <loc>http://vosonlab.github.io/VOSONDash/reference/mixmat.html</loc>

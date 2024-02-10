@@ -18,90 +18,20 @@ VOSONDash package by file name."><!-- mathjax --><script src="https://cdnjs.clou
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">VOSONDash</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6.3</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../news/index.html">
-    <span class="fa fa-newspaper"></span>
-     
-    Changelog
-  </a>
+  <a href="../news/index.html">Changelog</a>
 </li>
-<li>
-  <a href="../reference/index.html">
-    <span class="fa fa-cubes fa-lg"></span>
-     
-    Reference
-  </a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fa fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li>
-      <a href="https://vosonlab.github.io/VOSONDashDocs/" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        VOSON Dashboard User Guide
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-12-06-collecting-youtube-comments-with-vosondash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Collecting YouTube comments with VOSONDash
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-11-25-collecting-twitter-data-with-vosondash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Collecting Twitter data with VOSONDash
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-08-05-exploring-issues-in-reddit-using-voson-dash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Exploring issues in Reddit using VOSON Dash
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-08-06-analysing-online-networks-with-vosondash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Analysing online networks with VOSONDash
-      </a>
-    </li>
-  </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="http://vosonlab.net/" class="external-link">
-    <span class="fa fa-flask fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://twitter.com/vosonlab" class="external-link">
-    <span class="fa fa-twitter-square fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://github.com/vosonlab/VOSONDash" class="external-link">
-    <span class="fa fa-github fa-lg"></span>
+  <a href="https://github.com/vosonlab/VOSONDash/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -115,7 +45,7 @@ VOSONDash package by file name."><!-- mathjax --><script src="https://cdnjs.clou
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Load package included network graph</h1>
-    <small class="dont-index">Source: <a href="https://github.com/vosonlab/VOSONDash/blob/HEAD/R/networkGraphs.R" class="external-link"><code>R/networkGraphs.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/vosonlab/VOSONDash/blob/HEAD/R/graph_filters.R" class="external-link"><code>R/graph_filters.R</code></a></small>
     <div class="hidden name"><code>loadPackageGraph.Rd</code></div>
     </div>
 
@@ -125,26 +55,29 @@ VOSONDash package by file name."><!-- mathjax --><script src="https://cdnjs.clou
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">loadPackageGraph</span><span class="op">(</span><span class="va">fname</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">loadPackageGraph</span><span class="op">(</span><span class="va">fname</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>fname</dt>
 <dd><p>Character string. Name of demonstration <code>graphml</code> file.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An igraph graph object.</p>
+    
+
+<p>An igraph graph object.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co"># load the "Divided They Blog" package included network graph by file name</span></span>
-<span class="r-in"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">loadPackageGraph</span><span class="op">(</span><span class="st">"DividedTheyBlog_40Alist_release.graphml"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># load the "Divided They Blog" package included network graph by file name</span></span></span>
+<span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">loadPackageGraph</span><span class="op">(</span><span class="st">"DividedTheyBlog_40Alist_release.graphml"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -159,7 +92,7 @@ VOSONDash package by file name."><!-- mathjax --><script src="https://cdnjs.clou
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

@@ -6,9 +6,9 @@ dash_logger <- function(x, parent_env = FALSE) {
     cat(file=stderr(), paste0(x, "\n"))
   } else {
     if (parent_env) {
-      log_rv$log <<- VOSONDash::logMessage(log_rv$log, x)
+      log_rv$log <<- VOSONDash::log_queue(log_rv$log, x)
     } else {
-      log_rv$log <- VOSONDash::logMessage(log_rv$log, x)
+      log_rv$log <- VOSONDash::log_queue(log_rv$log, x)
     }
   }
 }

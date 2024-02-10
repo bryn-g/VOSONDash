@@ -17,90 +17,20 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">VOSONDash</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.6.3</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../news/index.html">
-    <span class="fa fa-newspaper"></span>
-     
-    Changelog
-  </a>
+  <a href="../news/index.html">Changelog</a>
 </li>
-<li>
-  <a href="../reference/index.html">
-    <span class="fa fa-cubes fa-lg"></span>
-     
-    Reference
-  </a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fa fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li>
-      <a href="https://vosonlab.github.io/VOSONDashDocs/" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        VOSON Dashboard User Guide
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-12-06-collecting-youtube-comments-with-vosondash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Collecting YouTube comments with VOSONDash
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-11-25-collecting-twitter-data-with-vosondash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Collecting Twitter data with VOSONDash
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-08-05-exploring-issues-in-reddit-using-voson-dash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Exploring issues in Reddit using VOSON Dash
-      </a>
-    </li>
-    <li>
-      <a href="https://vosonlab.github.io/posts/2021-08-06-analysing-online-networks-with-vosondash" class="external-link">
-        <span class="far fa-file-alt"></span>
-         
-        Analysing online networks with VOSONDash
-      </a>
-    </li>
-  </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="http://vosonlab.net/" class="external-link">
-    <span class="fa fa-flask fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://twitter.com/vosonlab" class="external-link">
-    <span class="fa fa-twitter-square fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://github.com/vosonlab/VOSONDash" class="external-link">
-    <span class="fa fa-github fa-lg"></span>
+  <a href="https://github.com/vosonlab/VOSONDash/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -117,113 +47,93 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="function-reference">Function Reference <a href="#function-reference" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p><p>Available functions and helpers</p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="VOSONDash-package.html">VOSONDash-package</a></code> </p>
-        </td>
-        <td><p>Interface for collection and interactive analysis of social networks</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="shiny-app">Shiny App <a href="#shiny-app" class="anchor" aria-hidden="true"></a></h2>
+          <h2 id="all-functions">All functions <a href="#all-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="runVOSONDash.html">runVOSONDash()</a></code> </p>
+          <p><code><a href="add_centrality_measures.html">add_centrality_measures()</a></code> </p>
+        </td>
+        <td><p>Add centrality measures to graph as node attributes</p></td>
+      </tr><tr><td>
+          <p><code><a href="applyCategoricalFilters.html">applyCategoricalFilters()</a></code> </p>
+        </td>
+        <td><p>Filter out graph nodes not in selected category</p></td>
+      </tr><tr><td>
+          <p><code><a href="applyPruneFilter.html">applyPruneFilter()</a></code> </p>
+        </td>
+        <td><p>Prune nodes from graph by node id</p></td>
+      </tr><tr><td>
+          <p><code><a href="apply_comp_filter.html">apply_comp_filter()</a></code> </p>
+        </td>
+        <td><p>Filter out graph nodes not in component size range</p></td>
+      </tr><tr><td>
+          <p><code><a href="apply_feature_filter.html">apply_feature_filter()</a></code> </p>
+        </td>
+        <td><p>Filter out graph nodes and edges from graph object that are isolates, multi edge or edge loops</p></td>
+      </tr><tr><td>
+          <p><code><a href="dash.html">dash()</a></code> </p>
         </td>
         <td><p>Run the VOSON Dashboard Shiny Application</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="network-graphs">Network Graphs <a href="#network-graphs" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr></tbody><tbody><tr><td>
+      </tr><tr><td>
+          <p><code><a href="getNodeCategories.html">getNodeCategories()</a></code> </p>
+        </td>
+        <td><p>Get a list of node category attribute names and values</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_graph_centrlzn.html">get_graph_centrlzn()</a></code> </p>
+        </td>
+        <td><p>Get graph centralization measures for an igraph object</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_graph_metrics.html">get_graph_metrics()</a></code> </p>
+        </td>
+        <td><p>Get network metrics from an igraph object</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_rddt_data.html">get_rddt_data()</a></code> </p>
+        </td>
+        <td><p>Get reddit thread data</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_rddt_lst_data.html">get_rddt_lst_data()</a></code> </p>
+        </td>
+        <td><p>Get reddit thread listings for one or more subreddits</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_rddt_url_id.html">get_rddt_url_id()</a></code> </p>
+        </td>
+        <td><p>Get a reddit thread id from url</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_rddt_url_subrddt.html">get_rddt_url_subrddt()</a></code> </p>
+        </td>
+        <td><p>Get subreddit name from url</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_wordcloud_plot.html">get_wordcloud_plot()</a></code> </p>
+        </td>
+        <td><p>Create a wordcloud plot</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_word_freqs.html">get_word_freqs()</a></code> </p>
+        </td>
+        <td><p>Create a word frequency dataframe</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_word_freq_chart.html">get_word_freq_chart()</a></code> </p>
+        </td>
+        <td><p>Create a word frequency chart</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_ytbe_video_id.html">get_ytbe_video_id()</a></code> </p>
+        </td>
+        <td><p>Get a youtube video id from url</p></td>
+      </tr><tr><td>
+          <p><code><a href="graph_text_as_corpus.html">graph_text_as_corpus()</a></code> </p>
+        </td>
+        <td><p>Create a text corpus from graph text attribute data</p></td>
+      </tr><tr><td>
           <p><code><a href="loadPackageGraph.html">loadPackageGraph()</a></code> </p>
         </td>
         <td><p>Load package included network graph</p></td>
       </tr><tr><td>
-          <p><code><a href="addAdditionalMeasures.html">addAdditionalMeasures()</a></code> </p>
-        </td>
-        <td><p>Add additional measures to graph as vertex attributes</p></td>
-      </tr><tr><td>
-          <p><code><a href="applyGraphFilters.html">applyGraphFilters()</a></code> </p>
-        </td>
-        <td><p>Filter out graph vertices and edges from graph object that are isolates, multi edge or edge loops</p></td>
-      </tr><tr><td>
-          <p><code><a href="applyComponentFilter.html">applyComponentFilter()</a></code> </p>
-        </td>
-        <td><p>Filter out graph vertices not in component size range</p></td>
-      </tr><tr><td>
-          <p><code><a href="applyCategoricalFilters.html">applyCategoricalFilters()</a></code> </p>
-        </td>
-        <td><p>Filter out graph vertices not in selected category</p></td>
-      </tr><tr><td>
-          <p><code><a href="applyPruneFilter.html">applyPruneFilter()</a></code> </p>
-        </td>
-        <td><p>Prune vertices from graph by vertex id</p></td>
-      </tr><tr><td>
-          <p><code><a href="getVertexCategories.html">getVertexCategories()</a></code> </p>
-        </td>
-        <td><p>Get a list of vertex category attribute names and values</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="network-metrics">Network Metrics <a href="#network-metrics" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="getNetworkMetrics.html">getNetworkMetrics()</a></code> </p>
-        </td>
-        <td><p>Get graph network metrics</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="text-analysis">Text Analysis <a href="#text-analysis" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="corpusFromGraph.html">corpusFromGraph()</a></code> </p>
-        </td>
-        <td><p>Create a text corpus from graph text attribute data</p></td>
-      </tr><tr><td>
-          <p><code><a href="wordFreqFromCorpus.html">wordFreqFromCorpus()</a></code> </p>
-        </td>
-        <td><p>Create a word frequency dataframe</p></td>
-      </tr><tr><td>
-          <p><code><a href="wordCloudPlot.html">wordCloudPlot()</a></code> </p>
-        </td>
-        <td><p>Create a wordcloud plot</p></td>
-      </tr><tr><td>
-          <p><code><a href="wordFreqChart.html">wordFreqChart()</a></code> </p>
-        </td>
-        <td><p>Create a word frequency chart</p></td>
-      </tr><tr><td>
-          <p><code><a href="wordSentData.html">wordSentData()</a></code> </p>
-        </td>
-        <td><p>Create NRC emotion data</p></td>
-      </tr><tr><td>
-          <p><code><a href="wordSentChart.html">wordSentChart()</a></code> </p>
-        </td>
-        <td><p>Create an NRC emotion chart</p></td>
-      </tr><tr><td>
-          <p><code><a href="wordSentValenceChart.html">wordSentValenceChart()</a></code> </p>
-        </td>
-        <td><p>Create an NRC sentiment valence chart</p></td>
-      </tr><tr><td>
           <p><code><a href="mixmat.html">mixmat()</a></code> </p>
         </td>
         <td><p>Create a mixing matrix</p></td>
-      </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="social-media">Social Media <a href="#social-media" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr></tbody><tbody><tr><td>
-          <p><code><a href="getRedditUrlSubreddit.html">getRedditUrlSubreddit()</a></code> </p>
-        </td>
-        <td><p>Get subreddit name from url</p></td>
       </tr><tr><td>
-          <p><code><a href="getRedditUrlThreadId.html">getRedditUrlThreadId()</a></code> </p>
+          <p><code><a href="VOSONDash-package.html">VOSONDash-package</a></code> <code><a href="VOSONDash-package.html">VOSONDash</a></code> <code><a href="VOSONDash-package.html">"_PACKAGE"</a></code> </p>
         </td>
-        <td><p>Get a reddit thread id from url</p></td>
-      </tr><tr><td>
-          <p><code><a href="getYoutubeVideoId.html">getYoutubeVideoId()</a></code> </p>
-        </td>
-        <td><p>Get a youtube video id from url</p></td>
+        <td><p>Interface for collection and interactive analysis of social networks</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -237,7 +147,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
