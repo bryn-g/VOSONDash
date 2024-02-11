@@ -1,3 +1,8 @@
+# graph metadata reactive variables
+g_meta_rv <- reactiveValues(
+  data = NULL
+)
+
 output$graph_info_text <- renderText({
   meta <- req(g_meta_rv$data)
   

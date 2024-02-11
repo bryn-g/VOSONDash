@@ -18,11 +18,38 @@ get_pkg_data <- function(fname) {
   tryCatch({
     f <- system.file("extdata", fname, package = "VOSONDash", mustWork = TRUE)
     g <- igraph::read_graph(f, format = c('graphml'))  
-  }, error = function(e) {
-    stop(e)
+  }, error = function(err) {
+    cat(file=stderr(), paste0("error reading package data: ", err))
+    return(NULL)
   })
   
   g
+}
+
+#' @title Return a list of graphml files found in package extdata
+#'
+#' @description This function returns a list of file names for graphs included in the \code{extdata} directory of the
+#'   \code{VOSONDash} package.
+#'
+#' @return A named list of file names.
+#'
+#' @export
+get_pkg_data_list <- function() {
+  f_list <- c()
+  tryCatch({
+    f_list <- list.files(
+      path = system.file("extdata", "", package = "VOSONDash", mustWork = TRUE),
+      pattern = "\\.graphml$"
+    )
+  }, error = function(err) {
+    cat(file=stderr(), paste0("error finding package data sets: ", err))
+  })
+  
+  if (length(f_list) < 1) return(NULL)
+  
+  f_names <- lapply(f_list, function(x) gsub("\\.graphml$", "", x, ignore.case = TRUE))
+  names(f_list) <- f_names
+  f_list
 }
 
 #' @title Load the package included "Divided They Blog" network graph

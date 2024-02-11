@@ -6,6 +6,7 @@ source("server/srv_graph/srv_graph_comps.R", local = TRUE)
 source("server/srv_graph/srv_graph_cats.R", local = TRUE)
 source("server/srv_graph/srv_graph_filtered.R", local = TRUE)
 
+source("server/srv_graph/srv_nodes.R", local = TRUE)
 source("server/srv_graph/srv_node_rm.R", local = TRUE)
 source("server/srv_graph/srv_node_dt.R", local = TRUE)
 source("server/srv_graph/srv_edge_dt.R", local = TRUE)

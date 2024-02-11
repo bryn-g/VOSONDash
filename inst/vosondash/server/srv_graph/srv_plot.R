@@ -2,6 +2,23 @@ source("server/srv_graph/srv_plot_layout.R", local = TRUE)
 source("server/srv_graph/srv_plot_igraph.R", local = TRUE)
 source("server/srv_graph/srv_plot_visnet.R", local = TRUE)
 
+# plot reactive variables
+g_plot_rv <- reactiveValues(
+  height = gbl_plot_height,
+  height_legend = 42,
+  width = gbl_plot_width
+)
+
+# normalize continuous values
+norm_values <- function(x) {
+  # all values the same
+  if (var(x) == 0) return(rep(0.1, length(x)))
+  
+  min_x <- min(x)
+  diff_x <- max(x) - min_x
+  s <- sapply(x, function(y) ((y - min_x) / diff_x))
+}
+
 # set hide state for overlays
 observeEvent(c(
     g_rv$is_igraph,

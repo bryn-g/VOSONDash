@@ -10,7 +10,8 @@ hyperlink_rv <- reactiveValues(
   hyperlink_data = NULL,
   hyperlink_network = NULL,
   hyperlink_graphml = NULL,
-  data_cols = NULL
+  data_cols = NULL,
+  created = NULL
 )
 
 #### events ---------------------------------------------------------------------------------------------------------- #
@@ -124,6 +125,7 @@ observeEvent(hyperlink_rv$hyperlink_data, {
 
 observeEvent(input$hyperlink_create_button, {
   net_type <- input$hyperlink_network_type_select
+  hyperlink_rv$created <- ts_utc()
   network <- NULL
   
   shinyjs::disable("hyperlink_create_button")
@@ -139,6 +141,7 @@ observeEvent(input$hyperlink_create_button, {
       if (!is.null(network)) {
         hyperlink_rv$hyperlink_network <- network
         hyperlink_rv$hyperlink_graphml <- vosonSML::Graph(network) 
+        hyperlink_rv$created <- ts_utc()
       }
     }) # withConsoleRedirect
   
@@ -158,19 +161,32 @@ hyperlink_view_rvalues <- callModule(collect_view_graph_btns, "hyperlink", graph
 
 observeEvent(hyperlink_view_rvalues$data, {
   req(hyperlink_view_rvalues$data)
-  f_init_graph(
-    data = hyperlink_view_rvalues$data, 
-    meta = list(
-      desc = paste0(
-        "Hyperlink network for seed pages: ",
-         paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ', '),
-         sep = ""),
-      type = "hyperlink",
-      name = "",
-      seed = sample(1:20000, 1)
-    )
-  )
+  # f_init_graph(
+  #   data = hyperlink_view_rvalues$data, 
+  #   meta = list(
+  #     desc = paste0(
+  #       "Hyperlink network for seed pages: ",
+  #        paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ', '),
+  #        sep = ""),
+  #     type = "hyperlink",
+  #     name = "",
+  #     seed = sample(1:20000, 1)
+  #   )
+  # )
   #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  meta <- list(
+    desc = paste0(
+            "Hyperlink network for seed pages: ",
+             paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ', '),
+             sep = ""),
+    type = "hyperlink",
+    network = input$hyperlink_network_type_select,
+    name = paste0("hyperlink - ", input$hyperlink_network_type_select),
+    created = hyperlink_rv$created
+  )
+  
+  g_rv$data <- list(data = hyperlink_view_rvalues$data, meta = meta)
+  
 }, ignoreInit = TRUE)
 
 observeEvent(input$clear_hyperlink_console, {

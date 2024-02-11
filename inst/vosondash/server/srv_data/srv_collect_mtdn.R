@@ -225,9 +225,7 @@ observeEvent(mtdn_view_rv$data, {
     desc <- paste0("Mastodon network for search.\n", mtdn_collect_search_params_text())
   }
 
-  g_rv$data <- mtdn_view_rv$data
-  
-  g_meta_rv$data <- list(
+  meta <- list(
     desc = desc,
     type = "mastodon",
     subtype = mtdn_collect_rv$param_type,
@@ -235,6 +233,8 @@ observeEvent(mtdn_view_rv$data, {
     name = paste0("mastodon - ", mtdn_rv$network_type),
     created = mtdn_rv$created
   )
+  
+  g_rv$data <- list(data = mtdn_view_rv$data, meta = meta)
 }, ignoreInit = TRUE)
 
 # clear console button event

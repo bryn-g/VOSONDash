@@ -19,7 +19,11 @@ r_node_distrib_plot <- reactive({
   
   if (distrib_type == "component") {
     cc <- igraph::components(g, mode = input$comp_mode_sel)
-    get_std_plot(table(cc$csize), xlab = paste0("N components [mode = ", input$comp_mode_sel, "]"))
+    get_std_plot(
+      table(cc$csize),
+      xlab = paste0("N nodes"),
+      ylab = paste0("N components [mode = ", input$comp_mode_sel, "]")
+    )
 
   } else if (distrib_type == "component2") {
     dist <- igraph::component_distribution(g)

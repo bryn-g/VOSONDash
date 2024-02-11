@@ -1,3 +1,9 @@
+f_unchk_disable_cat_fltr <- function() {
+  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+  filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
+  # shinyjs::disable("fltr_cat_chk")
+}
+
 observeEvent(g_nodes_rv$cats, {
   if (!isTruthy(g_nodes_rv$cats)) f_unchk_disable_cat_fltr()
   if (length(names(g_nodes_rv$cats)) < 1) f_unchk_disable_cat_fltr()

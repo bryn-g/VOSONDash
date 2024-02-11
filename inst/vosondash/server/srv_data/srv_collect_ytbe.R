@@ -3,8 +3,8 @@ yt_rv <- reactiveValues(
   yt_network = NULL,
   yt_graphml = NULL,
   yt_wt_graphml = NULL,
-  
-  data_cols = NULL
+  data_cols = NULL,
+  created = NULL
 )
 
 youtube_api_key <- NULL        # youtube api key
@@ -91,6 +91,7 @@ observeEvent(yt_rv$yt_data, {
 observeEvent(input$youtube_create_button, {
   net_type <- input$youtube_network_type_select
   add_text <- input$youtube_network_text
+  yt_rv$created <- ts_utc()
   network <- NULL
   
   shinyjs::disable("youtube_create_button")
@@ -139,15 +140,24 @@ youtube_view_rvalues <- callModule(collect_view_graph_btns, "youtube", graph = r
 
 observeEvent(youtube_view_rvalues$data, {
   req(youtube_view_rvalues$data)
-  f_init_graph(
-    data = youtube_view_rvalues$data, 
-    meta = list(
-      desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), sep = ""),
-      type = "youtube",
-      name = "",
-      seed = sample(1:20000, 1)
-    )
+  # f_init_graph(
+  #   data = youtube_view_rvalues$data, 
+  #   meta = list(
+  #     desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), sep = ""),
+  #     type = "youtube",
+  #     name = "",
+  #     seed = sample(1:20000, 1)
+  #   )
+  # )
+  meta <- list(
+    desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), sep = ""),
+    type = "hyperlink",
+    network = input$youtube_network_type_select,
+    name = paste0("hyperlink - ", input$youtube_network_type_select),
+    created = yt_rv$created
   )
+  
+  g_rv$data <- list(data = youtube_view_rvalues$data, meta = meta)
 }, ignoreInit = TRUE)
 
 observeEvent(input$ytbe_console_clear_btn, reset_console("ytbe_console"))

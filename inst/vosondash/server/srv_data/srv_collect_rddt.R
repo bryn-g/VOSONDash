@@ -11,8 +11,8 @@ red_rv <- reactiveValues(
   reddit_graphml = NULL,   # igraph graph object returned from collection
   reddit_wt_graphml = NULL,
   rd_urls = NULL,
-  
-  data_cols = NULL  
+  data_cols = NULL,
+  created = NULL
 )
 
 #### events ---------------------------------------------------------------------------------------------------------- #
@@ -119,7 +119,8 @@ observeEvent(input$reddit_create_button, {
       }
       if (!is.null(network)) {
         red_rv$reddit_network <- network
-        red_rv$reddit_graphml <- vosonSML::Graph(network) 
+        red_rv$reddit_graphml <- vosonSML::Graph(network)
+        red_rv$created <- ts_utc()
       }
     }) # withConsoleRedirect
   
@@ -139,16 +140,26 @@ reddit_view_rvalues <- callModule(collect_view_graph_btns, "reddit", graph = rea
 
 observeEvent(reddit_view_rvalues$data, {
   req(reddit_view_rvalues$data)
-  f_init_graph(
-    data = reddit_view_rvalues$data,
-    meta = list(
-      desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
-      type = "reddit",
-      name = "",
-      seed = sample(1:20000, 1)
-    )
+  # f_init_graph(
+  #   data = reddit_view_rvalues$data,
+  #   meta = list(
+  #     desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
+  #     type = "reddit",
+  #     name = "",
+  #     seed = sample(1:20000, 1)
+  #   )
+  # )
+  # #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  meta <- list(
+    desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
+    type = "reddit",
+    network = input$reddit_network_type_select,
+    name = paste0("reddit - ", input$reddit_network_type_select),
+    created = red_rv$created
   )
-  #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  
+  g_rv$data <- list(data = reddit_view_rvalues$data, meta = meta)
+  
 }, ignoreInit = TRUE)
 
 observeEvent(input$clear_reddit_console, {
