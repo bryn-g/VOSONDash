@@ -20,7 +20,7 @@ fluidRow(
         )
         #)
       )),
-      checkboxInput("node_sel_labels_chk", "Only selected nodes", FALSE)
+      checkboxInput("node_sel_labels_chk", "Only selected nodes", FALSE),
     ),
     disabled(
       checkboxInput("visnet_id_sel_chk", "visnet id select control", FALSE)

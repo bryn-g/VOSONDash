@@ -51,6 +51,7 @@ node_ctrls <- function() {
     "node_use_g_cols_chk",
     "node_size_sel",
     "node_size_slider",
+    "mtdn_img_opts_chk",
     "node_mtdn_img_chk",
     "node_mtdn_img_sq_chk",
     "node_mtdn_img_bord_chk")

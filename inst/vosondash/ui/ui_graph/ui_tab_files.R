@@ -2,9 +2,10 @@ tabPanel(
   "Files",
   icon = icon("file-arrow-up"),
   fileInput(
-    'graphml_data_file',
-    'Choose graphml file',
-    accept = c('.graphml')
+    "graphml_data_file",
+    label = "Choose graphml file",
+    multiple = FALSE,
+    accept = c(".graphml")
   ),
   fluidRow(column(
     width = 12,

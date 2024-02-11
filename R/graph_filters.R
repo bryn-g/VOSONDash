@@ -162,7 +162,7 @@ has_voson_txt_attr <- function(g) {
   attr_v <- igraph::vertex_attr_names(g)
   attr_v <- attr_v[grep("^vosonTxt_", attr_v, perl = TRUE)]
   
-  attr_e <- edge_attr_names(g)
+  attr_e <- igraph::edge_attr_names(g)
   attr_e <- attr_e[grep("^vosonTxt_", attr_e, perl = TRUE)]
   
   if (length(attr_v) > 0 | length(attr_e) > 0) return(TRUE)
@@ -192,10 +192,7 @@ has_voson_txt_attr <- function(g) {
 #' 
 #' @export
 filter_cats <- function(g, selected_cat, selected_subcats, cat_prefix = "vosonCA_") {
-  
-  if (selected_cat == "All") {
-    return(g)
-  }
+  if (selected_cat == "All") return(g)
   
   # re-create category node attribute name
   vattr <- paste0(cat_prefix, selected_cat)
@@ -211,86 +208,40 @@ filter_cats <- function(g, selected_cat, selected_subcats, cat_prefix = "vosonCA
   g
 }
 
+#' @title Remove isolate nodes from graph
+#'
+#' @description This function removes isolate nodes from the graph object. 
+#' 
+#' @param g \pkg{igraph} \code{graph} object.
+#' @param loops Logical. Whether to include loop edges in node degree calculation.
+#' 
+#' @return An igraph graph object.
+#' 
+#' @export
+filter_nodes_iso <- function(g, loops = FALSE) {
+  iso_ids <- V(g)[which(igraph::degree(g) == 0)]$id
+  
+  if (!length(iso_ids)) return(g)
+  
+  filter_nodes(g, ids = iso_ids)
+}
+
 #' @title Remove nodes from graph by node id
 #'
 #' @description This function removes a list of nodes from the graph object by node id value. 
 #' 
 #' @param g \pkg{igraph} \code{graph} object.
 #' @param ids List. Selected node ids to remove.
-#' @param rm_iso Logical. Remove isolate nodes from graph (degree == 0).
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-filter_nodes <- function(g, ids = NULL, rm_iso = FALSE) {
-  if (rm_iso) ids <- V(g)[degree(g) == 0]
+filter_nodes <- function(g, ids = NULL) {
   if (is.null(ids)) return(g)
+  
   if (length(ids) > 0) {
     rm_ids <- which(igraph::V(g)$id %in% ids)
     g <- igraph::delete_vertices(g, rm_ids)
   }
   g
-}
-
-#' @title Load package included network graph
-#'
-#' @description This function loads a network graph included in the \code{extdata} directory of the 
-#' \code{VOSONDash} package by file name. 
-#' 
-#' @param fname Character string. Name of demonstration \code{graphml} file.
-#' 
-#' @return An igraph graph object.
-#' 
-#' @examples
-#' \dontrun{
-#' # load the "Divided They Blog" package included network graph by file name
-#' g <- get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
-#' }
-#' 
-#' @export
-get_pkg_data <- function(fname) {
-  tryCatch({
-    f <- system.file("extdata", fname, package = "VOSONDash", mustWork = TRUE)
-    g <- igraph::read_graph(f, format = c('graphml'))  
-  }, error = function(e) {
-    stop(e)
-  })
-  
-  g
-}
-
-#' @title Load the package included "Divided They Blog" network graph
-#'
-#' @description This is a convenience function to load the "DividedTheyBlog_40Alist_release.graphml" graph. 
-#' 
-#' @return An igraph graph object.
-#' 
-#' @examples
-#' \dontrun{
-#' # load the "Divided They Blog" network graph
-#' g <- get_dtb_graph()
-#' }
-#' 
-#' @keywords internal
-#' @export
-get_dtb_graph <- function() {
-  get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
-}
-
-#' @title Load the package included "Enviro Activist Websites 2006" network graph
-#'
-#' @description This is a convenience function to load the "enviroActivistWebsites_2006.graphml" graph. 
-#' 
-#' @return An igraph graph object.
-#' 
-#' @examples
-#' \dontrun{
-#' # load the "Enviro Activist Websites 2006" network graph
-#' g <- get_eaw_graph()
-#' }
-#' 
-#' @keywords internal
-#' @export
-get_eaw_graph <- function() {
-  get_pkg_data("enviroActivistWebsites_2006.graphml")
 }

@@ -46,17 +46,6 @@ observeEvent(c(
   }
 })
 
-# graph summary text
-r_graph_summary_html <- reactive({
-  g <- r_graph_filtered()
-  if (is.null(g)) return(NULL)
-  paste0(c(
-    paste("Nodes:", igraph::vcount(g)),
-    paste("Edges:", igraph::ecount(g)),
-    paste("Isolates:", sum(igraph::degree(g) == 0))
-  ), collapse = "<br>")
-})
-
 # update plot height
 observeEvent(input$plot_height, {
   g_plot_rv$height <- input$plot_height

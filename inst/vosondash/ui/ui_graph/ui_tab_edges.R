@@ -4,16 +4,18 @@ tabPanel(
   fluidRow(
     column(
       width = 6,
+      disabled(
       colourpicker::colourInput(
         "edge_color",
         "Colour",
         "#CCCCCCFF",
         allowTransparent = TRUE,
         closeOnClick = FALSE
-      )
+      ))
     ),
     column(
       width = 6,
+      disabled(
       sliderInput(
         "edge_width",
         "Width",
@@ -23,10 +25,11 @@ tabPanel(
         step = 0.1,
         ticks = FALSE
       )
-    )
+    ))
   ),
   fluidRow(column(
     width = 6,
+    disabled(
     sliderInput(
       "edge_curved",
       "Curved",
@@ -36,12 +39,13 @@ tabPanel(
       step = 0.1,
       ticks = FALSE
     )
-  )),
+  ))),
   
   fluidRow(column(width = 12,
                   fluidRow(
                     column(
                       width = 6,
+                      disabled(
                       sliderInput(
                         "edge_arrow_size",
                         "Arrow Size",
@@ -50,9 +54,10 @@ tabPanel(
                         value = 0.4,
                         step = 0.1,
                         ticks = FALSE
-                      )
+                      ))
                     ), column(
                       width = 6,
+                      disabled(
                       sliderInput(
                         "edge_arrow_width",
                         "Arrow Width",
@@ -62,7 +67,7 @@ tabPanel(
                         step = 0.1,
                         ticks = FALSE
                       )
-                    )
+                    ))
                   ))),
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
   h4("Edge Labels"),

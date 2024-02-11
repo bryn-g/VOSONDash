@@ -63,18 +63,21 @@ tabPanel(
                       animate = FALSE
                     )
                   ))),
+  conditionalPanel(
+    condition = 'input.node_labels_chk',
+    disabled(
+      checkboxInput("node_label_prop_chk", "Proportionate Label Size", TRUE)
+    )
+  ),
   disabled(checkboxInput(
-    "node_use_g_cols_chk",
-    div("Node colors from graphml", style = "margin-bottom:5px;")
-    ,
-    TRUE
+    "node_use_g_cols_chk", div("Node colors from graphml", style = "margin-bottom:5px;"), TRUE
   )),
-  conditionalPanel(condition = 'input.node_labels_chk',
-                   disabled(
-                     checkboxInput("node_label_prop_chk", "Proportionate Label Size", TRUE)
-                   )),
-  div("Mastodon"),
-  disabled(checkboxInput("node_mtdn_img_chk", "Avatar images", FALSE)),
-  disabled(checkboxInput("node_mtdn_img_sq_chk", "Square", FALSE)),
-  disabled(checkboxInput("node_mtdn_img_bord_chk", "Border", FALSE))
+  disabled(
+    checkboxInput("mtdn_img_opts_chk", div("Mastodon Images", style = "margin-bottom:5px;"), FALSE)
+  ),
+  conditionalPanel(condition = 'input.mtdn_img_opts_chk',
+    disabled(checkboxInput("node_mtdn_img_chk", "Avatar images", FALSE)),
+    disabled(checkboxInput("node_mtdn_img_sq_chk", "Square", FALSE)),
+    disabled(checkboxInput("node_mtdn_img_bord_chk", "Border", FALSE))
+  )
 )

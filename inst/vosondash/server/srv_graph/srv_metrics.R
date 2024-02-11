@@ -58,6 +58,19 @@ output$metrics_distrib_plot <- renderPlot({
   r_node_distrib_plot()
 })
 
+# graph summary text
+r_graph_summary_html <- reactive({
+  g <- r_graph_filtered()
+  
+  if (!isTruthy(g)) return(NULL)
+  
+  paste0(c(
+    paste("Nodes:", igraph::gorder(g)),
+    paste("Edges:", igraph::gsize(g)),
+    paste("Isolates:",sum(igraph::degree(g, loops = FALSE) == 0))
+  ), collapse = "<br>")
+})
+
 # format any double numbers in a list to a precision of 3 decimal places
 fmt_double_values <- function(values, n = 3) {
   sapply(values, function(x, n) {
@@ -82,8 +95,8 @@ r_graph_metrics <- reactive({
     paste("Simple:", ifelse(metrics$simple, "yes", "no")),
     paste("Number of components:", metrics$comps_n),
     paste("Component mode:", metrics$comps_mode),
-    paste("Num of isolates (deg = 0):", metrics$isos_n),
-    paste("Num of isolates (loops):", metrics$isos_loops_n),
+    paste("Isolates:", metrics$isos_n),
+    paste("Isolates (loops):", metrics$isos_loops_n),
     paste("Density:", metrics$density),
     paste("Average geodesic distance:", metrics$ave_geodesic_dist), "",
     paste("(Global) clustering coefficient:", metrics$global_clust_coeff),

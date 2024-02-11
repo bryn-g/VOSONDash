@@ -1,3 +1,24 @@
+# graphml file uploaded
+observeEvent(input$graphml_data_file, {
+  infile <- req(input$graphml_data_file)
+
+  # reads file as graphml and fails gracefully
+  tryCatch({
+    g_rv$data <- igraph::read_graph(infile$datapath, format = "graphml")
+    
+    g_meta_rv$data <- list(
+      desc = "Imported from file.",
+      type = ifelse(
+        "type" %in% graph_attr_names(g_rv$data), graph_attr(g_rv$data, "type"), "import"),
+      name = infile$name,
+      uploaded = ts_utc()
+    )
+    dash_logger(paste0("uploaded file: ", infile$name))
+  }, error = function(err) {
+    dash_logger(paste0("error uploading file: ", infile$name, "\n[", err, "]"))
+  })
+})
+
 # find package data
 f_get_pkg_data_files <- function() {
   f_list <- c()

@@ -1,3 +1,61 @@
+observeEvent(g_nodes_rv$cats, {
+  if (!isTruthy(g_nodes_rv$cats)) f_unchk_disable_cat_fltr()
+  if (length(names(g_nodes_rv$cats)) < 1) f_unchk_disable_cat_fltr()
+  
+  shinyjs::enable("cat_sel")
+  cats <- append("All", names(g_nodes_rv$cats))
+  
+  # freezeReactiveValue(input, "cat_sel")
+  updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
+  
+  # freezeReactiveValue(input, "cat_sub_sel")
+  updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
+  shinyjs::disable("cat_sub_sel")
+  
+  # freezeReactiveValue(g_nodes_rv, "cat_selected")
+  # freezeReactiveValue(g_nodes_rv, "cat_sub_selected")
+  g_nodes_rv$cat_selected <- "All"
+  g_nodes_rv$cat_sub_selected <- "All"
+  
+  shinyjs::enable("fltr_cat_chk")
+  # freezeReactiveValue(input, "fltr_cat_chk")
+  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+})
+
+observeEvent(input$cat_sel, {
+  req(g_nodes_rv$cats, input$cat_sel)
+  
+  if (input$cat_sel != "All") {
+    shinyjs::enable("cat_sub_sel")
+    sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
+    # freezeReactiveValue(input, "cat_sub_sel")
+    updateSelectInput(session, "cat_sub_sel", choices = sub_cats, selected = "All")
+    
+    updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
+    g_nodes_rv$cat_selected <- input$cat_sel
+    g_nodes_rv$cat_sub_selected <- "All"
+  } else {
+    updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
+    filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
+    
+    g_nodes_rv$cat_selected <- input$cat_sel
+    
+    shinyjs::disable("cat_sub_sel")
+    # freezeReactiveValue(input, "cat_sub_sel")
+    updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
+  }
+  
+}, ignoreInit = TRUE)
+
+observeEvent(input$cat_sub_sel, {
+  req(g_nodes_rv$cats, input$cat_sel, input$cat_sub_sel)
+  
+  g_nodes_rv$cat_sub_selected <- input$cat_sub_sel
+  # freezeReactiveValue(input, "fltr_cat_chk")
+  updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
+}, ignoreInit = TRUE)
+
+
 # selected category updates select box with its attribute values
 # observeEvent(input$cat_sel, {
 #   g_nodes_rv$cat_selected <- input$cat_sel

@@ -41,10 +41,10 @@ observeEvent(g_rv$is_igraph, {
   if (!isTruthy(g_rv$is_igraph)) {
     dash_logger("igraph data object invalid.")
     
-    disable_g_ctrls()
+    # disable_g_ctrls()
     
   } else {
-    dash_logger(paste0("igraph data object loaded: ", g_meta_rv$data$name))
+    dash_logger(paste0("igraph data object loaded. ", g_meta_rv$data$name))
   }
 }, ignoreInit = TRUE)
 
@@ -69,6 +69,9 @@ observeEvent(g_rv$data, {
   
   updateNavbarPage(session, "nav_sel_tab_id", selected = "network_graphs_tab")
   
+  # reset_enable_g_ctrls()
+  
+  # r_graph_base()
 }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 # base graph node attribute list
@@ -84,15 +87,15 @@ r_node_attr_lst <- reactive({
 
 # set the base graph object from initial processing
 r_graph_base <- reactive({
-  req(g_rv$data)
-  
-  # clean base graph
-  g <- g_rv$data
+   # clean base graph
+  g <- req(g_rv$data)
   
   # check igraph
   if (!"igraph" %in% class(g)) return(NULL)
   
   g <- f_set_id_and_label(g)
+  
+  cat(file=stderr(), paste0("- r_graph_base - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   
   g
 })
@@ -124,63 +127,6 @@ f_unchk_disable_cat_fltr <- function() {
   filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
   # shinyjs::disable("fltr_cat_chk")
 }
-
-observeEvent(g_nodes_rv$cats, {
-  if (!isTruthy(g_nodes_rv$cats)) f_unchk_disable_cat_fltr()
-  if (length(names(g_nodes_rv$cats)) < 1) f_unchk_disable_cat_fltr()
-    
-  shinyjs::enable("cat_sel")
-  cats <- append("All", names(g_nodes_rv$cats))
-  
-  # freezeReactiveValue(input, "cat_sel")
-  updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
-  
-  # freezeReactiveValue(input, "cat_sub_sel")
-  updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
-  shinyjs::disable("cat_sub_sel")
-  
-  # freezeReactiveValue(g_nodes_rv, "cat_selected")
-  # freezeReactiveValue(g_nodes_rv, "cat_sub_selected")
-  g_nodes_rv$cat_selected <- "All"
-  g_nodes_rv$cat_sub_selected <- "All"
-  
-  shinyjs::enable("fltr_cat_chk")
-  # freezeReactiveValue(input, "fltr_cat_chk")
-  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
-})
-
-observeEvent(input$cat_sel, {
-  req(g_nodes_rv$cats, input$cat_sel)
-  
-  if (input$cat_sel != "All") {
-    shinyjs::enable("cat_sub_sel")
-    sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
-    # freezeReactiveValue(input, "cat_sub_sel")
-    updateSelectInput(session, "cat_sub_sel", choices = sub_cats, selected = "All")
-    
-    updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
-    g_nodes_rv$cat_selected <- input$cat_sel
-    g_nodes_rv$cat_sub_selected <- "All"
-  } else {
-    updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
-    filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
-    
-    g_nodes_rv$cat_selected <- input$cat_sel
-    
-    shinyjs::disable("cat_sub_sel")
-    # freezeReactiveValue(input, "cat_sub_sel")
-    updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
-  }
-
-}, ignoreInit = TRUE)
-
-observeEvent(input$cat_sub_sel, {
-  req(g_nodes_rv$cats, input$cat_sel, input$cat_sub_sel)
-  
-  g_nodes_rv$cat_sub_selected <- input$cat_sub_sel
-  # freezeReactiveValue(input, "fltr_cat_chk")
-  updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
-}, ignoreInit = TRUE)
 
 # -----------------------
 # f_init_graph_ctrls2 <- function(g) {

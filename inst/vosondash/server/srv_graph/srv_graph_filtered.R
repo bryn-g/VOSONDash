@@ -37,13 +37,13 @@ r_graph_filtered <- reactive({
   # filtering
   f_order <- input$fltr_order
   
-  no_filters <- FALSE
-  if (all(sapply(list(
-      input$fltr_prune_chk, input$fltr_iso_chk, input$fltr_edge_loops_chk,
-      input$fltr_edge_multi_chk, input$fltr_comp_chk, input$fltr_cat_chk
-  ), isTruthy) == FALSE)) no_filters <- TRUE
-  
-  if (!no_filters) {
+  # no_filters <- FALSE
+  # if (all(sapply(list(
+  #     input$fltr_prune_chk, input$fltr_iso_chk, input$fltr_edge_loops_chk,
+  #     input$fltr_edge_multi_chk, input$fltr_comp_chk, input$fltr_cat_chk
+  # ), isTruthy) == FALSE)) no_filters <- TRUE
+  # 
+  # if (!no_filters) {
     for (cmd in f_order) {
       if (cmd == "rm_pruned") {
         
@@ -88,11 +88,11 @@ r_graph_filtered <- reactive({
         
       } else if (cmd == "rm_isolates" & input$fltr_iso_chk == TRUE) {
         
-        g <- VOSONDash::filter_nodes(g, rm_iso = TRUE)
+        g <- VOSONDash::filter_nodes_iso(g)
         filter_btn_txt_sel("fltr_iso_chk_label", TRUE)
       }
     }   
-  }
+  #}
   
   # measures of centrality
   g <- VOSONDash::add_centrality_measures(g)
@@ -114,7 +114,7 @@ r_graph_filtered <- reactive({
     }
   }
   
-  cat(file=stderr(), "running r_graph_filtered\n")
+  cat(file=stderr(), paste0("- r_graph_filtered - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   
   g
 })

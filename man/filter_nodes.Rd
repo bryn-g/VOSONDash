@@ -4,14 +4,12 @@
 \alias{filter_nodes}
 \title{Remove nodes from graph by node id}
 \usage{
-filter_nodes(g, ids = NULL, rm_iso = FALSE)
+filter_nodes(g, ids = NULL)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
 
 \item{ids}{List. Selected node ids to remove.}
-
-\item{rm_iso}{Logical. Remove isolate nodes from graph (degree == 0).}
 }
 \value{
 An igraph graph object.

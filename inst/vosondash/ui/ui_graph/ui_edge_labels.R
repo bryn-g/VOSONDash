@@ -8,6 +8,7 @@ fluidRow(column(width = 12,
                     conditionalPanel(condition = 'input.edge_labels_chk',
                                      fluidRow(column(
                                        width = 6,
+                                       disabled(
                                        pickerInput(
                                          "edge_label_sel",
                                          label = NULL,
@@ -15,7 +16,7 @@ fluidRow(column(width = 12,
                                          selected = "None",
                                          multiple = FALSE
                                        )
-                                     )))
+                                     ))))
                   )
                 ),
                 fluidRow(
@@ -31,6 +32,7 @@ fluidRow(column(width = 12,
                          )),
                   column(
                     width = 6,
+                    disabled(
                     sliderInput(
                       "edge_label_size",
                       "Size",
@@ -40,5 +42,5 @@ fluidRow(column(width = 12,
                       step = 0.1,
                       ticks = FALSE
                     )
-                  )
+                  ))
                 )))
