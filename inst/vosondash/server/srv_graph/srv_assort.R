@@ -33,7 +33,7 @@ output$mixing_matrix_details_output <- renderText({
 
 # returns selected categorical attribute output message
 assortativityPrelimOutput <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   output <- c()
   
@@ -50,7 +50,7 @@ assortativityPrelimOutput <- reactive({
 
 # creates and returns mixing matrix dataframe, or returns null and sets an output message
 assortativityMMOutput <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   if (!isTruthy(g)) {
     assort_rvalues$mixmat_message <- "No Data."
@@ -70,7 +70,7 @@ assortativityMMOutput <- reactive({
 
 # returns output for homophily index calculations
 homophilyOutput <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   output <- c()
   

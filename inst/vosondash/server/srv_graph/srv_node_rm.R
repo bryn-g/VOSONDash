@@ -109,16 +109,16 @@ observeEvent(input$prune_reset_btn, {
   updateSelectInput(session, "prune_nodes_sel", choices = character(0))
   
   # added to address bug with disappearing plot on pruning
-  # f_update_comp_slider_range(g, input$comp_mode_sel)
+  # f_update_comp_slider_range(g, input$comp_mode_picker)
   f_set_comp_ranges(g)
-  comp_rv$mode <- input$comp_mode_sel
+  g_comps_rv$mode <- input$comp_mode_picker
   f_set_comp_slider_range()
 })
 
 observeEvent(input$nbh_reset_btn, {
   g_nodes_rv$pruned <- c()
   updateSelectInput(session, "prune_nodes_sel", choices = character(0))
-  #f_update_comp_slider_range(g_rv$data, input$comp_mode_sel)  
+  #f_update_comp_slider_range(g_rv$data, input$comp_mode_picker)  
 })
 
 # deselect all data table selected rows
@@ -144,7 +144,7 @@ observeEvent(input$vis_node_select, {
 observeEvent(input$nbh_sel_btn, {
   req(length(input$dt_nodes_rows_selected) > 0)
   
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
 
   dt_nodes <- r_graph_nodes_df()
   sel_rows <- row.names(dt_nodes)[c(input$dt_nodes_rows_selected)]

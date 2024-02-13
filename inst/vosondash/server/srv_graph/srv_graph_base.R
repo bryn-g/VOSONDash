@@ -40,8 +40,9 @@ r_graph_base <- reactive({
   req(r_is_data_valid())
   
   g <- g_rv$data$data
-  
   g <- f_set_id_and_label(g)
+  
+  g_comps_rv$range_base <- f_get_comp_ranges(g)
   g_nodes_rv$cats <- get_node_cats(g)
   
   cat(file=stderr(), paste0("- r_graph_base - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))

@@ -1,4 +1,5 @@
 shinyServer(function(input, output, session) {
+  gg <- new.env()
   
   source("server/srv_logger.R", local = TRUE)
   source("server/srv_data/srv_console.R", local = TRUE)

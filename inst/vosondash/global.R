@@ -12,6 +12,8 @@ if (!is.null(getShinyOption("VOSONPkgMsgs"))) pkgMsgs <- getShinyOption("VOSONPk
 
 source("packages.R", local = TRUE)
 
+options("gargoyle.talkative" = TRUE)
+
 # file upload sizes
 ifelse(isLocal, options(shiny.maxRequestSize = 128*1024^2), # 128 MB max local
                 options(shiny.maxRequestSize = 48*1024^2))  # 48 MB

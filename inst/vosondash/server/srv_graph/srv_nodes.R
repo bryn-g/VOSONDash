@@ -1,12 +1,15 @@
 # graph nodes reactive variables
 g_nodes_rv <- reactiveValues(
   attrs = NULL,
+  
   labels = NULL,
   label_type = "none",
   label_selected = NULL,
+  
   cats = NULL,
   cat_selected = "All",
   cat_sub_selected = "All",
+  
   pruned = NULL
 )
 

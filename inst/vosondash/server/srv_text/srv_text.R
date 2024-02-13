@@ -218,15 +218,15 @@ getFiltersDesc <- reactive({
 
 # text analysis summary
 textAnalysisDetailsOutput <- reactive({
-  req(r_graph_filtered(), ta_rv$plot_data_list)
+  req(r_graph_filter(), ta_rv$plot_data_list)
   
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   plot_data_list <- req(ta_rv$plot_data_list)
   
   output <- c()
   
   if (!is.null(g)) {
-    graph_clusters <- components(g, mode = input$comp_mode_sel) # moved here from below
+    graph_clusters <- components(g, mode = input$comp_mode_picker) # moved here from below
     
     selected_sub_cats <- input$cat_sub_sel
     if (length(selected_sub_cats) == 1 && selected_sub_cats == "All") {
@@ -237,7 +237,7 @@ textAnalysisDetailsOutput <- reactive({
     
     output <- append(output, getFiltersDesc())
     
-    output <- append(output, c(paste0("Components (", input$comp_mode_sel, "): ", graph_clusters$no),
+    output <- append(output, c(paste0("Components (", input$comp_mode_picker, "): ", graph_clusters$no),
                                paste("Nodes:", vcount(g)),
                                paste("Edges:", ecount(g)), ""))
     
@@ -352,7 +352,7 @@ text_plot_lstData <- reactive({
 })
 
 taTextCorpusData <- function(graph_attr) {
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   plot_cat <- plot_sub_cats <- ""
   

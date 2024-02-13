@@ -1,10 +1,14 @@
 fluidRow(column(
   width = 12,
+  fluidRow(column(
+    width = 12,
+    verbatimTextOutput("comp_input_ui")
+  )),
   fluidRow(
     column(width = 4,
            shinyjs::disabled(
              selectInput(
-               "comp_mode_sel",
+               "comp_mode_picker",
                div("Type", style = "font-weight: normal;"),
                choices = c("weak", "strong"),
                selected = "weak",
@@ -12,6 +16,7 @@ fluidRow(column(
              )
            )),
     column(width = 8,
+           fluidRow(
            disabled(
              sliderInput(
                "comp_slider",
@@ -21,8 +26,10 @@ fluidRow(column(
                value = c(1, 500),
                ticks = FALSE
              )
-           ))
-  ),
+           )# ,
+           # disabled(actionButton("comp_set", "Set"))
+    )
+  )),
   fluidRow(column(
     width = 12,
     verbatimTextOutput("comp_summary_ui")
@@ -30,11 +37,5 @@ fluidRow(column(
   fluidRow(column(
     width = 12,
     verbatimTextOutput("comp_count_ui")
-  )),
-  fluidRow(column(
-    width = 12,
-    actionButton("comp_recalc",
-                 "Recalculate",
-                 icon = icon("calculator"))
   ))
 ))

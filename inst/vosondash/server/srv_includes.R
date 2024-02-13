@@ -4,7 +4,7 @@ source("server/srv_graph/srv_graph_base.R", local = TRUE)
 source("server/srv_graph/srv_graph_labels.R", local = TRUE)
 source("server/srv_graph/srv_graph_comps.R", local = TRUE)
 source("server/srv_graph/srv_graph_cats.R", local = TRUE)
-source("server/srv_graph/srv_graph_filtered.R", local = TRUE)
+source("server/srv_graph/srv_graph_filter.R", local = TRUE)
 
 source("server/srv_graph/srv_nodes.R", local = TRUE)
 source("server/srv_graph/srv_node_rm.R", local = TRUE)

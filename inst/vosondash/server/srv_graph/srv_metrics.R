@@ -11,20 +11,20 @@ get_std_plot <- function(x, type = "b", xlab = "", ylab = "N nodes", ...) {
 # generate distribution plot
 # todo: ctrl for whether to include loops in degree calculations
 r_node_distrib_plot <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   if (!isTruthy(g)) return(VOSONDash::get_empty_plot("No graph data."))
-
+  if (igraph::gorder(g) < 1) return(VOSONDash::get_empty_plot("No nodes in data."))
+  
   distrib_type <- input$metrics_distrib_sel
   
   if (distrib_type == "component") {
-    cc <- igraph::components(g, mode = input$comp_mode_sel)
+    cc <- igraph::components(g, mode = g_comps_rv$mode)
     get_std_plot(
       table(cc$csize),
       xlab = paste0("N nodes"),
-      ylab = paste0("N components [mode = ", input$comp_mode_sel, "]")
+      ylab = paste0("N components [mode = ", g_comps_rv$mode, "]")
     )
-
   } else if (distrib_type == "component2") {
     dist <- igraph::component_distribution(g)
     get_std_plot(as.table(dist), xlab = "unknown", xlab = "unknown")
@@ -52,8 +52,7 @@ r_node_distrib_plot <- reactive({
       
     }
   } else {
-    VOSONDash::get_empty_plot("No graph data.")
-    
+      VOSONDash::get_empty_plot("No graph data.")
   }
 })
 
@@ -64,7 +63,7 @@ output$metrics_distrib_plot <- renderPlot({
 
 # graph summary text
 r_graph_summary_html <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   if (!isTruthy(g)) return(NULL)
   
@@ -87,11 +86,11 @@ fmt_double_values <- function(values, n = 3) {
 # format network metrics into summary text
 # todo: ctrl for whether to include loops in centralization calculations
 r_graph_metrics <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
 
   if (!isTruthy(g)) return("No graph data.")
 
-  metrics <- fmt_double_values(get_graph_metrics(g, mode = input$comp_mode_sel))
+  metrics <- fmt_double_values(get_graph_metrics(g, mode = g_comps_rv$mode))
   out <- c(
     paste("Num of nodes:", metrics$nodes_n),
     paste("Num of edges:", metrics$edges_n),

@@ -1,7 +1,7 @@
 r_graph_igraph_plot <- reactive({
-  if (!isTruthy(r_graph_filtered())) return(VOSONDash::get_empty_plot("No graph data."))
+  if (!isTruthy(r_graph_filter())) return(VOSONDash::get_empty_plot("No graph data."))
     
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   if (is.null(g)) return(VOSONDash::get_empty_plot("No graph data."))
   if (igraph::gorder(g) <= 0) return(VOSONDash::get_empty_plot("No nodes to plot."))

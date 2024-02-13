@@ -1,6 +1,6 @@
 # graph edges as dataframe
 r_graph_edges_df <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
   
   igraph::as_data_frame(g, what = c("edges"))
 })

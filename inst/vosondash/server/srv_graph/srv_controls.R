@@ -96,9 +96,12 @@ filter_ctrls <- function() {
 
 # component filter ctrls
 filter_comp_ctrls <- function() {
-  c("comp_mode_sel",
-    "comp_slider",
-    "comp_recalc")
+  c("comp_mode_picker",
+    "comp_slider"#,
+    # "comp_set",
+    # "comp_reset",
+    #"comp_recalc"
+    )
 }
 
 # category filter ctrls
@@ -149,13 +152,17 @@ reset_enable_g_ctrls <- function() {
     node_nbh_ctrls(),
     edge_ctrls(),
     filter_ctrls(),
-    filter_comp_ctrls(),
-    filter_cat_ctrls(),
-    
     overlay_ctrls()
   )
   set_ctrl_state(x, "reset")
   set_ctrl_state(x, "enable")
+  
+  # just reset
+  x <- c(
+    filter_comp_ctrls(),
+    filter_cat_ctrls()
+  )
+  set_ctrl_state(x, "reset")
 }
 
 disable_visnet_ctrls <- function() {

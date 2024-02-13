@@ -13,7 +13,8 @@ required_pkgs <- c(
   "sortable",
   "tm",
   "visNetwork",
-  "wordcloud"
+  "wordcloud",
+  "gargoyle"
 )
 
 # if app is local print package information

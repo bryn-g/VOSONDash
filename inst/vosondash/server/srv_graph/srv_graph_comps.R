@@ -1,59 +1,107 @@
-comp_rv <- reactiveValues(
+# g_comps_rv$range$weak = list(no = 0, min = NULL, max = NULL),
+# g_comps_rv$range$strong = list(no = 0, min = NULL, max = NULL)
+
+# gg flags
+# init("pre_comps")
+
+g_comps_rv <- reactiveValues(
   mode = "weak",
-  weak = list(no = 0, min = NULL, max = NULL),
-  strong = list(no = 0, min = NULL, max = NULL)
+  range_base = NULL,
+  range = NULL,
+  slider = NULL,
+  pre_comps = NULL
 )
+
+output$comp_input_ui <- renderText({
+  r_pre_comp_summary_txt()
+})
 
 output$comp_summary_ui <- renderText({
   r_comp_summary_txt()
 })
 
-r_comp_summary_txt <- reactive({
-  mode <- input$comp_mode_sel
-  comp_attrs <- comp_rv[[mode]]
-
-  output <- c(paste0("Components (", mode, "): ", comp_attrs$no))
-  if (comp_attrs$no > 0) {
-    if (comp_attrs$no == 1) {
-      output <- append(output, paste0("Size: ", comp_attrs$min, sep = ""))
+r_pre_comp_summary_txt <- reactive({
+  pre_comps <- req(g_comps_rv$pre_comps)
+  
+  mode <- names(pre_comps)
+  comps <- pre_comps[[mode]]
+  
+  if (!isTruthy(comps)) return(NULL)
+  
+  output <- c("-- pre filter")
+  output <- c(output, paste0("Components (", mode, "): ", comps$no))
+  if (comps$no) {
+    if (comps$no == 1) {
+      output <- append(output, paste0("Size: ", comps$min, sep = ""))
     } else {
-      output <- append(output, paste0("Size min: ", comp_attrs$min, " max: ", comp_attrs$max, sep = ""))
+      output <- append(output, paste0("Size min: ", comps$min, " max: ", comps$max, sep = ""))
     }
   } else {
-    output <- append(output, paste0(""))
+    output <- append(output, "")
   }
-  paste0(output, collapse = '\n')
+  paste0(output, collapse = "\n")
 })
+
+r_comp_summary_txt <- reactive({
+  g <- r_graph_filter()
+  mode <- isolate(input$comp_mode_picker)
+  comps <- f_get_comp_ranges(g, mode = mode)[[mode]]
+  
+  if (!isTruthy(comps)) return(NULL)
+  
+  output <- c(paste0("Components (", mode, "): ", comps$no))
+  if (comps$no) {
+    if (comps$no == 1) {
+      output <- append(output, paste0("Size: ", comps$min, sep = ""))
+    } else {
+      output <- append(output, paste0("Size min: ", comps$min, " max: ", comps$max, sep = ""))
+    }
+  } else {
+    output <- append(output, "")
+  }
+  paste0(output, collapse = "\n")
+})
+
+observeEvent(input$fltr_comp_chk, {
+  if (!is.null(input$fltr_comp_chk)) {
+    set_ctrl_state(filter_comp_ctrls(), ifelse(input$fltr_comp_chk, "enable", "disable"))
+  }
+}, ignoreInit = TRUE)
 
 output$comp_count_ui <- renderText({
-  comp_attr <- r_graph_comp_current()
-  comp_no <- 0
-  if (isTruthy(comp_attr)) {
-    comp_no <- comp_attr[[1]]$no
-  }
-  paste0("Selected: ", comp_no)
-})
-
-r_graph_comp_current <- reactive({
-  g <- r_graph_filtered()
-  mode <- input$comp_mode_sel
-  if (isTruthy(g)) return(f_calc_graph_comp_ranges(g, mode = mode))
-  NULL
-})
-
-observeEvent(input$comp_mode_sel, {
-  f_set_comp_slider_range()
-}, ignoreInit = TRUE)
-
-observeEvent(input$comp_recalc, {
-  f_set_comp_slider_range()
-  updateCheckboxInput(session, inputId = "fltr_comp_chk", value = FALSE)
-}, ignoreInit = TRUE)
-
-f_set_comp_slider_range <- function() {
-  range <- comp_rv$weak
-  if (input$comp_mode_sel == "strong") range <- comp_rv$strong
+  req(r_graph_filter(), g_comps_rv$mode)
   
+  g <- r_graph_filter()
+  n <- igraph::count_components(g, g_comps_rv$mode)
+  paste0("Visible: ", n)
+})
+
+# when mode changes
+observeEvent(input$comp_slider, {
+  g_comps_rv$slider <- input$comp_slider
+}, ignoreInit = TRUE)
+
+# when mode changes
+observeEvent(input$comp_mode_picker, {
+  g_comps_rv$mode <- input$comp_mode_picker
+}, ignoreInit = TRUE)
+
+# when mode changes
+observeEvent(g_comps_rv$mode, {
+  # updateCheckboxInput(session, inputId = "fltr_comp_chk", value = FALSE)
+  
+  f_update_comp_slider(g_comps_rv$range[[g_comps_rv$mode]])
+}, ignoreInit = TRUE)
+
+# set initial comps
+observeEvent(g_comps_rv$range_base, {
+  g_comps_rv$range <- g_comps_rv$range_base
+  updateCheckboxInput(session, inputId = "fltr_comp_chk", value = FALSE)
+  f_update_comp_slider(g_comps_rv$range[[g_comps_rv$mode]])
+}, ignoreInit = TRUE)
+
+# update slider
+f_update_comp_slider <- function(range) {
   updateSliderInput(
     session,
     inputId = "comp_slider",
@@ -63,17 +111,12 @@ f_set_comp_slider_range <- function() {
   )
 }
 
-f_set_comp_ranges <- function(g) {
-  if (!is.null(g)) {
-    ranges <- f_calc_graph_comp_ranges(g)
-    comp_rv$weak <- ranges$weak
-    comp_rv$strong <- ranges$strong
-  }
-}
-
-f_calc_graph_comp_ranges <- function(g, mode = NULL) {
+f_get_comp_ranges <- function(g, mode = NULL) {
+  if (!isTruthy(g)) return(NULL)
+  
   modes <- list(weak = "weak", strong = "strong")
-  if (!is.null(mode)) modes <- modes[which(names(modes) != mode)]
+  if (!is.null(mode)) modes <- modes[[which(names(modes) == mode)]]
+  
   comp_ranges <- sapply(
     modes,
     function(x) {
@@ -84,4 +127,9 @@ f_calc_graph_comp_ranges <- function(g, mode = NULL) {
         max = suppressWarnings(max(c$csize))
       )
     }, simplify = FALSE, USE.NAMES = TRUE)  
+}
+
+f_comp_bounds <- function(x_slider, y_comp_range, mode) {
+  if ((x_slider[1] == y_comp_range[[mode]]$min) & (x_slider[2] == y_comp_range[[mode]]$max)) return(TRUE)
+  FALSE
 }

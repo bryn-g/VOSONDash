@@ -1,98 +1,106 @@
+fltr_state <- function()
+  list(
+    "fltr_prune_chk" = FALSE,
+    "fltr_iso_chk" = FALSE,
+    "fltr_edge_loops_chk" = FALSE,
+    "fltr_edge_multi_chk" = FALSE,
+    "fltr_comp_chk" = FALSE,
+    "fltr_cat_chk" = FALSE
+  )
 
-
-# filter out list of vertices from graph object
-filter_nodesSrv <- function(g, selected_prune_verts) {
-  # updateCheckboxInput(session, "fltr_prune_chk", value = FALSE)
-  # if (length(selected_prune_verts) > 0) {
-  #   verts <- which(V(g)$id %in% selected_prune_verts)
-  #   g <- delete.vertices(g, verts) # selected_prune_verts
-  #   updateCheckboxInput(session, "fltr_prune_chk", value = TRUE)
-  # }
-  # return(g)
-  g
-}
-
-# filter_rv <- reactiveVal()
-# observeEvent(input$fltr_order, {
-#   req(any(c(input$fltr_prune_chk,
-#       input$fltr_iso_chk,
-#       input$fltr_edge_loops_chk,
-#       input$fltr_edge_multi_chk,
-#       input$graph_components_check,
-#       input$fltr_cat_chk)))
-#   
-#   filter_rv(input$fltr_order)
-# })
 
 # apply all filters to graph data and return modified graph
 filter_btn_txt_sel <- function(id, state) {
   shinyjs::toggleClass(id = id, class = "txt_sel_blue", asis = TRUE, condition = state)
 }
 
-r_graph_filtered <- reactive({
+f_init_fltr_state <- function() {
+  sapply(fltr_state, function(x) x = FALSE, simplify = FALSE, USE.NAMES = TRUE)
+}
+
+f_post_fltr_state <- function(fltr_state) {
+  req(fltr_state)
+  sapply(names(fltr_state), function(x) {
+    val <- fltr_state[[x]]
+    if (isTruthy(val)) {
+      filter_btn_txt_sel(paste(x, "_label"), val)
+      dbg("f_post_fltr_state", paste0(x, " = TRUE"))
+    }
+  })
+}
+
+r_graph_filter <- reactive({
   g <- r_graph_base()
-  
   if (!isTruthy(g)) return(NULL)
 
+  fltr_state <- f_init_fltr_state()
+  
   # filtering
   f_order <- input$fltr_order
-  
-  # no_filters <- FALSE
-  # if (all(sapply(list(
-  #     input$fltr_prune_chk, input$fltr_iso_chk, input$fltr_edge_loops_chk,
-  #     input$fltr_edge_multi_chk, input$fltr_comp_chk, input$fltr_cat_chk
-  # ), isTruthy) == FALSE)) no_filters <- TRUE
-  # 
-  # if (!no_filters) {
+  if (isTruthy(f_order)) {
+    dbg("f_order", f_order)
     for (cmd in f_order) {
+      dbg("cmd", cmd)
       if (cmd == "rm_pruned") {
-        
-        # if (length(g_nodes_rv$pruned)) g <- filter_nodesSrv(g, g_nodes_rv$pruned)
-        # filter_btn_txt_sel("fltr_prune_chk_label", TRUE)
-        
+  
+        # to do
+        if (input$fltr_prune_chk) {
+          fltr_state$fltr_prune_chk <- TRUE
+        }
+  
       } else if (cmd == "rm_categories") {
+  
         if (input$fltr_cat_chk) {
           cat_sel <- g_nodes_rv$cat_selected
-          sub_cat_sel <- g_nodes_rv$cat_sub_selected
-          
-          if (!("All" %in% cat_sel) & length(sub_cat_sel)) {
-            filter_btn_txt_sel("fltr_cat_chk_label", TRUE)
-            
-            g <- VOSONDash::filter_cats(g, cat_sel, sub_cat_sel)
-          } else {
-            # updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
-            filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
-          }
+          cat_sub_sel <- g_nodes_rv$cat_sub_selected
+  
+          g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel)
+          fltr_state$fltr_cat_chk <- TRUE
         }
+        
       } else if (cmd == "rm_components") {
-        
-        filter_btn_txt_sel("fltr_comp_chk_label", TRUE)
-        
-        # filter component selection
+      
         if (input$fltr_comp_chk) {
-          # g <- filter_comps(g, isolate(input$comp_mode_sel), input$comp_slider)
+          comp_slider <- g_comps_rv$slider
+          mode <- g_comps_rv$mode
+  
+          g_comps_rv$pre_comps <- f_get_comp_ranges(g, mode = mode)
+          # could update range
+          
+          g <- VOSONDash::filter_comps(g, mode, comp_slider)
+          fltr_state$fltr_comp_chk <- TRUE
         } else {
-          # f_set_comp_ranges(g)
-          # f_set_comp_slider_range()
+          g_comps_rv$pre_comps <- NULL
         }
         
-      } else if (cmd == "rm_multiedges" & input$fltr_edge_multi_chk == TRUE) {
+      } else if (cmd == "rm_multiedges") {
         
-        g <- VOSONDash::filter_edges(g, input$fltr_edge_multi_chk, FALSE)
-        filter_btn_txt_sel("fltr_edge_multi_chk_label", TRUE)
+        if (input$fltr_edge_multi_chk) {
+          g <- VOSONDash::filter_edges(g, input$fltr_edge_multi_chk, FALSE)
+          fltr_state$fltr_edge_multi_chk <- TRUE
+        }
         
-      } else if (cmd == "rm_loops" & input$fltr_edge_loops_chk == TRUE) {
+      } else if (cmd == "rm_loops") {
         
-        g <- VOSONDash::filter_edges(g, FALSE, input$fltr_edge_loops_chk)
-        filter_btn_txt_sel("fltr_edge_loops_chk_label", TRUE)
+        if (input$fltr_edge_loops_chk) {
+          g <- VOSONDash::filter_edges(g, FALSE, input$fltr_edge_loops_chk)
+          fltr_state$fltr_edge_loops_chk <- TRUE
+        }
         
-      } else if (cmd == "rm_isolates" & input$fltr_iso_chk == TRUE) {
+      } else if (cmd == "rm_isolates") {
         
-        g <- VOSONDash::filter_nodes_iso(g)
-        filter_btn_txt_sel("fltr_iso_chk_label", TRUE)
+        if (input$fltr_iso_chk) {
+          g <- VOSONDash::filter_nodes_iso(g)
+          fltr_state$fltr_iso_chk <- TRUE
+        }
+        
+      } else {
+        dbg("f_order", paste0("cmd = ", cmd))
       }
-    }   
-  #}
+    }
+  }
+  
+  f_post_fltr_state(fltr_state)
   
   # measures of centrality
   g <- VOSONDash::add_centrality_measures(g)
@@ -114,12 +122,10 @@ r_graph_filtered <- reactive({
     }
   }
   
-  cat(file=stderr(), paste0("- r_graph_filtered - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
+  cat(file=stderr(), paste0("- r_graph_filter - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   
   g
 })
-
-chks <- c("fltr_prune_chk", "fltr_iso_chk", "fltr_edge_loops_chk", "fltr_edge_multi_chk", "fltr_comp_chk", "fltr_cat_chk")
 
 # filter ui
 output$filter_rank_list <- renderUI({

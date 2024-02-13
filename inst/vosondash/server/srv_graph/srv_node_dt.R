@@ -1,6 +1,6 @@
 # graph nodes as dataframe
 r_graph_nodes_df <- reactive({
-  g <- r_graph_filtered()
+  g <- r_graph_filter()
 
   df_params <- list()
   

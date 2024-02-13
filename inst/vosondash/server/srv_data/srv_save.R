@@ -9,7 +9,7 @@ output$visnet_html_dl_btn <- downloadHandler(
 # analysis graphml download button
 output$graph_graphml_dl_btn <- downloadHandler(
   filename = function() { create_dtm_filename("analysis-graph", "graphml") },
-  content = function(file) { igraph::write_graph(r_graph_filtered(), file, format = c("graphml")) }
+  content = function(file) { igraph::write_graph(r_graph_filter(), file, format = c("graphml")) }
 )
 
 dlGraphButtonOutput <- reactive({
