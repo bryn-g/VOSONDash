@@ -1,7 +1,6 @@
 f_unchk_disable_cat_fltr <- function() {
   updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
   filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
-  # shinyjs::disable("fltr_cat_chk")
 }
 
 observeEvent(g_nodes_rv$cats, {
@@ -59,6 +58,57 @@ observeEvent(input$fltr_cat_chk, {
 
 }, ignoreInit = TRUE)
 
+r_graph_legend <- reactive({
+  g <- req(r_graph_filter())
+  req(g_nodes_rv$cats, input$cat_sub_sel, input$fltr_cat_chk)
+
+  cat_attrs <- g_nodes_rv$cats
+  cat_attr_selected <- input$cat_sel
+  
+  if (cat_attr_selected == "All" || input$fltr_cat_chk == FALSE) return(NULL)
+  
+  if (input$node_use_g_cols_chk & ("color" %in% igraph::vertex_attr_names(g))) {
+    attr_name_selected <- sub("\\^", "", paste0(voson_cat_prefix, cat_attr_selected))
+
+    attr_vals <- igraph::vertex_attr(g, attr_name_selected)
+    color_vals <- igraph::V(g)$color
+    df <- data.frame(
+      cat = attr_vals,
+      color = color_vals
+    ) |> dplyr::distinct()
+    
+  } else {
+    cats <- cat_attrs[[cat_attr_selected]]
+    
+    df <- data.frame("cat" = cats)
+    df$color <- gbl_plot_palette()[1:nrow(df)]
+  }
+  
+  output <- c("")
+  if (nrow(df) > 0) {
+    output <- append(output, paste0("<table><tbody><tr><td colspan='3'>", cat_attr_selected, "</td></tr>"))
+      
+    for (row in 1:nrow(df)) {
+      output <- append(
+        output,
+        paste0(
+          "<tr><td style='vertical-align:middle'>",
+          "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
+          "background-color:",
+          df[row, 2],
+          ";'></span></td>",
+          "<td>&nbsp;</td><td style='vertical-align:middle'>",
+          df[row, 1],
+          "</td></tr>"
+        )
+      )
+    }
+    output <- append(output, "</tbody></table>")
+  }
+  
+  output
+})
+
 # selected category updates select box with its attribute values
 # observeEvent(input$cat_sel, {
 #   g_nodes_rv$cat_selected <- input$cat_sel
@@ -86,52 +136,3 @@ observeEvent(input$fltr_cat_chk, {
 #     removeCssClass(selector = "a[data-value = 'assort_tab_panel']", class = "inactive_menu_link")
 #   }
 # }, ignoreInit = TRUE)
-
-
-r_graph_legend <- reactive({
-  g <- r_graph_filter()
-  
-  if (!isTruthy(g)) return("")
-  
-  isolate({
-    cat_attrs <- g_nodes_rv$cats
-    cat_attr_selected <- input$cat_sel
-  })
-  
-  output <- c("")
-  
-  if (length(cat_attrs) > 0) {
-    if (nchar(cat_attr_selected) && cat_attr_selected != "All") {
-      
-      categories <- cat_attrs[[cat_attr_selected]]
-      df <- data.frame("cat" = categories)
-      
-      if (nrow(df) > 0) {
-        if (!("color" %in% igraph::vertex_attr_names(g) & input$node_use_g_cols_chk == TRUE)) {
-          output <- append(output, paste0("<table><tbody><tr><td colspan='3'>", cat_attr_selected, "</td></tr>"))
-          
-          df$color <- gbl_plot_palette()[1:nrow(df)]
-          
-          for (row in 1:nrow(df)) {
-            output <- append(
-              output,
-              paste0(
-                "<tr><td style='vertical-align:middle'>",
-                "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
-                "background-color:",
-                df[row, 2],
-                ";'></span></td>",
-                "<td>&nbsp;</td><td style='vertical-align:middle'>",
-                df[row, 1],
-                "</td></tr>"
-              )
-            )
-          }
-          output <- append(output, "</tbody></table>")
-        }
-      }
-    }
-  }
-  
-  output
-})

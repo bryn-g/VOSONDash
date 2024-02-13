@@ -131,7 +131,7 @@ add_centrality_measures <- function(g) {
 #' }
 #' 
 #' @export
-get_node_cats <- function(g, cat_prefix = "vosonCA_") {
+get_node_cats <- function(g, cat_prefix = "vosonCA_", cat_colors = FALSE) {
   graph_cats <- list()
   
   attr_v <- igraph::vertex_attr_names(g)

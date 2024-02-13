@@ -1,4 +1,4 @@
-fltr_state <- function()
+fltr_state <- function() {
   list(
     "fltr_prune_chk" = FALSE,
     "fltr_iso_chk" = FALSE,
@@ -7,7 +7,7 @@ fltr_state <- function()
     "fltr_comp_chk" = FALSE,
     "fltr_cat_chk" = FALSE
   )
-
+}
 
 # apply all filters to graph data and return modified graph
 filter_btn_txt_sel <- function(id, state) {

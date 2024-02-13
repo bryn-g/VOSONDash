@@ -1,9 +1,3 @@
-# g_comps_rv$range$weak = list(no = 0, min = NULL, max = NULL),
-# g_comps_rv$range$strong = list(no = 0, min = NULL, max = NULL)
-
-# gg flags
-# init("pre_comps")
-
 g_comps_rv <- reactiveValues(
   mode = "weak",
   range_base = NULL,
@@ -11,6 +5,12 @@ g_comps_rv <- reactiveValues(
   slider = NULL,
   pre_comps = NULL
 )
+
+# range is not being updated dynamically at this time
+# g_comps_rv$range$weak = list(no = 0, min = NULL, max = NULL),
+# g_comps_rv$range$strong = list(no = 0, min = NULL, max = NULL)
+
+# V(g)[cc$membership %in% c(1, 5)]
 
 output$comp_input_ui <- renderText({
   r_pre_comp_summary_txt()
@@ -20,6 +20,7 @@ output$comp_summary_ui <- renderText({
   r_comp_summary_txt()
 })
 
+# graph components prior filter
 r_pre_comp_summary_txt <- reactive({
   pre_comps <- req(g_comps_rv$pre_comps)
   
@@ -42,6 +43,7 @@ r_pre_comp_summary_txt <- reactive({
   paste0(output, collapse = "\n")
 })
 
+# graph components
 r_comp_summary_txt <- reactive({
   g <- r_graph_filter()
   mode <- isolate(input$comp_mode_picker)
@@ -68,6 +70,7 @@ observeEvent(input$fltr_comp_chk, {
   }
 }, ignoreInit = TRUE)
 
+# component count
 output$comp_count_ui <- renderText({
   req(r_graph_filter(), g_comps_rv$mode)
   
@@ -88,8 +91,6 @@ observeEvent(input$comp_mode_picker, {
 
 # when mode changes
 observeEvent(g_comps_rv$mode, {
-  # updateCheckboxInput(session, inputId = "fltr_comp_chk", value = FALSE)
-  
   f_update_comp_slider(g_comps_rv$range[[g_comps_rv$mode]])
 }, ignoreInit = TRUE)
 
@@ -111,6 +112,7 @@ f_update_comp_slider <- function(range) {
   )
 }
 
+# get component number and size ranges from graph
 f_get_comp_ranges <- function(g, mode = NULL) {
   if (!isTruthy(g)) return(NULL)
   
@@ -129,6 +131,7 @@ f_get_comp_ranges <- function(g, mode = NULL) {
     }, simplify = FALSE, USE.NAMES = TRUE)  
 }
 
+# compare component input slider values with reactive value range
 f_comp_bounds <- function(x_slider, y_comp_range, mode) {
   if ((x_slider[1] == y_comp_range[[mode]]$min) & (x_slider[2] == y_comp_range[[mode]]$max)) return(TRUE)
   FALSE

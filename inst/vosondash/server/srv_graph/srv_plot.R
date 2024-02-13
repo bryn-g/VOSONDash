@@ -21,7 +21,7 @@ norm_values <- function(x) {
 
 # set hide state for overlays
 observeEvent(c(
-    g_rv$is_igraph,
+    r_graph_filter(),
     input$canvas_tab,
     input$overlay_summary_chk,
     input$overlay_dl_btns_chk,
@@ -32,7 +32,7 @@ observeEvent(c(
   if (!isTruthy(tab)) tab <- "igraph"
   
   if (tab %in% c("igraph", "visNetwork")) {
-    if (isTruthy(g_rv$is_igraph)) {
+    if (isTruthy(r_graph_filter())) {
       shinyjs::toggle("graph_summary_ui", condition = input$overlay_summary_chk)
       
       shinyjs::enable("graph_graphml_dl_btn")

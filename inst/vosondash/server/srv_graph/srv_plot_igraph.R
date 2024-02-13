@@ -68,19 +68,21 @@ r_graph_igraph_plot <- reactive({
   }
   
   # node colors if nodes have cat attrs and one is selected
-  if (length(node_cats) > 0) {
-    if (nchar(node_cat_selected) && node_cat_selected != "All") {
-      
-      node_cats <- node_cats[[node_cat_selected]]
-      node_cats_df <- data.frame("cat" = node_cats)
-      if (nrow(node_cats_df) > 0) {
-        if (input$node_use_g_cols_chk == FALSE || !has_color_attr) {
-          node_cats_df$color <- gbl_plot_palette()[1:nrow(node_cats_df)]
-          cat_attr <- paste0("vosonCA_", node_cat_selected)
-          igraph::V(g)$color <- node_cats_df$color[match(igraph::vertex_attr(g, cat_attr), node_cats_df$cat)]  
+  if (isTruthy(isolate(input$fltr_cat_chk))) {
+    if (length(node_cats) > 0) {
+      if (nchar(node_cat_selected) && node_cat_selected != "All") {
+        
+        node_cats <- node_cats[[node_cat_selected]]
+        node_cats_df <- data.frame("cat" = node_cats)
+        if (nrow(node_cats_df) > 0) {
+          if (input$node_use_g_cols_chk == FALSE || !has_color_attr) {
+            node_cats_df$color <- gbl_plot_palette()[1:nrow(node_cats_df)]
+            cat_attr <- paste0("vosonCA_", node_cat_selected)
+            igraph::V(g)$color <- node_cats_df$color[match(igraph::vertex_attr(g, cat_attr), node_cats_df$cat)]  
+          }
         }
+  
       }
-
     }
   }
   

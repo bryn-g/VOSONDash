@@ -108,7 +108,9 @@ tabItem(tabName = "mtdn_collection_tab",
       ) # end fluidRow
     
     ), # end column
-          
+    # conditionalPanel(condition = "",
+    #   progressBar(id = "mtdn_collect_progress", value = 0)
+    # )      
     column(width = 8,
            offset = 0,
            fluidRow(
