@@ -33,7 +33,7 @@ tabPanel(
     )
   )), # end fluidRow
   
-  conditionalPanel(condition = 'input.graph_layout_select == "FR" | input.graph_layout_select == "Graphopt"',
+  conditionalPanel(condition = "input.graph_layout_select == 'FR' | input.graph_layout_select == 'Graphopt'",
    fluidRow(column(
      width = 6,
      numericInput(
@@ -46,7 +46,7 @@ tabPanel(
    ))
   ), # end conditionalPanel
   
-  conditionalPanel(condition = 'input.graph_layout_select == "Graphopt"',
+  conditionalPanel(condition = "input.graph_layout_select == 'Graphopt'",
     fluidRow(
       column(
         width = 6,

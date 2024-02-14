@@ -1,4 +1,4 @@
-#' mastodon data collection and network creation
+# mastodon data collection and network creation
 
 mtdn_rv <- reactiveValues(
   data = NULL,                   # list of dataframes
@@ -43,7 +43,7 @@ observeEvent({
 observeEvent(input$mtdn_thread_add_url_btn, {
   url <- input$mtdn_thread_url_text
 
-  mtdn_collect_rv$param_urls <- dplyr::bind_rows(mtdn_rv$thread_urls, tibble::tibble(url = url))
+  mtdn_collect_rv$param_urls <- dplyr::bind_rows(mtdn_collect_rv$param_urls, tibble::tibble(url = url))
   updateTextInput(session, "mtdn_thread_url_text", label = NULL, value = "")
 })
 
@@ -59,7 +59,7 @@ observeEvent({ mtdn_collect_rv$param_urls
                input$mtdn_collect_tabset }, {
   shinyjs::disable("mtdn_thread_collect_btn")
   if (!is.null(mtdn_collect_rv$param_urls)) {
-    if (inherits(mtdn_collect_rv$param_urls, "data.frame") && nrow(mtdn_rv$thread_urls) > 0) {
+    if (inherits(mtdn_collect_rv$param_urls, "data.frame") && nrow(mtdn_collect_rv$param_urls) > 0) {
       shinyjs::enable("mtdn_thread_collect_btn")
     }
   }
@@ -95,8 +95,8 @@ observeEvent(input$mtdn_thread_collect_btn, {
   shinyjs::disable("mtdn_thread_collect_btn")
   shinyjs::disable("mtdn_search_collect_btn")
   
-  withProgress(message = 'Collecting threads', value = 0.5, {
-    withConsoleRedirect("mtdn_console", {
+  withProgress(message = "Collecting threads", value = 0.5, {
+    with_console_redirect("mtdn_console", {
       url_list <- isolate(mtdn_collect_rv$param_urls$url)
         
       # collect mastodon data and print any output to console
@@ -106,14 +106,14 @@ observeEvent(input$mtdn_thread_collect_btn, {
         mtdn_data_rv$users_colnames <- names(mtdn_rv$data$users)
       }, error = function(err) {
         incProgress(1, detail = "Error")
-        cat(paste('mastodon threads collection error:', err))
+        cat(paste("mastodon threads collection error:", err))
         return(NULL)
       })
       
       incProgress(1, detail = "Finished")
       updateTabItems(session, "mtdn_control_tabset", selected = "Create Network")
       
-    }) # withConsoleRedirect
+    }) # with_console_redirect
   }) # withProgress
   
   delay(gbl_scroll_delay, js$scroll_console("mtdn_console"))
@@ -129,8 +129,8 @@ observeEvent(input$mtdn_search_collect_btn, {
   shinyjs::disable("mtdn_thread_collect_btn")
   shinyjs::disable("mtdn_search_collect_btn")
   
-  withProgress(message = 'Collecting posts', value = 0.5, {
-    withConsoleRedirect("mtdn_console", {
+  withProgress(message = "Collecting posts", value = 0.5, {
+    with_console_redirect("mtdn_console", {
       
       # collect mastodon data and print any output to console
       tryCatch({
@@ -144,13 +144,13 @@ observeEvent(input$mtdn_search_collect_btn, {
         mtdn_data_rv$users_colnames <- names(mtdn_rv$data$users)
       }, error = function(err) {
         incProgress(1, detail = "Error")
-        cat(paste('mastodon search collection error:', err))
+        cat(paste("mastodon search collection error:", err))
         return(NULL)
       })
       
       incProgress(1, detail = "Finished")
       updateTabItems(session, "mtdn_control_tabset", selected = "Create Network")
-    }) # withConsoleRedirect
+    }) # with_console_redirect
   }) # withProgress
   
   delay(gbl_scroll_delay, js$scroll_console("mtdn_console"))
@@ -174,9 +174,9 @@ observeEvent(input$mtdn_network_create_btn, {
   
   shinyjs::disable("mtdn_network_create_btn")
   
-  withProgress(message = 'Creating network', value = 0.5, {
+  withProgress(message = "Creating network", value = 0.5, {
     
-    withConsoleRedirect("mtdn_console", {
+    with_console_redirect("mtdn_console", {
       if (type == "activity") {
         if (input$mtdn_network_tag_chk) {
           network <- vosonSML::Create(mtdn_rv$data, "activity", subtype = "tag", verbose = TRUE)
@@ -198,13 +198,14 @@ observeEvent(input$mtdn_network_create_btn, {
       if (!is.null(network)) {
         mtdn_rv$network <- network
         mtdn_rv$graph <- vosonSML::Graph(network)
+        #igraph::vertex_attr(mtdn_rv$graph, "vosonTxt_content") <- V(mtdn_rv$graph)[["content.text"]]
         
         mtdn_rv$network_type <- paste(type,
                                       ifelse(input$mtdn_network_tag_chk, "(tag)", ""),
                                       ifelse(input$mtdn_network_server_chk, "(server)", ""),
                                       ifelse(add_text, "[text]", ""))
       }
-    }) # withConsoleRedirect
+    }) # with_console_redirect
   
     incProgress(1, detail = "Finished")
   }) # withProgress
@@ -220,7 +221,7 @@ observeEvent(mtdn_view_rv$data, {
   desc <- ""
   
   if (mtdn_collect_rv$param_type == "thread") {
-    desc <- paste0("Mastodon network for threads: ", paste0(mtdn_collect_rv$param_urls, collapse = ', '), sep = "")
+    desc <- paste0("Mastodon network for threads: ", paste0(mtdn_collect_rv$param_urls, collapse = ", "), sep = "")
   } else if (mtdn_collect_rv$param_type == "search") {
     desc <- paste0("Mastodon network for search.\n", mtdn_collect_search_params_text())
   }
@@ -321,7 +322,7 @@ output$mtdn_params_output <- renderText({
           url <- dplyr::slice(thread_tbl, i)
           output <- append(output, paste0("url: ", url$url))
         }
-        output <- paste0(output, collapse = '\n')
+        output <- paste0(output, collapse = "\n")
         return(output)
       }
     }
@@ -336,7 +337,7 @@ output$mtdn_thread_url_table <- DT::renderDT({
     mtdn_collect_rv$param_urls,
     rownames = FALSE,
     editable = TRUE,
-    options = list(dom = 't')
+    options = list(dom = "t")
   )
 })
 
@@ -364,7 +365,7 @@ output$mtdn_data_posts_cols_ui <- renderUI({
   
   if (is.null(data)) return(NULL)
   
-  conditionalPanel(condition = 'input.mtdn_data_posts_cols_sel_chk',
+  conditionalPanel(condition = "input.mtdn_data_posts_cols_sel_chk",
                    div(actionButton("mtdn_data_posts_sel_all_cols_btn", "Select all"), 
                        actionButton("mtdn_data_posts_desel_all_cols_btn", "Clear all"),
                        actionButton("mtdn_data_posts_reset_cols_btn", "Reset")),
@@ -372,7 +373,7 @@ output$mtdn_data_posts_cols_ui <- renderUI({
                                       choices = mtdn_data_rv$posts_colnames,
                                       selected = c("id", "created_at", "visibility", "sensitive", "reblogs_count", 
                                                    "favourites_count", "replies_count", "tags", "content.text"),
-                                      inline = TRUE, width = '98%')
+                                      inline = TRUE, width = "98%")
   )
 })
 
@@ -382,7 +383,7 @@ output$mtdn_data_users_cols_ui <- renderUI({
   
   if (is.null(data)) return(NULL)
   
-  conditionalPanel(condition = 'input.mtdn_data_users_cols_sel_chk',
+  conditionalPanel(condition = "input.mtdn_data_users_cols_sel_chk",
                    div(actionButton("mtdn_data_users_sel_all_cols_btn", "Select all"), 
                        actionButton("mtdn_data_users_desel_all_cols_btn", "Clear all"),
                        actionButton("mtdn_data_users_reset_cols_btn", "Reset")),
@@ -391,7 +392,7 @@ output$mtdn_data_users_cols_ui <- renderUI({
                                       selected = c("id", "acct", "display_name", "bot", "created_at",
                                                    "followers_count", "following_count", "statuses_count", 
                                                    "note.text"),
-                                      inline = TRUE, width = '98%')
+                                      inline = TRUE, width = "98%")
   )
 })
 
@@ -427,11 +428,11 @@ mtdn_data_posts_dt_rv <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = 'Buttons', filter = "top",
+    DT::datatable(data, extensions = "Buttons", filter = "top",
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = 'lBfrtip',
-                                 buttons = c('copy', 'csv', 'excel', 'print')),
-                  class = 'cell-border stripe compact hover')
+                                 columnDefs = col_defs, dom = "lBfrtip",
+                                 buttons = c("copy", "csv", "excel", "print")),
+                  class = "cell-border stripe compact hover")
   }
 })
 
@@ -466,13 +467,13 @@ mtdn_data_users_dt_rv <- reactive({
       col_defs[[1]]$targets = "_all"
     }
     DT::datatable(
-      data, extensions = 'Buttons', filter = "top",
+      data, extensions = "Buttons", filter = "top",
       options = list(
         lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-        columnDefs = col_defs, dom = 'lBfrtip',
-        buttons = c('copy', 'csv', 'excel', 'print')
+        columnDefs = col_defs, dom = "lBfrtip",
+        buttons = c("copy", "csv", "excel", "print")
       ),
-      class = 'cell-border stripe compact hover'
+      class = "cell-border stripe compact hover"
     )
   }
 })

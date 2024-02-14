@@ -6,10 +6,10 @@ g_comps_rv <- reactiveValues(
   pre_comps = NULL
 )
 
+# todo: dynamic, select components from picker
 # range is not being updated dynamically at this time
 # g_comps_rv$range$weak = list(no = 0, min = NULL, max = NULL),
 # g_comps_rv$range$strong = list(no = 0, min = NULL, max = NULL)
-
 # V(g)[cc$membership %in% c(1, 5)]
 
 output$comp_input_ui <- renderText({

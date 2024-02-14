@@ -24,7 +24,6 @@ f_post_fltr_state <- function(fltr_state) {
     val <- fltr_state[[x]]
     if (isTruthy(val)) {
       filter_btn_txt_sel(paste(x, "_label"), val)
-      dbg("f_post_fltr_state", paste0(x, " = TRUE"))
     }
   })
 }
@@ -38,13 +37,16 @@ r_graph_filter <- reactive({
   # filtering
   f_order <- input$fltr_order
   if (isTruthy(f_order)) {
-    dbg("f_order", f_order)
     for (cmd in f_order) {
-      dbg("cmd", cmd)
       if (cmd == "rm_pruned") {
   
         # to do
         if (input$fltr_prune_chk) {
+          # rm_ids <- which(igraph::V(g)$id %in% ids)
+          # g <- igraph::delete_vertices(g, rm_ids)
+          
+          g <- VOSONDash::filter_nodes(g, g_nodes_rv$pruned)
+   
           fltr_state$fltr_prune_chk <- TRUE
         }
   
@@ -55,6 +57,7 @@ r_graph_filter <- reactive({
           cat_sub_sel <- g_nodes_rv$cat_sub_selected
   
           g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel)
+          
           fltr_state$fltr_cat_chk <- TRUE
         }
         
@@ -68,6 +71,7 @@ r_graph_filter <- reactive({
           # could update range
           
           g <- VOSONDash::filter_comps(g, mode, comp_slider)
+          
           fltr_state$fltr_comp_chk <- TRUE
         } else {
           g_comps_rv$pre_comps <- NULL
@@ -94,12 +98,14 @@ r_graph_filter <- reactive({
           fltr_state$fltr_iso_chk <- TRUE
         }
         
-      } else {
-        dbg("f_order", paste0("cmd = ", cmd))
       }
     }
   }
   
+  # remove nodes from layout coords
+  g_layout_rv$coords <- g_layout_rv$coords_base[rownames(g_layout_rv$coords_base) %in% igraph::V(g)$id, ]
+  
+  # which filters ran
   f_post_fltr_state(fltr_state)
   
   # measures of centrality
@@ -182,8 +188,3 @@ output$filter_rank_list <- renderUI({
     options = sortable_options(swap = TRUE)
   )
 })
-
-# observeEvent(input$graph_filter_sort_reset, {
-#   sapply(c("cat_sel", "cat_sub_sel"), function(x) shinyjs::reset(x))
-# })
-# 

@@ -21,7 +21,6 @@ norm_values <- function(x) {
 
 # set hide state for overlays
 observeEvent(c(
-    r_graph_filter(),
     input$canvas_tab,
     input$overlay_summary_chk,
     input$overlay_dl_btns_chk,
@@ -40,9 +39,10 @@ observeEvent(c(
       
       if (tab == "visNetwork") {
         g_plot_rv$height_legend <- ifelse(input$visnet_id_sel_chk, 85, 42)
-        disable_igraph_ctrls()
+        # disable_igraph_ctrls()
+        enable_visnet_ctrls()
         
-        shinyjs::enable("visnet_html_dl_btn")
+        # shinyjs::enable("visnet_html_dl_btn")
         shinyjs::toggle("visnet_html_dl_btn", condition = input$overlay_dl_btns_chk)
       } else {
         g_plot_rv$height_legend <- 42
@@ -50,6 +50,12 @@ observeEvent(c(
       }
       
       shinyjs::toggle("graph_legend_ui", condition = input$overlay_legend_chk)
+    } else {
+      shinyjs::disable("graph_graphml_dl_btn")
+      shinyjs::hide("graph_graphml_dl_btn")
+      
+      shinyjs::disable("visnet_html_dl_btn")
+      shinyjs::hide("visnet_html_dl_btn")
     }
   } else {
     shinyjs::hide("graph_summary_ui")
@@ -62,6 +68,13 @@ observeEvent(c(
     shinyjs::hide("visnet_html_dl_btn")
   }
 })
+
+# init
+observeEvent(input$canvas_tab, {
+  addCssClass(selector = "a[data-value = 'igraph']", class = "inactive_menu_link")
+  addCssClass(selector = "a[data-value = 'visNetwork']", class = "inactive_menu_link")
+  addCssClass(selector = "a[data-value = 'graph_info']", class = "inactive_menu_link")
+}, once = TRUE)
 
 # update plot height
 observeEvent(input$plot_height, {
@@ -123,15 +136,17 @@ output$vis_plot_ui <- renderUI({
   tabBox(
     width = 12,
     title = span(icon("share-nodes", class = "social_green"), "Network Graphs"),
-    selected = input$canvas_tab,
+    selected = "voson_info", # input$canvas_tab,
     id = "canvas_tab",
     tabPanel(
       "igraph",
+      id = "igraph",
       plotOutput("plot_igraph", width = "100%", height = "auto"),
       value = "igraph"
     ),
     tabPanel(
       "visNetwork",
+      id = "visNetwork",
       visNetworkOutput(
         "visNetworkPlot",
         width = "100%",
@@ -143,6 +158,11 @@ output$vis_plot_ui <- renderUI({
       icon("circle-info"),
       value = "graph_info",
       htmlOutput("graph_info_text", style = paste0("height:", g_plot_rv$height, "px"))
+    ),
+    tabPanel(
+      "voson",
+      value = "voson_info",
+      uiOutput("voson_info_html", style = paste0("height:", g_plot_rv$height, "px"))
     )
   )
 })
@@ -174,9 +194,21 @@ output$graph_summary_ui <- renderUI({
 # standard plots cannot be treated as objects
 # res = 109 consider allowing to change res to save plots at
 output$plot_igraph <- renderPlot({
+  # return(VOSONDash::get_empty_plot("Welcome to VOSON Lab"))
   r_graph_igraph_plot()
 }, height = function() as.numeric(g_plot_rv$height), res = 96)
 
 output$visNetworkPlot <- renderVisNetwork({
   r_graph_visnet_plot()
+})
+
+output$voson_info_html <- renderUI({
+  div(
+    div(
+      img(src = "vosondash.png", style = "max-width:80%;max-height:80%"), br(),
+      span(h3(paste("VOSON Dashboard", app_ver))),
+      style = paste0("text-align:center;display:block;margin-left:auto;margin-right:auto;",
+                     "position:absolute;top:25%;transform:translateX(-50%);left:50%")
+    ), style = "width:100%;height:100%;margin-left:auto;margin-right:auto;background-color:#ecf0f5"
+  )
 })

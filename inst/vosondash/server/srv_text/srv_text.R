@@ -207,7 +207,7 @@ getFiltersDesc <- reactive({
   
   if (g_nodes_rv$cat_selected != "All") {
     if (!("All" %in% input$cat_sub_sel)) {
-      output <- append(output, paste0(input$cat_sub_sel, collapse = ', '))
+      output <- append(output, paste0(input$cat_sub_sel, collapse = ", "))
     }
   }
   
@@ -257,7 +257,7 @@ textAnalysisDetailsOutput <- reactive({
           if (trimws(title_cat) != "") {
             title <- paste0(title, title_cat, " - ", sep = "")
           }
-          title <- paste0(title, paste0(title_attr, collapse = ' / '), "", sep = "")
+          title <- paste0(title, paste0(title_attr, collapse = " / "), "", sep = "")
           output <- append(output, title)
           
           isolate({
@@ -276,7 +276,7 @@ textAnalysisDetailsOutput <- reactive({
     output <- append(output, "No data.")
   }
   
-  paste0(output, collapse = '\n')
+  paste0(output, collapse = "\n")
 })
 
 # create named list of base text corpus data sets for categories

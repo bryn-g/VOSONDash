@@ -1,7 +1,9 @@
 r_graph_igraph_plot <- reactive({
-  if (!isTruthy(r_graph_filter())) return(VOSONDash::get_empty_plot("No graph data."))
-    
-  g <- r_graph_filter()
+  g <- tryCatch({ 
+    r_graph_filter()
+  }, error = function(err) {
+    NULL
+  })
   
   if (is.null(g)) return(VOSONDash::get_empty_plot("No graph data."))
   if (igraph::gorder(g) <= 0) return(VOSONDash::get_empty_plot("No nodes to plot."))
@@ -17,8 +19,8 @@ r_graph_igraph_plot <- reactive({
   
   sel_node_rows <- input$dt_nodes_rows_selected
   # sel_edges <- input$dt_edges_rows_selected
-  g_layout <- input$graph_layout_select
-  g_seed <- g_rv$seed
+  # g_layout <- input$graph_layout_select
+  # g_seed <- g_rv$seed
   g_spread <- input$igraph_spread_slider  
   node_size_attr <- input$node_size_sel
   node_size_mplr <- input$node_size_slider  
@@ -159,17 +161,24 @@ r_graph_igraph_plot <- reactive({
       
       # set node labels
       igraph_params[["vertex.label"]] <- labels
-      igraph_params[["vertex.label.color"]]
+      # igraph_params[["vertex.label.color"]] <- input$node_label_color
+      label_color <- input$node_label_color
       
       # set node label colors
+      # igraph_params[["vertex.label.color"]] <- ifelse(
+      #   V(g)$id %in% sel_node_row_names, gbl_sel_label_col, 
+      #   ifelse(is.null(V(g)$label.color), gbl_plot_def_label_color, V(g)$label.color)
+      # )
+      
       igraph_params[["vertex.label.color"]] <- ifelse(
         V(g)$id %in% sel_node_row_names, gbl_sel_label_col, 
-        ifelse(is.null(V(g)$label.color), gbl_plot_def_label_color, V(g)$label.color)
+        ifelse(is.null(label_color), gbl_plot_def_label_color, label_color)
       )
       
-      # label position - ADD TO UI
       label_dist <- input$node_label_dist
       label_degree <- input$node_label_rot
+      
+      base_label_size <- input$node_label_size
       
       igraph_params["vertex.label.cex"] <- base_label_size
       igraph_params["vertex.label.dist"] <- label_dist
@@ -206,39 +215,24 @@ r_graph_igraph_plot <- reactive({
   }
   
   # seed must be set before graph layout
-  if (!is.null(g_seed)) set.seed(g_seed)
+  #if (!is.null(g_seed)) set.seed(g_seed)
   
-  # set graph layout
-  graph_layout <- switch(
-    g_layout,
-    "Auto" = igraph::layout_nicely(g, dim = 2),
-    "FR" = igraph::layout_with_fr(g, dim = 2, niter = input$graph_niter),
-    "KK" = igraph::layout_with_kk(g, dim = 2),
-    "DH" = igraph::layout_with_dh(g),
-    "LGL" = igraph::layout_with_lgl(g),
-    "DrL" = igraph::layout_with_drl(g),
-    "GEM" = igraph::layout_with_gem(g),
-    "MDS" = igraph::layout_with_mds(g),
-    "Tree" = igraph::layout_as_tree(g, circular = TRUE),
-    "Grid" = igraph::layout_on_grid(g),
-    "Sphere" = igraph::layout_on_sphere(g),
-    "Circle" = igraph::layout_in_circle(g),
-    "Star" = igraph::layout_as_star(g),
-    "Random" = igraph::layout_randomly(g),
-    igraph::layout_nicely(g, dim = 2)
-  )
+  # # set graph layout
+  # graph_layout <- f_get_layout(selection = g_layout, g = g, dim = 2, niter = input$graph_niter)
+  # 
+  # # if layout graphopt get additional options
+  # if (g_layout == "Graphopt") {
+  #   graph_layout <- layout_with_graphopt(
+  #     g,
+  #     niter = input$graph_niter, 
+  #     charge = input$graph_charge,
+  #     mass = input$graph_mass,
+  #     spring.length = input$graph_spr_len,
+  #     spring.constant = input$graph_spr_const
+  #   )
+  # }
   
-  # if layout graphopt get additional options
-  if (g_layout == "Graphopt") {
-    graph_layout <- layout_with_graphopt(
-      g,
-      niter = input$graph_niter, 
-      charge = input$graph_charge,
-      mass = input$graph_mass,
-      spring.length = input$graph_spr_len,
-      spring.constant = input$graph_spr_const
-    )
-  }
+  graph_layout <- isolate(as.matrix(g_layout_rv$coords))
   
   # graph spread option changes scale
   graph_layout <- igraph::norm_coords(graph_layout, ymin = -1, ymax = 1, xmin = -1, xmax = 1)

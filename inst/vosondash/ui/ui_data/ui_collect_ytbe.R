@@ -8,9 +8,9 @@ tabItem(tabName = "ytbe_collection_tab",
              sidebarPanel(
                width = 12,
                class = "custom_well_for_controls",
-               checkboxInput('expand_youtube_keys_panel_check', 'Show API Key', FALSE),
+               checkboxInput("expand_youtube_keys_panel_check", "Show API Key", FALSE),
                conditionalPanel(
-                 condition = 'input.expand_youtube_keys_panel_check',
+                 condition = "input.expand_youtube_keys_panel_check",
                  textInput("youtube_api_key_input", label = "Data API Key", value = "")
                )
              ),
@@ -140,7 +140,7 @@ tabItem(tabName = "ytbe_collection_tab",
       tabPanel("Results", 
         fluidRow(
           div(
-            checkboxInput('expand_show_youtube_cols', 'Column filters', FALSE),
+            checkboxInput("expand_show_youtube_cols", "Column filters", FALSE),
               style = "margin-left:12px; margin-right:5px;",
             class = "div_inline"
           ),                            

@@ -50,9 +50,9 @@ observeEvent(input$youtube_collect_button, {
   # disable button so it is not pushed again
   shinyjs::disable("youtube_collect_button")
   
-  withProgress(message = 'Collecting comments', value = 0.5, {
+  withProgress(message = "Collecting comments", value = 0.5, {
     
-    withConsoleRedirect("ytbe_console", {
+    with_console_redirect("ytbe_console", {
       youtube_video_id_list <- sapply(youtube_video_id_list, 
                                       function(x) gsub("^v=", "", x, ignore.case = TRUE, perl = TRUE))
       
@@ -63,14 +63,14 @@ observeEvent(input$youtube_collect_button, {
         yt_rv$data_cols <- names(yt_rv$yt_data)
       }, error = function(err) {
         incProgress(1, detail = "Error")
-        cat(paste('youtube collection error:', err))
+        cat(paste("youtube collection error:", err))
         return(NULL)
       })
       
       incProgress(1, detail = "Finished")
       updateTabItems(session, "youtube_control_tabset", selected = "Create Network")
       
-    }) # withConsoleRedirect
+    }) # with_console_redirect
     
   }) # withProgress
   
@@ -96,9 +96,9 @@ observeEvent(input$youtube_create_button, {
   
   shinyjs::disable("youtube_create_button")
   
-  withProgress(message = 'Creating network', value = 0.5, {
+  withProgress(message = "Creating network", value = 0.5, {
     
-    withConsoleRedirect("ytbe_console", {
+    with_console_redirect("ytbe_console", {
       if (net_type == "activity") {
         network <- vosonSML::Create(isolate(yt_rv$yt_data), "activity", verbose = TRUE)
         if (add_text) { 
@@ -122,7 +122,7 @@ observeEvent(input$youtube_create_button, {
         yt_rv$yt_network <- network
         yt_rv$yt_graphml <- vosonSML::Graph(network)
       }
-    }) # withConsoleRedirect
+    }) # with_console_redirect
       
     incProgress(1, detail = "Finished")
   }) # withProgress
@@ -143,14 +143,14 @@ observeEvent(youtube_view_rvalues$data, {
   # f_init_graph(
   #   data = youtube_view_rvalues$data, 
   #   meta = list(
-  #     desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), sep = ""),
+  #     desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ", "), sep = ""),
   #     type = "youtube",
   #     name = "",
   #     seed = sample(1:20000, 1)
   #   )
   # )
   meta <- list(
-    desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ', '), sep = ""),
+    desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ", "), sep = ""),
     type = "hyperlink",
     network = input$youtube_network_type_select,
     name = paste0("hyperlink - ", input$youtube_network_type_select),
@@ -212,14 +212,14 @@ output$youtube_data_cols_ui <- renderUI({
   
   if (is.null(data)) { return(NULL) }
   
-  conditionalPanel(condition = 'input.expand_show_youtube_cols',
+  conditionalPanel(condition = "input.expand_show_youtube_cols",
                    div(actionButton("select_all_youtube_dt_columns", "Select all"), 
                        actionButton("clear_all_youtube_dt_columns", "Clear all"),
                        actionButton("reset_youtube_dt_columns", "Reset")),
                    checkboxGroupInput("show_youtube_cols", label = NULL,
                                       choices = yt_rv$data_cols,
                                       selected = dt_yt_cols(),
-                                      inline = TRUE, width = '98%'))
+                                      inline = TRUE, width = "98%"))
 })
 
 setYoutubeAPIKey <- reactive({
@@ -287,11 +287,11 @@ datatableYoutubeData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = 'Buttons', filter = "top",
+    DT::datatable(data, extensions = "Buttons", filter = "top",
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = 'lBfrtip',
-                                 buttons = c('copy', 'csv', 'excel', 'print')),
-                  class = 'cell-border stripe compact hover')
+                                 columnDefs = col_defs, dom = "lBfrtip",
+                                 buttons = c("copy", "csv", "excel", "print")),
+                  class = "cell-border stripe compact hover")
   }
 })
 
@@ -307,7 +307,7 @@ youtubeArgumentsOutput <- function() {
   
   if (!is.null(youtube_video_id_list) && length(youtube_video_id_list) > 0) {
     video_id_flag <- TRUE
-    output <- append(output, paste0("videos: ", trimws(paste0(youtube_video_id_list, collapse = ', '))))
+    output <- append(output, paste0("videos: ", trimws(paste0(youtube_video_id_list, collapse = ", "))))
   }
   
   if (isTruthy(youtube_max_comments) && is.numeric(youtube_max_comments)) {
@@ -323,5 +323,5 @@ youtubeArgumentsOutput <- function() {
     shinyjs::disable("youtube_collect_button")
   }
   
-  paste0(output, collapse = '\n')
+  paste0(output, collapse = "\n")
 }

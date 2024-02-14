@@ -62,9 +62,9 @@ observeEvent(input$reddit_collect_button, {
   # disable button so it is not pushed again
   shinyjs::disable("reddit_collect_button")
   
-  withProgress(message = 'Collecting threads', value = 0.5, {
+  withProgress(message = "Collecting threads", value = 0.5, {
     
-    withConsoleRedirect("reddit_console", {
+    with_console_redirect("reddit_console", {
       # url_list <- sapply(reddit_url_list, function(x) paste0("https://reddit.com/", x))
       
       url_list <- isolate(red_rv$rd_urls$url)
@@ -76,13 +76,13 @@ observeEvent(input$reddit_collect_button, {
         red_rv$data_cols <- names(red_rv$reddit_data)
       }, error = function(err) {
         incProgress(1, detail = "Error")
-        cat(paste('reddit collection error:', err))
+        cat(paste("reddit collection error:", err))
         return(NULL)
       })
       
       incProgress(1, detail = "Finished")
       updateTabItems(session, "reddit_control_tabset", selected = "Create Network")
-    }) # withConsoleRedirect
+    }) # with_console_redirect
     
   }) # withProgress
   
@@ -107,9 +107,9 @@ observeEvent(input$reddit_create_button, {
   
   shinyjs::disable("reddit_create_button")
   
-  withProgress(message = 'Creating network', value = 0.5, {
+  withProgress(message = "Creating network", value = 0.5, {
     
-    withConsoleRedirect("reddit_console", {
+    with_console_redirect("reddit_console", {
       if (net_type == "activity") {
         network <- vosonSML::Create(isolate(red_rv$reddit_data), "activity", verbose = TRUE)
         if (add_text) { network <- vosonSML::AddText(network, isolate(red_rv$reddit_data), verbose = TRUE) }
@@ -122,7 +122,7 @@ observeEvent(input$reddit_create_button, {
         red_rv$reddit_graphml <- vosonSML::Graph(network)
         red_rv$created <- ts_utc()
       }
-    }) # withConsoleRedirect
+    }) # with_console_redirect
   
     incProgress(1, detail = "Finished")
   }) # withProgress
@@ -172,7 +172,7 @@ output$rd_urls_table <- DT::renderDT({
     red_rv$rd_urls,
     rownames = FALSE,
     editable = TRUE,
-    options = list(dom = 't')
+    options = list(dom = "t")
   )
 })
 
@@ -217,7 +217,7 @@ output$reddit_data_cols_ui <- renderUI({
   
   if (is.null(data)) { return(NULL) }
   
-  conditionalPanel(condition = 'input.expand_show_reddit_cols',
+  conditionalPanel(condition = "input.expand_show_reddit_cols",
                    div(actionButton("select_all_reddit_dt_columns", "Select all"), 
                        actionButton("clear_all_reddit_dt_columns", "Clear all"),
                        actionButton("reset_reddit_dt_columns", "Reset")),
@@ -225,7 +225,7 @@ output$reddit_data_cols_ui <- renderUI({
                                       choices = red_rv$data_cols,
                                       selected = c("subreddit", "thread_id", "comm_id", "comm_date", "user", 
                                                    "comment_score", "comment"),
-                                      inline = TRUE, width = '98%')
+                                      inline = TRUE, width = "98%")
   )
 })
 
@@ -261,11 +261,11 @@ datatableRedditData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = 'Buttons', filter = "top",
+    DT::datatable(data, extensions = "Buttons", filter = "top",
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = 'lBfrtip',
-                                 buttons = c('copy', 'csv', 'excel', 'print')),
-                  class = 'cell-border stripe compact hover')
+                                 columnDefs = col_defs, dom = "lBfrtip",
+                                 buttons = c("copy", "csv", "excel", "print")),
+                  class = "cell-border stripe compact hover")
   }
 })
 
@@ -283,7 +283,7 @@ output$reddit_arguments_output <- renderText({
           "url: ", url$url, " ",
           "sort: ", url$sort))
       }
-      paste0(output, collapse = '\n')
+      paste0(output, collapse = "\n")
     }
   }
 })

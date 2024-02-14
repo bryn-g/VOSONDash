@@ -1,8 +1,26 @@
 r_graph_visnet_plot <- reactive({
+  # g <- tryCatch({ 
+  #   r_graph_filter()
+  # }, error = function(err) {
+  #   NULL
+  # })
+  
+  # empty_visnet_plot <- function() {
+  #   visNetwork(
+  #     nodes = data.frame(id = 1, image = "vosondash.png", shape = "circularImage", label = "Welcome to VOSON Lab"),
+  #     edges = data.frame(from = c(), to = c()), 
+  #     main = NULL, submain = NULL, width = "100%"
+  #   )
+  # }
+  
+  # if (is.null(g)) return(NULL)
+  
   nodes <- r_graph_nodes_df()
   edges <- r_graph_edges_df()
-  
-  if (is.null(nodes) | is.null(edges)) return(NULL)
+
+  if (is.null(nodes) | is.null(edges)) {
+    return(NULL)
+  }
   if (nrow(nodes) < 1) return(NULL)
   
   isolate({
@@ -13,8 +31,8 @@ r_graph_visnet_plot <- reactive({
   })
   
   nodes_rows_selected <- input$dt_nodes_rows_selected
-  chosen_layout <- input$graph_layout_select
-  graph_seed <- g_rv$seed
+  #chosen_layout <- input$_select
+  #graph_seed <- g_rv$seed
   node_degree_type <- input$node_size_sel
   node_size_multiplier <- input$node_size_slider
   plot_height <- g_plot_rv$height
@@ -22,23 +40,7 @@ r_graph_visnet_plot <- reactive({
   use_v_colors <- input$node_use_g_cols_chk
   node_index_chk <- input$node_index_chk
   
-  graph_layout <- switch(chosen_layout,
-                         "Auto" = "layout_nicely",
-                         "FR" = "layout_with_fr",   # Fruchterman-Reingold
-                         "KK" = "layout_with_kk",   # Kamada-Kawai
-                         "DH" = "layout_with_dh",   # Davidson-Harel
-                         "LGL" = "layout_with_lgl", # Large Graph Layout
-                         "Graphopt" = "layout_with_graphopt",
-                         "DrL" = "layout_with_drl",
-                         "GEM" = "layout_with_gem",
-                         "MDS" = "layout_with_mds",
-                         "Tree" = "layout_as_tree",
-                         "Grid" = "layout_on_grid",
-                         "Sphere" = "layout_on_sphere",
-                         "Circle" = "layout_in_circle",
-                         "Star" = "layout_as_star",
-                         "Random" = "layout_randomly",
-                         "layout_nicely")
+  # <- f_get_layout_name(chosen_layout)
   
   # nodes$font.size <- 24
   base_font_size <- 24
@@ -172,33 +174,34 @@ r_graph_visnet_plot <- reactive({
       img_shape <- "circularImage"
       if (input$node_mtdn_img_sq_chk) img_shape <- "image"
       nodes <- nodes |>
-        dplyr::mutate(image = ifelse(is.na(.data$user.avatar),
-                                     "www/mast.png",
-                                     .data$user.avatar),
-                      shape = img_shape)     
+        dplyr::mutate(image = ifelse(is.na(.data$user.avatar), "www/mast.png", .data$user.avatar), shape = img_shape) |>
+        dplyr::mutate(image = ifelse(is.null(.data$user.avatar), "www/mast.png", .data$user.avatar), shape = img_shape) |>
+        dplyr::mutate(image = ifelse(trimws(.data$user.avatar) == "", "www/mast.png", .data$user.avatar), shape = img_shape)
     }
   }
   
   vis_net <- visNetwork::visNetwork(nodes, edges, main = NULL)
   
-  l_params <- list(vis_net, layout = graph_layout, randomSeed = graph_seed)
-  if (chosen_layout %in% c("FR", "Graphopt")) l_params["niter"] <- input$graph_niter
-  if (chosen_layout == "Graphopt") {
-    l_params["charge"] = input$graph_charge
-    l_params["mass"] = input$graph_mass
-    l_params["spring.length"] = input$graph_spr_len
-    l_params["spring.constant"] = input$graph_spr_const    
-  }
+  l_params <- list(vis_net, layout = "layout.norm", randomSeed = isolate(g_rv$seed), layoutMatrix = isolate(as.matrix(g_layout_rv$coords)))
+  
+  # l_params <- list(vis_net, layout = graph_layout, randomSeed = graph_seed)
+  # if (chosen_layout %in% c("FR", "Graphopt")) l_params["niter"] <- input$graph_niter
+  # if (chosen_layout == "Graphopt") {
+  #   l_params["charge"] = input$graph_charge
+  #   l_params["mass"] = input$graph_mass
+  #   l_params["spring.length"] = input$graph_spr_len
+  #   l_params["spring.constant"] = input$graph_spr_const    
+  # }
   vis_net <- do.call(visIgraphLayout, l_params)
   
   vis_net <- vis_net |>
-    visOptions(collapse = FALSE, 
+    visNetwork::visOptions(collapse = FALSE, 
                highlightNearest = list(enabled = TRUE, hover = TRUE),
                selectedBy = category_selection,
                nodesIdSelection = input$visnet_id_sel_chk,
                height = plot_height) |>
-    visInteraction(multiselect = TRUE) |>
-    visEvents(click = "function(v) { 
+    visNetwork::visInteraction(multiselect = TRUE) |>
+    visNetwork::visEvents(click = "function(v) { 
                 // if (v.event.srcEvent.ctrlKey) {
                 //   Shiny.onInputChange('vis_nbh_node_select', v.nodes);
                 // } else {
@@ -208,9 +211,9 @@ r_graph_visnet_plot <- reactive({
   
   if (input$node_mtdn_img_bord_chk) {
     if (use_node_mtdn_img_chk) {
-      vis_net <- vis_net |> visNodes(shapeProperties = list(useBorderWithImage = TRUE))
+      vis_net <- vis_net |> visNetwork::visNodes(shapeProperties = list(useBorderWithImage = TRUE))
     } else {
-      vis_net <- vis_net |> visNodes(shapeProperties = list(useBorderWithImage = FALSE))
+      vis_net <- vis_net |> visNetwork::visNodes(shapeProperties = list(useBorderWithImage = FALSE))
     }
   }
   
@@ -218,7 +221,7 @@ r_graph_visnet_plot <- reactive({
   if (g_rv$dir) { e_arrows <- "to" }
   if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
   
-  vis_net <- vis_net |> visEdges(arrows = e_arrows,
+  vis_net <- vis_net |> visNetwork::visEdges(arrows = e_arrows,
                                   smooth = e_smooth,
                                   color = list(color = "#b0b0b0"))
   

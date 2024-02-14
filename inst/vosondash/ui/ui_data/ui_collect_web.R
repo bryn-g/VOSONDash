@@ -162,7 +162,7 @@ tabItem(tabName = "hyperlink_collection_tab",
               "Results",
               fluidRow(
                 div(
-                  checkboxInput('expand_show_hyperlink_cols', 'Column filters', FALSE),
+                  checkboxInput("expand_show_hyperlink_cols", "Column filters", FALSE),
                   style = "margin-left:12px; margin-right:5px;",
                   class = "div_inline"
                 ),

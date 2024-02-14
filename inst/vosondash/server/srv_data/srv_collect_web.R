@@ -67,9 +67,9 @@ observeEvent(input$hyperlink_collect_button, {
   # disable button so it is not pushed again
   shinyjs::disable("hyperlink_collect_button")
   
-  withProgress(message = 'Collecting hyperlinks', value = 0.5, {
+  withProgress(message = "Collecting hyperlinks", value = 0.5, {
     
-    withConsoleRedirect("hyperlink_console", {
+    with_console_redirect("hyperlink_console", {
       
       missing_pkgs <- check_req_pkgs(c("robotstxt", "rvest", "urltools", "xml2"))
       if (length(missing_pkgs)) {
@@ -97,7 +97,7 @@ observeEvent(input$hyperlink_collect_button, {
             verbose = TRUE)
         hyperlink_rv$data_cols <- names(hyperlink_rv$hyperlink_data)
       }, error = function(err) {
-        cat(paste('hyperlink collection error:', err))
+        cat(paste("hyperlink collection error:", err))
         return(NULL)
       })
       
@@ -107,7 +107,7 @@ observeEvent(input$hyperlink_collect_button, {
       }
       
       }
-    }) # withConsoleRedirect
+    }) # with_console_redirect
     
   }) # withProgress
   
@@ -130,9 +130,9 @@ observeEvent(input$hyperlink_create_button, {
   
   shinyjs::disable("hyperlink_create_button")
   
-  withProgress(message = 'Creating network', value = 0.5, {
+  withProgress(message = "Creating network", value = 0.5, {
     
-    withConsoleRedirect("hyperlink_console", {
+    with_console_redirect("hyperlink_console", {
       if (net_type == "activity") {
         network <- vosonSML::Create(isolate(hyperlink_rv$hyperlink_data), "activity", verbose = TRUE)
       } else if (net_type == "actor") {
@@ -143,7 +143,7 @@ observeEvent(input$hyperlink_create_button, {
         hyperlink_rv$hyperlink_graphml <- vosonSML::Graph(network) 
         hyperlink_rv$created <- ts_utc()
       }
-    }) # withConsoleRedirect
+    }) # with_console_redirect
   
     incProgress(1, detail = "Finished")
   }) # withProgress
@@ -166,7 +166,7 @@ observeEvent(hyperlink_view_rvalues$data, {
   #   meta = list(
   #     desc = paste0(
   #       "Hyperlink network for seed pages: ",
-  #        paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ', '),
+  #        paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ", "),
   #        sep = ""),
   #     type = "hyperlink",
   #     name = "",
@@ -177,7 +177,7 @@ observeEvent(hyperlink_view_rvalues$data, {
   meta <- list(
     desc = paste0(
             "Hyperlink network for seed pages: ",
-             paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ', '),
+             paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ", "),
              sep = ""),
     type = "hyperlink",
     network = input$hyperlink_network_type_select,
@@ -199,7 +199,7 @@ output$hyperlink_seed_urls_table <- DT::renderDT({
     hyperlink_rv$hyperlink_seed_urls,
     rownames = FALSE,
     editable = TRUE,
-    options = list(dom = 't')
+    options = list(dom = "t")
   )
 })
 
@@ -243,14 +243,14 @@ output$hyperlink_data_cols_ui <- renderUI({
   
   if (is.null(data)) { return(NULL) }
   
-  conditionalPanel(condition = 'input.expand_show_hyperlink_cols',
+  conditionalPanel(condition = "input.expand_show_hyperlink_cols",
                    div(actionButton("select_all_hyperlink_dt_columns", "Select all"), 
                        actionButton("clear_all_hyperlink_dt_columns", "Clear all"),
                        actionButton("reset_hyperlink_dt_columns", "Reset")),
                    checkboxGroupInput("show_hyperlink_cols", label = NULL,
                                       choices = hyperlink_rv$data_cols,
                                       selected = c("url", "n", "page_err", "page", "depth", "max_depth", "seed", "type"),
-                                      inline = TRUE, width = '98%')
+                                      inline = TRUE, width = "98%")
   )
 })
 
@@ -286,11 +286,11 @@ datatableHyperlinkData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = 'Buttons', filter = "top",
+    DT::datatable(data, extensions = "Buttons", filter = "top",
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = 'lBfrtip',
-                                 buttons = c('copy', 'csv', 'excel', 'print')),
-                  class = 'cell-border stripe compact hover')
+                                 columnDefs = col_defs, dom = "lBfrtip",
+                                 buttons = c("copy", "csv", "excel", "print")),
+                  class = "cell-border stripe compact hover")
   }
 })
 
@@ -308,7 +308,7 @@ output$hyperlink_arguments_output <- renderText({
                          "type: ", seed$type, " | ",
                          "delay: ", seed$delay, "s)"))
       }
-      paste0(output, collapse = '\n')
+      paste0(output, collapse = "\n")
     }
   }
 })

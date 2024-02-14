@@ -2,7 +2,7 @@ dt_prev_sel <- reactiveValues(nodes = c())
 
 # add selected data table rows to pruned nodes list
 observeEvent(input$prune_selected_rows_button, {
-  g <- r_graph_base()
+  g <- r_graph_filter()
   
   # this updates prune list and triggers graph redraw
   pruneListAddNames()
@@ -28,7 +28,7 @@ observeEvent(input$prune_selected_rows_button, {
 
 # add unselected data table rows to pruned nodes list
 observeEvent(input$prune_unselected_rows_button, {
-  g <- r_graph_base()
+  g <- r_graph_filter()
   
   pruneListAddOtherNames()
   
@@ -53,7 +53,7 @@ observeEvent(input$prune_unselected_rows_button, {
 })
 
 observeEvent(input$nbh_prune_unsel, {
-  g <- r_graph_base()
+  g <- r_graph_filter()
   
   pruneListAddOtherNames()
   
@@ -78,7 +78,7 @@ observeEvent(input$nbh_prune_unsel, {
 
 # remove selected nodes from prune list
 observeEvent(input$prune_nodes_ret_btn, {
-  g <- r_graph_base()
+  g <- r_graph_filter()
   
   g_nodes_rv$pruned <- g_nodes_rv$pruned[!(g_nodes_rv$pruned %in% input$prune_nodes_sel)]
   
@@ -103,27 +103,23 @@ observeEvent(input$prune_nodes_ret_btn, {
 
 # reset prune list
 observeEvent(input$prune_reset_btn, {
-  g <- req(r_graph_base())
-  
   g_nodes_rv$pruned <- c()
   updateSelectInput(session, "prune_nodes_sel", choices = character(0))
-  
-  # added to address bug with disappearing plot on pruning
-  # f_update_comp_slider_range(g, input$comp_mode_picker)
-  f_set_comp_ranges(g)
-  g_comps_rv$mode <- input$comp_mode_picker
-  f_set_comp_slider_range()
 })
 
 observeEvent(input$nbh_reset_btn, {
   g_nodes_rv$pruned <- c()
   updateSelectInput(session, "prune_nodes_sel", choices = character(0))
-  #f_update_comp_slider_range(g_rv$data, input$comp_mode_picker)  
 })
 
 # deselect all data table selected rows
-observeEvent(input$prune_desel_rows_btn, { DT::selectRows(dt_nodes_proxy, NULL) })
-observeEvent(input$nbh_desel_btn, { DT::selectRows(dt_nodes_proxy, NULL) })
+observeEvent(input$prune_desel_rows_btn, {
+  DT::selectRows(dt_nodes_proxy, NULL)
+})
+
+observeEvent(input$nbh_desel_btn, {
+  DT::selectRows(dt_nodes_proxy, NULL)
+})
 
 # nodes clicked event in visnetwork
 observeEvent(input$vis_node_select, {
@@ -183,8 +179,8 @@ pruneListAddNames <- reactive({
   
   # add name if not already in list
   lapply(selected_rows, function(x) {
-    if (!x %in% g_nodes_rv$pruned)
-      g_nodes_rv$pruned <<- append(g_nodes_rv$pruned, x)})
+    if (!x %in% g_nodes_rv$pruned) g_nodes_rv$pruned <<- append(g_nodes_rv$pruned, x)
+  })
 })
 
 # add deselected data table row name values to pruned nodes list
@@ -203,16 +199,7 @@ pruneListAddOtherNames <- reactive({
     
     # add name if not already in list
     lapply(selected_rows, function(x) {
-      if (!x %in% prune_list) 
-        g_nodes_rv$pruned <<- append(g_nodes_rv$pruned, x)}) 
+      if (!x %in% prune_list) g_nodes_rv$pruned <<- append(g_nodes_rv$pruned, x)
+    }) 
   }
 })
-
-# # filter out list of nodes from graph object
-# filter_nodesSrv <- function(g, selected_prune_nodes) {
-#   if (length(selected_prune_nodes) > 0) {
-#     nodes <- which(igraph::V(g)$id %in% selected_prune_nodes)
-#     g <- igraph::delete_vertices(g, nodes) # selected_prune_nodes
-#   }
-#   return(g)
-# }

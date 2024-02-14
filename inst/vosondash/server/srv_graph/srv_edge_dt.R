@@ -17,9 +17,9 @@ output$dt_edges <- DT::renderDataTable({
   }
   
   if (!is.null(data)) {
-    DT::datatable(data, extensions = 'Buttons', filter = "top", selection = "none", # rows not selectable
+    DT::datatable(data, extensions = "Buttons", filter = "top", selection = "none", # rows not selectable
                   options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = 'lBfrtip',
-                                 buttons = c('copy', 'csv', 'excel', 'print')), class = 'cell-border stripe compact hover')
+                                 columnDefs = col_defs, dom = "lBfrtip",
+                                 buttons = c("copy", "csv", "excel", "print")), class = "cell-border stripe compact hover")
   }
 })

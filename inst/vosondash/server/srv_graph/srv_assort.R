@@ -45,7 +45,7 @@ assortativityPrelimOutput <- reactive({
     } else { return(NULL) }
   } else { return(NULL) }
   
-  paste0(output, collapse = '\n')
+  paste0(output, collapse = "\n")
 })
 
 # creates and returns mixing matrix dataframe, or returns null and sets an output message
@@ -77,7 +77,7 @@ homophilyOutput <- reactive({
   if (!is.null(g)) {
     cat_sel <- g_nodes_rv$cat_selected
     if (nchar(cat_sel) && cat_sel != "All") {   # eventually will have cat attr selected by default...
-      vattr <- paste0('vosonCA_', cat_sel)
+      vattr <- paste0("vosonCA_", cat_sel)
       mm <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
       
       attr_list <- g_nodes_rv$cats[[cat_sel]]
@@ -107,5 +107,5 @@ homophilyOutput <- reactive({
     output <- append(output, paste0("No data."))
   }
   
-  paste0(output, collapse = '\n')
+  paste0(output, collapse = "\n")
 })

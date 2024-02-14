@@ -1,4 +1,4 @@
-withConsoleRedirect <- function(id, value) {
+with_console_redirect <- function(id, value) {
   input_text <- capture.output(results <- value, type = c("output"))
   
   if (length(input_text) > 0) {
@@ -10,7 +10,7 @@ withConsoleRedirect <- function(id, value) {
   return(results)
 }
 
-addToConsole <- function(id, value) {
+add_to_console <- function(id, value) {
   insertUI(paste0("#", id), where = "beforeEnd",
            ui = div(id = paste0("_", id), paste0(value, "\n", collapse = ""))
   )
@@ -27,5 +27,5 @@ reset_console <- function(id, remove_ui = TRUE) {
     vosonsml_version <- "vosonSML unknown"
   }
   reset_message <- paste0(vosonsml_version, "\n[Built:", gsub(" ; ", "|", packageDescription("vosonSML", fields = c("Built"))), "]\n")
-  addToConsole(id, reset_message)
+  add_to_console(id, reset_message)
 }

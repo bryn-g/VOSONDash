@@ -5,6 +5,14 @@
 
 # - grph filters
 
+f_disable_tab <- function(x) {
+  addCssClass(selector = "a[data-value = '", x, "']", class = "inactive_menu_link")
+}
+
+f_enable_tab <- function(x) {
+  removeCssClass(selector = "a[data-value = '", x, "']", class = "inactive_menu_link")
+}
+
 # state change based on action
 set_ctrl_state <- function(x, action) {
   f_state <- eval(parse(text = paste0("shinyjs::", action)))
@@ -48,6 +56,10 @@ node_ctrls <- function() {
     "node_labels_chk",
     "node_label_prop_chk",
     "node_sel_labels_chk",
+    "node_label_color",
+    "node_label_size",
+    "node_label_rot",
+    "node_label_dist",
     "node_use_g_cols_chk",
     "node_size_sel",
     "node_size_slider",

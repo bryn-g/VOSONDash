@@ -154,7 +154,7 @@ tabItem(tabName = "mtdn_collection_tab",
         "Posts",
         fluidRow(
           div(
-            checkboxInput('mtdn_data_posts_cols_sel_chk', 'Column select', FALSE),
+            checkboxInput("mtdn_data_posts_cols_sel_chk", "Column select", FALSE),
             style = "margin-left:12px; margin-right:5px;",
             class = "div_inline"
           ),
@@ -171,7 +171,7 @@ tabItem(tabName = "mtdn_collection_tab",
         "Users",
         fluidRow(
           div(
-            checkboxInput('mtdn_data_users_cols_sel_chk', 'Column select', FALSE),
+            checkboxInput("mtdn_data_users_cols_sel_chk", "Column select", FALSE),
             style = "margin-left:12px; margin-right:5px;",
             class = "div_inline"
           ),

@@ -64,7 +64,7 @@ tabPanel(
                     )
                   ))),
   conditionalPanel(
-    condition = 'input.node_labels_chk',
+    condition = "input.node_labels_chk",
     disabled(
       checkboxInput("node_label_prop_chk", "Proportionate Label Size", TRUE)
     )
@@ -75,7 +75,7 @@ tabPanel(
   disabled(
     checkboxInput("mtdn_img_opts_chk", div("Mastodon Images", style = "margin-bottom:5px;"), FALSE)
   ),
-  conditionalPanel(condition = 'input.mtdn_img_opts_chk',
+  conditionalPanel(condition = "input.mtdn_img_opts_chk",
     disabled(checkboxInput("node_mtdn_img_chk", "Avatar images", FALSE)),
     disabled(checkboxInput("node_mtdn_img_sq_chk", "Square", FALSE)),
     disabled(checkboxInput("node_mtdn_img_bord_chk", "Border", FALSE))

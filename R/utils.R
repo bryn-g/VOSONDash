@@ -7,8 +7,8 @@
 #' @keywords internal
 #' @export
 get_voson_vers <- function() {
-  sapply(list("VOSONDash", "vosonSML"),
-    function(x) ifelse(x %in% loadedNamespaces(), utils::packageVersion(x), "unknown"),
+  sapply(list(VOSONDash = "VOSONDash", vosonSML = "vosonSML"),
+    function(x) ifelse(x %in% loadedNamespaces(), paste0(utils::packageVersion(x), collapse = "."), "unknown"),
     USE.NAMES = TRUE, simplify = FALSE)
 }
 

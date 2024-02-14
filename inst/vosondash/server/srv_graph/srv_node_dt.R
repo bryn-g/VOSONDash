@@ -71,14 +71,14 @@ output$dt_nodes <- DT::renderDataTable({
   }
   
   if (!is.null(data)) {
-    dt <- DT::datatable(data, extensions = 'Buttons', filter = "top",
+    dt <- DT::datatable(data, extensions = "Buttons", filter = "top",
                         options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                       columnDefs = col_defs, dom = 'lBfrtip', buttons = c('copy', 'csv', 'excel', 'print')),
-                        class = 'cell-border stripe compact hover')
+                                       columnDefs = col_defs, dom = "lBfrtip", buttons = c("copy", "csv", "excel", "print")),
+                        class = "cell-border stripe compact hover")
     
     # format betweeness and closeness values to display 3 decimal places
     if (nrow(data) > 0) {
-      dt <- DT::formatRound(dt, columns = c('betweenness', 'closeness'), digits = 3)
+      dt <- DT::formatRound(dt, columns = c("betweenness", "closeness"), digits = 3)
     }
     
     return(dt)

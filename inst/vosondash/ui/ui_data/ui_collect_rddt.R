@@ -121,7 +121,7 @@ tabItem(tabName = "reddit_collection_tab",
               "Results",
               fluidRow(
                 div(
-                  checkboxInput('expand_show_reddit_cols', 'Column filters', FALSE),
+                  checkboxInput("expand_show_reddit_cols", "Column filters", FALSE),
                   style = "margin-left:12px; margin-right:5px;",
                   class = "div_inline"
                 ),
