@@ -1,47 +1,60 @@
 # graph nodes reactive variables
 g_layout_rv <- reactiveValues(
   niter = NULL,
-  layout_name = NULL,
   coords_base = NULL,
   coords = NULL
 )
 
-f_get_coords <- function(g, layout_name, seed) {
-  layout <- f_get_layout(g, layout_name, seed)
-  
+f_get_coords <- function(g, layout) {
   coords <- as.data.frame(layout)
   rownames(coords) <- igraph::V(g)$id
   
   coords
 }
 
-f_get_layout <- function(g, layout_name, seed) {
+f_get_layout <- function(g, seed, layout_name, ...) {
   set.seed(seed)
-  
   switch(
     layout_name,
-    "Auto" = igraph::layout_nicely(g, dim = 2),
-    "FR" = igraph::layout_with_fr(g, dim = 2),
-    "KK" = igraph::layout_with_kk(g, dim = 2),
-    "DH" = igraph::layout_with_dh(g),
-    "LGL" = igraph::layout_with_lgl(g),
-    "DrL" = igraph::layout_with_drl(g),
-    "GEM" = igraph::layout_with_gem(g),
-    "MDS" = igraph::layout_with_mds(g),
-    "Tree" = igraph::layout_as_tree(g, circular = TRUE),
-    "Grid" = igraph::layout_on_grid(g),
-    "Sphere" = igraph::layout_on_sphere(g),
-    "Circle" = igraph::layout_in_circle(g),
-    "Star" = igraph::layout_as_star(g),
-    "Random" = igraph::layout_randomly(g),
-    igraph::layout_nicely(g, dim = 2)
+    "Auto" = igraph::layout_nicely(g, dim = 2, ...),
+    "FR" = igraph::layout_with_fr(g, dim = 2, ...),
+    "KK" = igraph::layout_with_kk(g, dim = 2, ...),
+    "DH" = igraph::layout_with_dh(g, ...),
+    "LGL" = igraph::layout_with_lgl(g, ...),
+    "DrL" = igraph::layout_with_drl(g, ...),
+    "GEM" = igraph::layout_with_gem(g, ...),
+    "MDS" = igraph::layout_with_mds(g, ...),
+    "Tree" = igraph::layout_as_tree(g, ...),
+    "Grid" = igraph::layout_on_grid(g, ...),
+    "Sphere" = igraph::layout_on_sphere(g, ...),
+    "Circle" = igraph::layout_in_circle(g, ...),
+    "Star" = igraph::layout_as_star(g, ...),
+    "Random" = igraph::layout_randomly(g, ...),
+    igraph::layout_nicely(g, dim = 2, ...)
   )  
 }
 
+f_get_graphopt_layout <-
+  function(g,
+           seed,
+           niter,
+           charge,
+           mass,
+           spring.length,
+           spring.constant) {
+    set.seed(seed)
+    layout_with_graphopt(
+      g,
+      niter = niter,
+      charge = charge,
+      mass = mass,
+      spring.length = spring.length,
+      spring.constant = spring.constant
+    )
+  }
+
 # on change layout event
 observeEvent(input$graph_layout_select, {
-  shinyjs::reset("igraph_spread_slider") # reset graph spread when a new layout is selected
-  
   if (input$graph_layout_select == "Graphopt") { 
     shinyjs::reset("graph_charge")
     shinyjs::reset("graph_mass")
@@ -50,11 +63,61 @@ observeEvent(input$graph_layout_select, {
   }
 })
 
+observeEvent(c(input$graph_layout_set_btn, g_rv$seed), {
+  req(r_graph_filter())
+  g <- r_graph_filter()
+  seed <- g_rv$seed
+  layout <- input$graph_layout_select
+  
+  if (layout == "Graphopt") {
+    l <- f_get_graphopt_layout(g, seed, input$graph_niter, input$graph_charge, input$graph_mass,
+                               input$graph_spr_len, input$graph_spr_const)
+  } else if (layout == "FR") {
+    l <- f_get_layout(g, seed, "FR", niter = input$graph_niter)
+  } else {
+    l <- f_get_layout(g, seed, layout)
+  }
+  g_layout_rv$coords_base <- f_get_coords(g, l)
+  
+}, ignoreInit = TRUE)
+
+observeEvent(r_graph_filter(), {
+  g <- req(r_graph_filter())
+  
+  coords_base <- g_layout_rv$coords_base
+  if (igraph::gorder(g) > nrow(coords_base)) {
+    g_layout_rv$coords_base <- r_get_layout_coords()
+  } else {
+    g_layout_rv$coords <- coords_base[rownames(coords_base) %in% igraph::V(g)$id, ] 
+  }
+})
+
+r_get_layout_coords <- reactive({
+  g <- r_graph_filter()
+  seed <- g_rv$seed
+  layout <- input$graph_layout_select
+  
+  if (layout == "Graphopt") {
+    l <- f_get_graphopt_layout(g, seed, input$graph_niter, input$graph_charge, input$graph_mass,
+                               input$graph_spr_len, input$graph_spr_const)
+  } else if (layout == "FR") {
+    l <- f_get_layout(g, seed, "FR", niter = input$graph_niter)
+  } else {
+    l <- f_get_layout(g, seed, layout)
+  }
+  f_get_coords(g, l)
+})
+
 # generate a new random seed
-observeEvent(input$graph_reseed_btn, g_rv$seed <- sample(1:20000, 1))
+observeEvent(input$graph_reseed_btn, {
+  g_rv$seed <- sample(1:20000, 1)
+  updateNumericInput(session, "graph_seed_input", value = g_rv$seed)
+})
 
 # update seed input
-observeEvent(g_rv$seed, updateNumericInput(session, "graph_seed_input", value = g_rv$seed))
+# observeEvent(g_rv$seed, {
+#   # updateNumericInput(session, "graph_seed_input", value = g_rv$seed)
+# })
 
 # set seed value
 observeEvent(input$graph_seed_set_btn, {
@@ -103,3 +166,19 @@ f_get_fr <- function(...) {
   # igraph::layout_with_fr(g, dim = dim, niter = niter)
   igraph::layout_with_fr(g, dim = 2)
 }
+
+# "Auto" = igraph::layout_nicely(g, dim = 2),
+# "FR" = igraph::layout_with_fr(g, dim = 2),
+# "KK" = igraph::layout_with_kk(g, dim = 2),
+# "DH" = igraph::layout_with_dh(g),
+# "LGL" = igraph::layout_with_lgl(g),
+# "DrL" = igraph::layout_with_drl(g),
+# "GEM" = igraph::layout_with_gem(g),
+# "MDS" = igraph::layout_with_mds(g),
+# "Tree" = igraph::layout_as_tree(g, circular = TRUE),
+# "Grid" = igraph::layout_on_grid(g),
+# "Sphere" = igraph::layout_on_sphere(g),
+# "Circle" = igraph::layout_in_circle(g),
+# "Star" = igraph::layout_as_star(g),
+# "Random" = igraph::layout_randomly(g),
+# igraph::layout_nicely(g, dim = 2)

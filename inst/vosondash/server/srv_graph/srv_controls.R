@@ -43,6 +43,7 @@ layout_ctrls <- function() {
     "graph_seed_input",
     "graph_seed_set_btn",
     "graph_layout_select",
+    "graph_layout_set_btn",
     "graph_niter",
     "graph_charge",
     "graph_mass",
@@ -92,7 +93,13 @@ edge_ctrls <- function() {
   c("edge_labels_chk",
     "edge_label_sel",
     "edge_label_color",
-    "edge_label_size")
+    "edge_label_size",
+    "edge_color",
+    "edge_width",
+    "edge_curved",
+    "edge_arrow_size",
+    "edge_arrow_width",
+    "reset_edges_btn")
 }
 
 # graph filter ctrls

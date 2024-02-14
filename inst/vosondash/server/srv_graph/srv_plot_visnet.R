@@ -1,20 +1,4 @@
 r_graph_visnet_plot <- reactive({
-  # g <- tryCatch({ 
-  #   r_graph_filter()
-  # }, error = function(err) {
-  #   NULL
-  # })
-  
-  # empty_visnet_plot <- function() {
-  #   visNetwork(
-  #     nodes = data.frame(id = 1, image = "vosondash.png", shape = "circularImage", label = "Welcome to VOSON Lab"),
-  #     edges = data.frame(from = c(), to = c()), 
-  #     main = NULL, submain = NULL, width = "100%"
-  #   )
-  # }
-  
-  # if (is.null(g)) return(NULL)
-  
   nodes <- r_graph_nodes_df()
   edges <- r_graph_edges_df()
 
@@ -24,23 +8,18 @@ r_graph_visnet_plot <- reactive({
   if (nrow(nodes) < 1) return(NULL)
   
   isolate({
-    # already dependencies of graphFilters, nodes, edges
     categorical_attributes <- g_nodes_rv$cats
     selected_categorical_attribute <- input$cat_sel
     gcs <- g_nodes_rv$cat_selected
   })
   
   nodes_rows_selected <- input$dt_nodes_rows_selected
-  #chosen_layout <- input$_select
-  #graph_seed <- g_rv$seed
   node_degree_type <- input$node_size_sel
   node_size_multiplier <- input$node_size_slider
   plot_height <- g_plot_rv$height
   
   use_v_colors <- input$node_use_g_cols_chk
   node_index_chk <- input$node_index_chk
-  
-  # <- f_get_layout_name(chosen_layout)
   
   # nodes$font.size <- 24
   base_font_size <- 24
@@ -180,18 +159,19 @@ r_graph_visnet_plot <- reactive({
     }
   }
   
+  if (isTruthy(input$edge_labels_chk) & ("label" %in% colnames(edges))) {
+    edges$title <- row.names(edges)
+    edges <- dplyr::mutate(edges, label = ifelse(is.na(.data$label), .data$id, .data$label))
+    edges$font.size <- (12 + as.numeric(input$edge_label_size))
+    edges$font.color <- input$edge_label_color
+  } else {
+    edges$label <- ""
+  }
+  
   vis_net <- visNetwork::visNetwork(nodes, edges, main = NULL)
   
-  l_params <- list(vis_net, layout = "layout.norm", randomSeed = isolate(g_rv$seed), layoutMatrix = isolate(as.matrix(g_layout_rv$coords)))
+  l_params <- list(vis_net, layout = "layout.norm", randomSeed = isolate(g_rv$seed), layoutMatrix = as.matrix(g_layout_rv$coords))
   
-  # l_params <- list(vis_net, layout = graph_layout, randomSeed = graph_seed)
-  # if (chosen_layout %in% c("FR", "Graphopt")) l_params["niter"] <- input$graph_niter
-  # if (chosen_layout == "Graphopt") {
-  #   l_params["charge"] = input$graph_charge
-  #   l_params["mass"] = input$graph_mass
-  #   l_params["spring.length"] = input$graph_spr_len
-  #   l_params["spring.constant"] = input$graph_spr_const    
-  # }
   vis_net <- do.call(visIgraphLayout, l_params)
   
   vis_net <- vis_net |>
@@ -218,12 +198,22 @@ r_graph_visnet_plot <- reactive({
   }
   
   e_arrows <- e_smooth <- NULL
-  if (g_rv$dir) { e_arrows <- "to" }
+  if (g_rv$dir) e_arrows <- "to"
   if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
   
-  vis_net <- vis_net |> visNetwork::visEdges(arrows = e_arrows,
-                                  smooth = e_smooth,
-                                  color = list(color = "#b0b0b0"))
+  vis_net <- vis_net |> 
+    visNetwork::visEdges(
+      arrows = e_arrows,
+      smooth = e_smooth,
+      color = list(color = input$edge_color)) # "#b0b0b0"
+  
+  # if (isTruthy(input$edge_labels_chk) & ("label" %in% colnames(edges))) {
+  #   vis_net <- vis_net |> 
+  #     visNetwork::visEdges(
+  #       font.size = 12 + as.numeric(input$edge_label_size),
+  #       font.color = input$edge_label_color
+  #     )
+  # }
   
   vis_net
 })

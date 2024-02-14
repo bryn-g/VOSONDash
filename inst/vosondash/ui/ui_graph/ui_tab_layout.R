@@ -2,11 +2,37 @@ tabPanel(
   "Layout",
   icon = icon("circle-nodes"),
   
+  # seed
+  fluidRow(column(
+    width = 12,
+    tags$b("Seed"),
+    div(
+      div(
+        disabled(
+          numericInput(
+            "graph_seed_input",
+            label = NULL,
+            value = 100,
+            min = 1,
+            max = 1000000,
+            width = "80px"
+          )
+        ),
+        class = "div_inline",
+        style = "padding-top:6px"
+      ),
+      div(disabled(actionButton("graph_seed_set_btn", label = "set")), class = "div_inline"),
+      div(disabled(actionButton("graph_reseed_btn", label = icon("arrows-rotate"))),
+          po_info(i_graph_reseed), class = "div_inline")
+    )
+  )),
+  
   fluidRow(column(
     width = 12,
     div(tags$b("Graph Layout"),
         po_info(i_graph_layout),
         style = "margin-bottom:5px;"),
+    
     disabled(
       selectInput(
         "graph_layout_select",
@@ -94,37 +120,28 @@ tabPanel(
       )
     )),
   
-  # seed
+  
   fluidRow(column(
-    width = 12,
-    tags$b("Seed"),
-    div(
-      div(
-        disabled(
-          numericInput(
-            "graph_seed_input",
-            label = NULL,
-            value = 100,
-            min = 1,
-            max = 1000000,
-            width = "80px"
-          )
-        ),
-        class = "div_inline",
-        style = "padding-top:6px"
-      ),
-      div(disabled(actionButton("graph_seed_set_btn", label = "set")), class = "div_inline"),
-      div(disabled(actionButton("graph_reseed_btn", label = icon("arrows-rotate"))),
-       po_info(i_graph_reseed), class = "div_inline")
+    width = 6,
+    numericInput(
+      inputId = "graph_niter",
+      "Iterations (niter)",
+      value = 500,
+      min = 1,
+      max = 1000000
     )
-    )),
+  )),
+
   
   # spread
+  fluidRow(column(width = 12,
+  disabled(actionButton("graph_layout_set_btn", label = "apply layout")))),
+  
   fluidRow(column(width = 12,
                   disabled(
                     sliderInput(
                       "igraph_spread_slider",
-                      "Spread",
+                      "Plot Spread",
                       min = 0.25,
                       max = 2.5,
                       step = 0.1,

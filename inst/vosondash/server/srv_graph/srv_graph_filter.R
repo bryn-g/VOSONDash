@@ -103,7 +103,12 @@ r_graph_filter <- reactive({
   }
   
   # remove nodes from layout coords
-  g_layout_rv$coords <- g_layout_rv$coords_base[rownames(g_layout_rv$coords_base) %in% igraph::V(g)$id, ]
+  # coords_base <- g_layout_rv$coords_base
+  # if (igraph::gorder(g) > nrow(coords_base)) {
+  #   
+  # } else {
+  #   g_layout_rv$coords <- coords_base[rownames(coords_base) %in% igraph::V(g)$id, ] 
+  # }
   
   # which filters ran
   f_post_fltr_state(fltr_state)
@@ -113,6 +118,7 @@ r_graph_filter <- reactive({
   
   # update node attributes will also update labels
   g_nodes_rv$attrs <- igraph::vertex_attr_names(g)
+  g_edges_rv$attrs <- igraph::edge_attr_names(g)
   
   # directed
   g_rv$dir <- igraph::is_directed(g)
@@ -128,7 +134,11 @@ r_graph_filter <- reactive({
     }
   }
   
-  cat(file=stderr(), paste0("- r_graph_filter - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
+  if (isTruthy(g_edges_rv$label_selected)) {
+    igraph::E(g)$label <- igraph::edge_attr(g, g_edges_rv$label_selected)
+  }
+  
+  # cat(file=stderr(), paste0("- r_graph_filter - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   
   g
 })

@@ -10,8 +10,7 @@ g_nodes_rv <- reactiveValues(
   cat_selected = "All",
   cat_sub_selected = "All",
   
-  pruned = NULL,
-  layout = NULL
+  pruned = NULL
 )
 
 # base graph node attribute list

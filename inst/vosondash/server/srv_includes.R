@@ -9,6 +9,7 @@ source("server/srv_graph/srv_graph_filter.R", local = TRUE)
 source("server/srv_graph/srv_nodes.R", local = TRUE)
 source("server/srv_graph/srv_node_rm.R", local = TRUE)
 source("server/srv_graph/srv_node_dt.R", local = TRUE)
+source("server/srv_graph/srv_edges.R", local = TRUE)
 source("server/srv_graph/srv_edge_dt.R", local = TRUE)
 
 source("server/srv_graph/srv_metrics.R", local = TRUE)  

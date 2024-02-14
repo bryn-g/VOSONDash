@@ -49,15 +49,17 @@ r_graph_base <- reactive({
   g <- g_rv$data$data
   g <- f_set_id_and_label(g)
   
-  g_rv$seed <- sample(1:20000, 1)
-  g_nodes_rv$layout_name <- ifelse(isTruthy(isolate(input$graph_layout_select)), isolate(input$graph_layout_select), "FR")
-  
-  g_layout_rv$coords_base <- f_get_coords(g, isolate(g_nodes_rv$layout_name), isolate(g_rv$seed))
+  seed <- sample(1:20000, 1)
+  updateNumericInput(session, "graph_seed_input", value = seed)
+  g_rv$seed <- seed
+  layout <- ifelse(isTruthy(isolate(input$graph_layout_select)), isolate(input$graph_layout_select), "FR")
+  layout <- f_get_layout(g, seed, layout)
+  g_layout_rv$coords_base <- f_get_coords(g, layout)
   
   g_comps_rv$range_base <- f_get_comp_ranges(g)
   g_nodes_rv$cats <- get_node_cats(g)
   
-  cat(file=stderr(), paste0("- r_graph_base - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
+  # cat(file=stderr(), paste0("- r_graph_base - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   g
 })
 

@@ -134,14 +134,14 @@ r_graph_igraph_plot <- reactive({
   if (label_type %in% c("index", "attribute")) {
     
     # set font family
-    igraph_params["vertex.label.family"] <- "Arial"
+    igraph_params["vertex.label.family"] <- igraph_params["edge.label.family"] <- "Arial"
     
     # set unicode font for non windows - ADD TO UI
     not_win <- .Platform$OS.type != "windows"
     arial_unicode <- "Arial Unicode MS" %in% VOSONDash::get_sysfont_names()
     
     if (not_win & arial_unicode & input$macos_font_check) {
-      igraph_params["vertex.label.family"] <- "Arial Unicode MS"
+      igraph_params["vertex.label.family"] <- igraph_params["edge.label.family"] <- "Arial Unicode MS"
     }
     
     base_label_size <- 0.8
@@ -151,7 +151,7 @@ r_graph_igraph_plot <- reactive({
       
       # if displaying labels for selected nodes only
       if (input$node_sel_labels_chk) {
-        sel_nodes <- input$dt_nodes_rows_selected
+        sel_nodes <- sel_node_row_names # input$dt_nodes_rows_selected
         labels <- ifelse(V(g)$id %in% sel_nodes, V(g)$label, NA)
         
         # label all nodes
@@ -161,14 +161,7 @@ r_graph_igraph_plot <- reactive({
       
       # set node labels
       igraph_params[["vertex.label"]] <- labels
-      # igraph_params[["vertex.label.color"]] <- input$node_label_color
       label_color <- input$node_label_color
-      
-      # set node label colors
-      # igraph_params[["vertex.label.color"]] <- ifelse(
-      #   V(g)$id %in% sel_node_row_names, gbl_sel_label_col, 
-      #   ifelse(is.null(V(g)$label.color), gbl_plot_def_label_color, V(g)$label.color)
-      # )
       
       igraph_params[["vertex.label.color"]] <- ifelse(
         V(g)$id %in% sel_node_row_names, gbl_sel_label_col, 
@@ -207,37 +200,23 @@ r_graph_igraph_plot <- reactive({
     igraph_params[["vertex.label"]] <- NA
   }
   
-  # set edge labels - ADD TO UI
+  # set edge labels
   igraph_params[["edge.label"]] <- NA
   if (input$edge_labels_chk == TRUE & !is.null(input$edge_label_sel)) {
     igraph_params["edge.label.cex"] <- input$edge_label_size
     igraph_params[["edge.label"]] <- edge_attr(g, input$edge_label_sel)
+    igraph_params[["edge.label.color"]] <- input$edge_label_color
   }
   
-  # seed must be set before graph layout
-  #if (!is.null(g_seed)) set.seed(g_seed)
-  
-  # # set graph layout
-  # graph_layout <- f_get_layout(selection = g_layout, g = g, dim = 2, niter = input$graph_niter)
-  # 
-  # # if layout graphopt get additional options
-  # if (g_layout == "Graphopt") {
-  #   graph_layout <- layout_with_graphopt(
-  #     g,
-  #     niter = input$graph_niter, 
-  #     charge = input$graph_charge,
-  #     mass = input$graph_mass,
-  #     spring.length = input$graph_spr_len,
-  #     spring.constant = input$graph_spr_const
-  #   )
-  # }
-  
-  graph_layout <- isolate(as.matrix(g_layout_rv$coords))
-  
+  graph_layout <- as.matrix(g_layout_rv$coords)
+    
   # graph spread option changes scale
   graph_layout <- igraph::norm_coords(graph_layout, ymin = -1, ymax = 1, xmin = -1, xmax = 1)
   igraph_params["rescale"] <- FALSE
-  igraph_params[["layout"]] <- graph_layout * g_spread
+  
+  if (isTruthy(g_spread)) graph_layout <- graph_layout * g_spread
+  
+  igraph_params[["layout"]] <- graph_layout
   
   #cat(file=stderr(), "running r_graph_igraph_plot\n")
   

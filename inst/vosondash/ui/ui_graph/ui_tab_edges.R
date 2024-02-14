@@ -69,6 +69,10 @@ tabPanel(
                       )
                     ))
                   ))),
+  fluidRow(column(
+    width = 6,
+    disabled(actionButton("reset_edges_btn", label = "reset"))
+    )),
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
   h4("Edge Labels"),
   source("ui/ui_graph/ui_edge_labels.R")$value
