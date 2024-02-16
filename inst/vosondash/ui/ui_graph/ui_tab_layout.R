@@ -51,6 +51,7 @@ tabPanel(
           "Sphere",
           "Circle",
           "Star",
+          "Tree",
           "Random"
         ),
         selectize = TRUE,
@@ -119,19 +120,6 @@ tabPanel(
         )
       )
     )),
-  
-  
-  fluidRow(column(
-    width = 6,
-    numericInput(
-      inputId = "graph_niter",
-      "Iterations (niter)",
-      value = 500,
-      min = 1,
-      max = 1000000
-    )
-  )),
-
   
   # spread
   fluidRow(column(width = 12,

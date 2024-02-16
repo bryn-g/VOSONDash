@@ -71,6 +71,7 @@ observeEvent(c(
 
 # init
 observeEvent(input$canvas_tab, {
+  #updateTabsetPanel(session, "canvas_tab", selected = "voson_info")
   addCssClass(selector = "a[data-value = 'igraph']", class = "inactive_menu_link")
   addCssClass(selector = "a[data-value = 'visNetwork']", class = "inactive_menu_link")
   addCssClass(selector = "a[data-value = 'graph_info']", class = "inactive_menu_link")
@@ -136,7 +137,7 @@ output$vis_plot_ui <- renderUI({
   tabBox(
     width = 12,
     title = span(icon("share-nodes", class = "social_green"), "Network Graphs"),
-    selected = "voson_info", # input$canvas_tab,
+    selected = isolate(input$canvas_tab), # "voson_info", # input$canvas_tab,
     id = "canvas_tab",
     tabPanel(
       "igraph",
@@ -148,7 +149,7 @@ output$vis_plot_ui <- renderUI({
       "visNetwork",
       id = "visNetwork",
       visNetworkOutput(
-        "visNetworkPlot",
+        "plot_visnet",
         width = "100%",
         height = paste0(g_plot_rv$height, "px")
       ),
@@ -198,7 +199,7 @@ output$plot_igraph <- renderPlot({
   r_graph_igraph_plot()
 }, height = function() as.numeric(g_plot_rv$height), res = 96)
 
-output$visNetworkPlot <- renderVisNetwork({
+output$plot_visnet <- renderVisNetwork({
   r_graph_visnet_plot()
 })
 

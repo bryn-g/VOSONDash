@@ -170,7 +170,9 @@ r_graph_visnet_plot <- reactive({
   
   vis_net <- visNetwork::visNetwork(nodes, edges, main = NULL)
   
-  l_params <- list(vis_net, layout = "layout.norm", randomSeed = isolate(g_rv$seed), layoutMatrix = as.matrix(g_layout_rv$coords))
+  coords <- g_layout_rv$coords
+  coords$V2 <- (coords$V2 * -1) # V2 coords are mirrored with visnet
+  l_params <- list(vis_net, layout = "layout.norm", randomSeed = isolate(g_rv$seed), layoutMatrix = as.matrix(coords))
   
   vis_net <- do.call(visIgraphLayout, l_params)
   
