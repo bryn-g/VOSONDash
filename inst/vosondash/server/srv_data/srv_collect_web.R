@@ -5,50 +5,50 @@
 
 #### values ---------------------------------------------------------------------------------------------------------- #
 
-hyperlink_rv <- reactiveValues(
-  hyperlink_seed_urls = NULL,
-  hyperlink_data = NULL,
-  hyperlink_network = NULL,
-  hyperlink_graphml = NULL,
+web_rv <- reactiveValues(
+  web_seed_urls = NULL,
+  web_data = NULL,
+  web_network = NULL,
+  web_graphml = NULL,
   data_cols = NULL,
   created = NULL
 )
 
 #### events ---------------------------------------------------------------------------------------------------------- #
 
-observeEvent(input$hyperlink_add_url_button, {
-  page <- input$hyperlink_url_input
-  type <- input$hyperlink_crawl_type_select
-  max_depth <- input$hyperlink_max_depth_input
+observeEvent(input$web_add_url_btn, {
+  page <- input$web_url_input
+  type <- input$web_crawl_type_sel
+  max_depth <- input$web_max_depth_input
   delay <- 1
-  if (input$hyperlink_request_delay_robots_checkbox) delay <- NA
-  hyperlink_rv$hyperlink_seed_urls <- dplyr::bind_rows(
-    hyperlink_rv$hyperlink_seed_urls,
+  if (input$web_robots_delay_chk) delay <- NA
+  web_rv$web_seed_urls <- dplyr::bind_rows(
+    web_rv$web_seed_urls,
     tibble::tibble(page = page, type = type, max_depth = max_depth, delay = delay)
   )
-  updateTextInput(session, "hyperlink_url_input", label = NULL, value = "")
+  updateTextInput(session, "web_url_input", label = NULL, value = "")
 })
 
-observeEvent(input$hyperlink_remove_url_button,{
-  if (!is.null(input$hyperlink_seed_urls_table_rows_selected)) {
-    hyperlink_rv$hyperlink_seed_urls <- hyperlink_rv$hyperlink_seed_urls[-as.numeric(input$hyperlink_seed_urls_table_rows_selected), ]
+observeEvent(input$web_remove_url_btn,{
+  if (!is.null(input$web_seed_urls_table_rows_selected)) {
+    web_rv$web_seed_urls <- web_rv$web_seed_urls[-as.numeric(input$web_seed_urls_table_rows_selected), ]
   }
   
-  tbl_value <- hyperlink_rv$hyperlink_seed_urls
+  tbl_value <- web_rv$web_seed_urls
   if (!is.null(tbl_value)) {
     if (inherits(tbl_value, "data.frame") && nrow(tbl_value) < 1) {
-      shinyjs::disable("hyperlink_collect_button")
+      shinyjs::disable("web_collect_btn")
     }
   } else {
-    shinyjs::disable("hyperlink_collect_button") 
+    shinyjs::disable("web_collect_btn") 
   }
 })
 
-observeEvent(hyperlink_rv$hyperlink_seed_urls,{
-  tbl_value <- hyperlink_rv$hyperlink_seed_urls
+observeEvent(web_rv$web_seed_urls,{
+  tbl_value <- web_rv$web_seed_urls
   if (!is.null(tbl_value)) {
     if (inherits(tbl_value, "data.frame") && nrow(tbl_value)) {
-      shinyjs::enable("hyperlink_collect_button")
+      shinyjs::enable("web_collect_btn")
     }
   }
   
@@ -62,14 +62,14 @@ check_req_pkgs <- function(pkgs) {
 }
 
 # hyperlink collection button pushed
-observeEvent(input$hyperlink_collect_button, {
+observeEvent(input$web_collect_btn, {
   
   # disable button so it is not pushed again
-  shinyjs::disable("hyperlink_collect_button")
+  shinyjs::disable("web_collect_btn")
   
   withProgress(message = "Collecting hyperlinks", value = 0.5, {
     
-    with_console_redirect("hyperlink_console", {
+    with_console_redirect("web_console", {
       
       missing_pkgs <- check_req_pkgs(c("robotstxt", "rvest", "urltools", "xml2"))
       if (length(missing_pkgs)) {
@@ -90,20 +90,20 @@ observeEvent(input$hyperlink_collect_button, {
       } else {
       
       tryCatch({
-        hyperlink_rv$hyperlink_data <- 
+        web_rv$web_data <- 
           vosonSML::Collect(
             vosonSML::Authenticate("web"),
-            pages = hyperlink_rv$hyperlink_seed_urls,
+            pages = web_rv$web_seed_urls,
             verbose = TRUE)
-        hyperlink_rv$data_cols <- names(hyperlink_rv$hyperlink_data)
+        web_rv$data_cols <- names(web_rv$web_data)
       }, error = function(err) {
         cat(paste("hyperlink collection error:", err))
         return(NULL)
       })
       
       incProgress(1, detail = "Finished")
-      if (!is.null(hyperlink_rv$hyperlink_data)) {
-        updateTabItems(session, "hyperlink_control_tabset", selected = "Create Network")
+      if (!is.null(web_rv$web_data)) {
+        updateTabItems(session, "web_ctrl_tabset", selected = "Create Network")
       }
       
       }
@@ -111,92 +111,92 @@ observeEvent(input$hyperlink_collect_button, {
     
   }) # withProgress
   
-  shinyjs::enable("hyperlink_collect_button")
-  delay(gbl_scroll_delay, js$scroll_console("hyperlink_console"))
+  shinyjs::enable("web_collect_btn")
+  delay(gbl_scroll_delay, js$scroll_console("web_console"))
 })
 
-observeEvent(hyperlink_rv$hyperlink_data, {
-  if (!is.null(hyperlink_rv$hyperlink_data) && nrow(hyperlink_rv$hyperlink_data)) {
-    shinyjs::enable("hyperlink_create_button")
+observeEvent(web_rv$web_data, {
+  if (!is.null(web_rv$web_data) && nrow(web_rv$web_data)) {
+    shinyjs::enable("web_create_btn")
   } else {
-    shinyjs::disable("hyperlink_create_button")
+    shinyjs::disable("web_create_btn")
   }
 })
 
-observeEvent(input$hyperlink_create_button, {
-  net_type <- input$hyperlink_network_type_select
-  hyperlink_rv$created <- ts_utc()
+observeEvent(input$web_create_btn, {
+  net_type <- input$web_network_type_select
+  web_rv$created <- ts_utc()
   network <- NULL
   
-  shinyjs::disable("hyperlink_create_button")
+  shinyjs::disable("web_create_btn")
   
   withProgress(message = "Creating network", value = 0.5, {
     
-    with_console_redirect("hyperlink_console", {
+    with_console_redirect("web_console", {
       if (net_type == "activity") {
-        network <- vosonSML::Create(isolate(hyperlink_rv$hyperlink_data), "activity", verbose = TRUE)
+        network <- vosonSML::Create(isolate(web_rv$web_data), "activity", verbose = TRUE)
       } else if (net_type == "actor") {
-        network <- vosonSML::Create(isolate(hyperlink_rv$hyperlink_data), "actor", verbose = TRUE)
+        network <- vosonSML::Create(isolate(web_rv$web_data), "actor", verbose = TRUE)
       }
       if (!is.null(network)) {
-        hyperlink_rv$hyperlink_network <- network
-        hyperlink_rv$hyperlink_graphml <- vosonSML::Graph(network) 
-        hyperlink_rv$created <- ts_utc()
+        web_rv$web_network <- network
+        web_rv$web_graphml <- vosonSML::Graph(network) 
+        web_rv$created <- ts_utc()
       }
     }) # with_console_redirect
   
     incProgress(1, detail = "Finished")
   }) # withProgress
   
-  shinyjs::enable("hyperlink_create_button")
+  shinyjs::enable("web_create_btn")
   
-  delay(gbl_scroll_delay, js$scroll_console("hyperlink_console"))
+  delay(gbl_scroll_delay, js$scroll_console("web_console"))
 })
 
 # download and view actions
-callModule(collect_data_btns, "hyperlink", data = reactive({ hyperlink_rv$hyperlink_data }), file_prefix = "hyperlink")
-callModule(collect_network_btns, "hyperlink", network = reactive({ hyperlink_rv$hyperlink_network }), file_prefix = "hyperlink")
-callModule(collect_graph_btns, "hyperlink", graph = reactive({ hyperlink_rv$hyperlink_graphml }), file_prefix = "hyperlink")
-hyperlink_view_rvalues <- callModule(collect_view_graph_btns, "hyperlink", graph = reactive({ hyperlink_rv$hyperlink_graphml }))
+callModule(collect_data_btns, "hyperlink", data = reactive({ web_rv$web_data }), file_prefix = "hyperlink")
+callModule(collect_network_btns, "hyperlink", network = reactive({ web_rv$web_network }), file_prefix = "hyperlink")
+callModule(collect_graph_btns, "hyperlink", graph = reactive({ web_rv$web_graphml }), file_prefix = "hyperlink")
+web_view_rvalues <- callModule(collect_view_graph_btns, "hyperlink", graph = reactive({ web_rv$web_graphml }))
 
-observeEvent(hyperlink_view_rvalues$data, {
-  req(hyperlink_view_rvalues$data)
+observeEvent(web_view_rvalues$data, {
+  req(web_view_rvalues$data)
   # f_init_graph(
-  #   data = hyperlink_view_rvalues$data, 
+  #   data = web_view_rvalues$data, 
   #   meta = list(
   #     desc = paste0(
   #       "Hyperlink network for seed pages: ",
-  #        paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ", "),
+  #        paste0(web_rv$web_seed_urls$page, collapse = ", "),
   #        sep = ""),
   #     type = "hyperlink",
   #     name = "",
   #     seed = sample(1:20000, 1)
   #   )
   # )
-  #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  #updateCheckboxInput(session, "expand_demo_data_chk", value = FALSE)
   meta <- list(
     desc = paste0(
             "Hyperlink network for seed pages: ",
-             paste0(hyperlink_rv$hyperlink_seed_urls$page, collapse = ", "),
+             paste0(web_rv$web_seed_urls$page, collapse = ", "),
              sep = ""),
     type = "hyperlink",
-    network = input$hyperlink_network_type_select,
-    name = paste0("hyperlink - ", input$hyperlink_network_type_select),
-    created = hyperlink_rv$created
+    network = input$web_network_type_select,
+    name = paste0("hyperlink - ", input$web_network_type_select),
+    created = web_rv$created
   )
   
-  g_rv$data <- list(data = hyperlink_view_rvalues$data, meta = meta)
+  g_rv$data <- list(data = web_view_rvalues$data, meta = meta)
   
 }, ignoreInit = TRUE)
 
-observeEvent(input$clear_hyperlink_console, {
-  reset_console("hyperlink_console")
+observeEvent(input$clear_web_console, {
+  reset_console("web_console")
 })
 #### output ---------------------------------------------------------------------------------------------------------- #
 
-output$hyperlink_seed_urls_table <- DT::renderDT({
+output$web_seed_urls_table <- DT::renderDT({
   DT::datatable(
-    hyperlink_rv$hyperlink_seed_urls,
+    web_rv$web_seed_urls,
     rownames = FALSE,
     editable = TRUE,
     options = list(dom = "t")
@@ -204,12 +204,12 @@ output$hyperlink_seed_urls_table <- DT::renderDT({
 })
 
 # render reddit data table
-output$dt_hyperlink_data <- DT::renderDataTable({
+output$dt_web_data <- DT::renderDataTable({
   datatableHyperlinkData()
 })
 
 output$seed_table_toggle <- reactive({
-  tbl_value <- hyperlink_rv$hyperlink_seed_urls
+  tbl_value <- web_rv$web_seed_urls
   if (is.null(tbl_value)) return(FALSE)
   if (inherits(tbl_value, "data.frame") && nrow(tbl_value)) return(TRUE)
   FALSE
@@ -217,38 +217,38 @@ output$seed_table_toggle <- reactive({
 
 outputOptions(output, "seed_table_toggle", suspendWhenHidden = FALSE)
 
-observeEvent(input$select_all_hyperlink_dt_columns, {
-  updateCheckboxGroupInput(session, "show_hyperlink_cols", label = NULL,
-                           choices = isolate(hyperlink_rv$data_cols),
-                           selected = isolate(hyperlink_rv$data_cols),
+observeEvent(input$select_all_web_dt_columns, {
+  updateCheckboxGroupInput(session, "show_web_cols", label = NULL,
+                           choices = isolate(web_rv$data_cols),
+                           selected = isolate(web_rv$data_cols),
                            inline = TRUE)
 })
 
-observeEvent(input$clear_all_hyperlink_dt_columns, {
-  updateCheckboxGroupInput(session, "show_hyperlink_cols", label = NULL,
-                           choices = isolate(hyperlink_rv$data_cols),
+observeEvent(input$clear_all_web_dt_columns, {
+  updateCheckboxGroupInput(session, "show_web_cols", label = NULL,
+                           choices = isolate(web_rv$data_cols),
                            selected = character(0),
                            inline = TRUE)
 })
 
-observeEvent(input$reset_hyperlink_dt_columns, {
-  updateCheckboxGroupInput(session, "show_hyperlink_cols", label = NULL,
-                           choices = isolate(hyperlink_rv$data_cols),
+observeEvent(input$reset_web_dt_columns, {
+  updateCheckboxGroupInput(session, "show_web_cols", label = NULL,
+                           choices = isolate(web_rv$data_cols),
                            selected = c("url", "n", "page_err", "page", "depth", "max_depth", "seed", "type"),
                            inline = TRUE)
 })
 
-output$hyperlink_data_cols_ui <- renderUI({
-  data <- hyperlink_rv$data_cols
+output$web_data_cols_ui <- renderUI({
+  data <- web_rv$data_cols
   
   if (is.null(data)) { return(NULL) }
   
-  conditionalPanel(condition = "input.expand_show_hyperlink_cols",
-                   div(actionButton("select_all_hyperlink_dt_columns", "Select all"), 
-                       actionButton("clear_all_hyperlink_dt_columns", "Clear all"),
-                       actionButton("reset_hyperlink_dt_columns", "Reset")),
-                   checkboxGroupInput("show_hyperlink_cols", label = NULL,
-                                      choices = hyperlink_rv$data_cols,
+  conditionalPanel(condition = "input.expand_show_web_cols",
+                   div(actionButton("select_all_web_dt_columns", "Select all"), 
+                       actionButton("clear_all_web_dt_columns", "Clear all"),
+                       actionButton("reset_web_dt_columns", "Reset")),
+                   checkboxGroupInput("show_web_cols", label = NULL,
+                                      choices = web_rv$data_cols,
                                       selected = c("url", "n", "page_err", "page", "depth", "max_depth", "seed", "type"),
                                       inline = TRUE, width = "98%")
   )
@@ -257,16 +257,16 @@ output$hyperlink_data_cols_ui <- renderUI({
 #### reactives ------------------------------------------------------------------------------------------------------- #
 
 datatableHyperlinkData <- reactive({
-  data <- hyperlink_rv$hyperlink_data
+  data <- web_rv$web_data
   
   if (is.null(data)) { return(NULL) }
   
   cls_lst <- class(data)
   class(data) <- cls_lst[!cls_lst %in% c("datasource", "web")]
   
-  if (!is.null(input$show_hyperlink_cols)) {
-    if (length(input$show_hyperlink_cols) > 0) {
-      data <- dplyr::select(data, input$show_hyperlink_cols)
+  if (!is.null(input$show_web_cols)) {
+    if (length(input$show_web_cols) > 0) {
+      data <- dplyr::select(data, input$show_web_cols)
     } else { return(NULL) }
   } else { return(NULL) }
   
@@ -280,9 +280,9 @@ datatableHyperlinkData <- reactive({
     }
   }
   
-  if (!is.null(hyperlink_rv$hyperlink_data)) {
+  if (!is.null(web_rv$web_data)) {
     col_defs <- NULL
-    if (input$dt_hyperlink_truncate_text_check == TRUE) {
+    if (input$dt_web_truncate_text_chk == TRUE) {
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
@@ -294,8 +294,8 @@ datatableHyperlinkData <- reactive({
   }
 })
 
-output$hyperlink_arguments_output <- renderText({
-  tbl_value <- hyperlink_rv$hyperlink_seed_urls
+output$web_arguments_output <- renderText({
+  tbl_value <- web_rv$web_seed_urls
   
   if (!is.null(tbl_value)) {
     if (inherits(tbl_value, "data.frame") && nrow(tbl_value)) {

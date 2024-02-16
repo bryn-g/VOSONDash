@@ -7,7 +7,7 @@
 #' @return Video id as character string.
 #'
 #' @export
-get_ytbe_video_id <- function(url) {
+get_youtube_video_id <- function(url) {
   # already an id
   if (grepl("^[0-9A-Za-z_\\-]{11}$", url, ignore.case = TRUE, perl = TRUE)) return(url)
   

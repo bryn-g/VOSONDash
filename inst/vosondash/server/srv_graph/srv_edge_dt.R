@@ -11,7 +11,7 @@ output$dt_edges <- DT::renderDataTable({
   
   # truncate text in column cells
   col_defs <- NULL
-  if (input$graph_dt_e_truncate_text_check == TRUE) {
+  if (input$graph_dt_e_truncate_text_chk == TRUE) {
     col_defs <- gbl_dt_col_defs
     col_defs[[1]]$targets <- "_all"
   }

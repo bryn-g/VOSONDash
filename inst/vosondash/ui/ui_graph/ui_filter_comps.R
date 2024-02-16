@@ -26,8 +26,7 @@ fluidRow(column(
                value = c(1, 500),
                ticks = FALSE
              )
-           )# ,
-           # disabled(actionButton("comp_set", "Set"))
+           )
     )
   )),
   fluidRow(column(

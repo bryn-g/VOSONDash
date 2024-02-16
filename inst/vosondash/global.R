@@ -32,9 +32,6 @@ gbl_plot_palette <- function(n = 8) brewer.pal(n, "Dark2")
 gbl_plot_height <- 700
 gbl_plot_width <- 9
 
-# ta_plot_height <- "450px"
-gbl_ta_plot_height <- "450px"
-
 # data tables
 options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
 
@@ -79,4 +76,3 @@ if (VOSONDash::is_macos()) gbl_is_macos <- "true"
 
 # modules
 source("modules/mod_collect.R")
-source("modules/mod_analysis_text.R")

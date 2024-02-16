@@ -11,9 +11,7 @@ required_pkgs <- c(
   "shinyjs",
   "shinyWidgets",
   "sortable",
-  "tm",
   "visNetwork",
-  "wordcloud",
   "gargoyle"
 )
 
@@ -21,13 +19,13 @@ required_pkgs <- c(
 if (isLocal) {
   message(
     paste0("VOSONDash", " v", utils::packageVersion("VOSONDash"), "\n",
-           packageDescription("VOSONDash", fields = c("Built")), "\n\n"),
-    paste0(trimws(paste(Sys.getenv("os"), R.Version()$platform)), "\n"),
-    paste0(R.version.string, "\n"),
-    paste0("shiny v", utils::packageVersion("shiny"), "\n"),
-    paste0("vosonSML v", utils::packageVersion("vosonSML"), "\n"),
-    paste0("\nHome: ", Sys.getenv("HOME"), "\n\n"),
-    paste0("Checking packages...\n")
+           packageDescription("VOSONDash", fields = c("Built")), "\n\n",
+    trimws(paste(Sys.getenv("os"), R.Version()$platform)), "\n",
+    R.version.string, "\n",
+    "shiny v", utils::packageVersion("shiny"), "\n",
+    "vosonSML v", utils::packageVersion("vosonSML"), "\n",
+    "\nHome: ", Sys.getenv("HOME"), "\n\n",
+    "Checking packages...\n")
   )
 }
 

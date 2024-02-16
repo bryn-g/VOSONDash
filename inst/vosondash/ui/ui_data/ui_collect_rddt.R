@@ -1,9 +1,9 @@
-tabItem(tabName = "reddit_collection_tab",
+tabItem(tabName = "rddt_collection_tab",
         fluidRow(
           column(width = 4, offset = 0,
                  fluidRow(
                    tabBox(title = NULL,
-                          id = "reddit_control_tabset",
+                          id = "rddt_control_tabset",
                           width = 12,
                           tabPanel(
                             "Collect Data",
@@ -34,17 +34,17 @@ tabItem(tabName = "reddit_collection_tab",
                                 class = "div_inline"
                               )
                             ),
-                            actionButton("rd_add_url_button", label = "Add"),
+                            actionButton("rd_add_url_btn", label = "Add"),
                             conditionalPanel(
                               div(tags$b("Thread URLs"), class = "div_inline", style = "padding-bottom:10px;padding-right:10px;"),
                               condition = "output.rd_urls_table_toggle",
                               DTOutput("rd_urls_table"),
-                              div(actionButton("rd_remove_url_button", label = "Remove"), style = "padding-top:10px;")
+                              div(actionButton("rd_remove_url_btn", label = "Remove"), style = "padding-top:10px;")
                             ),
                             p(""),
                             disabled(
                               actionButton(
-                                "reddit_collect_button",
+                                "rddt_collect_btn",
                                 label = "Collect Threads",
                                 icon = icon("cloud-arrow-down")
                               )
@@ -55,20 +55,20 @@ tabItem(tabName = "reddit_collection_tab",
                             "Create Network",
                             div(tags$b("Network")),
                             selectInput(
-                              "reddit_network_type_select",
+                              "rddt_network_type_select",
                               label = NULL,
                               choices = c("activity", "actor"),
                               multiple = FALSE
                             ),
                             conditionalPanel(
-                              condition = "input.reddit_network_type_select == 'activity' ||
-                                                        input.reddit_network_type_select == 'actor'",
-                              checkboxInput("reddit_network_text", "Add Text", FALSE)
+                              condition = "input.rddt_network_type_select == 'activity' ||
+                                                        input.rddt_network_type_select == 'actor'",
+                              checkboxInput("rddt_network_text", "Add Text", FALSE)
                             ),
                             p(""),
                             disabled(
                               actionButton(
-                                "reddit_create_button",
+                                "rddt_create_btn",
                                 label = "Create Network",
                                 icon = icon("share-nodes")
                               )
@@ -87,7 +87,7 @@ tabItem(tabName = "reddit_collection_tab",
                      title = div(
                        span(
                          actionButton(
-                           "clear_reddit_console",
+                           "clear_rddt_console",
                            label = icon("erase", lib = "glyphicon"),
                            style = "padding: 2px 8px;",
                            title = "Clear Console"
@@ -95,17 +95,17 @@ tabItem(tabName = "reddit_collection_tab",
                          style = "padding-right: 10px;"
                        ),
                        span(
-                         icon("reddit", class = "reddit_red"),
+                         icon("reddit", class = "rddt_red"),
                          "Reddit Network Collection"
                        )
                      ),
                      tabPanel(
                        "Console",
                        width = 12,
-                       verbatimTextOutput("reddit_arguments_output"),
+                       verbatimTextOutput("rddt_arguments_output"),
                        
                        # reddit collect console
-                       pre(id = "reddit_console", style = "height: 300px; overflow-y: scroll")
+                       pre(id = "rddt_console", style = "height: 300px; overflow-y: scroll")
                      )
                    ),
                    
@@ -121,17 +121,17 @@ tabItem(tabName = "reddit_collection_tab",
               "Results",
               fluidRow(
                 div(
-                  checkboxInput("expand_show_reddit_cols", "Column filters", FALSE),
+                  checkboxInput("expand_show_rddt_cols", "Column filters", FALSE),
                   style = "margin-left:12px; margin-right:5px;",
                   class = "div_inline"
                 ),
                 div(
-                  checkboxInput("dt_reddit_truncate_text_check", "Truncate text", TRUE),
+                  checkboxInput("dt_rddt_truncate_text_chk", "Truncate text", TRUE),
                   class = "div_inline"
                 )
               ),
-              uiOutput("reddit_data_cols_ui"),
-              DT::dataTableOutput("dt_reddit_data")
+              uiOutput("rddt_data_cols_ui"),
+              DT::dataTableOutput("dt_rddt_data")
             )
           ))
 )

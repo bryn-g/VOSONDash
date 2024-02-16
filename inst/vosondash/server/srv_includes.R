@@ -15,6 +15,9 @@ source("server/srv_graph/srv_edge_dt.R", local = TRUE)
 source("server/srv_graph/srv_metrics.R", local = TRUE)  
 source("server/srv_graph/srv_assort.R", local = TRUE)
 
+source("server/srv_graph/srv_plot_layout.R", local = TRUE)
+source("server/srv_graph/srv_plot_igraph.R", local = TRUE)
+source("server/srv_graph/srv_plot_visnet.R", local = TRUE)
 source("server/srv_graph/srv_plot.R", local = TRUE)
 
 source("server/srv_data/srv_meta.R", local = TRUE)
@@ -25,5 +28,3 @@ source("server/srv_data/srv_collect_mtdn.R", local = TRUE)
 source("server/srv_data/srv_collect_ytbe.R", local = TRUE)
 source("server/srv_data/srv_collect_rddt.R", local = TRUE)
 source("server/srv_data/srv_collect_web.R", local = TRUE)
-
-source("server/srv_text/srv_text.R", local = TRUE)

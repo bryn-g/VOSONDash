@@ -9,7 +9,6 @@ get_std_plot <- function(x, type = "b", xlab = "", ylab = "N nodes", ...) {
 }
 
 # generate distribution plot
-# todo: ctrl for whether to include loops in degree calculations
 r_node_distrib_plot <- reactive({
   g <- r_graph_filter()
   
@@ -84,7 +83,6 @@ fmt_double_values <- function(values, n = 3) {
 }
 
 # format network metrics into summary text
-# todo: ctrl for whether to include loops in centralization calculations
 r_graph_metrics <- reactive({
   g <- r_graph_filter()
 

@@ -19,7 +19,7 @@ tabPanel("Network Graph",
                # graph type tabs
                uiOutput("vis_plot_ui"),
                uiOutput("graph_summary_ui"),
-               uiOutput("graph_dl_button_ui"),
+               uiOutput("graph_dl_btn_ui"),
                uiOutput("graph_legend_ui")
              )
            ) |> tagAppendAttributes(id = "plot_column")

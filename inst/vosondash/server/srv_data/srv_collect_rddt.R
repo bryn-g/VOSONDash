@@ -6,10 +6,10 @@
 #### values ---------------------------------------------------------------------------------------------------------- #
 
 red_rv <- reactiveValues(
-  reddit_data = NULL,      # dataframe returned by vosonSML collection
-  reddit_network = NULL,
-  reddit_graphml = NULL,   # igraph graph object returned from collection
-  reddit_wt_graphml = NULL,
+  rddt_data = NULL,      # dataframe returned by vosonSML collection
+  rddt_network = NULL,
+  rddt_graphml = NULL,   # igraph graph object returned from collection
+  rddt_wt_graphml = NULL,
   rd_urls = NULL,
   data_cols = NULL,
   created = NULL
@@ -17,7 +17,7 @@ red_rv <- reactiveValues(
 
 #### events ---------------------------------------------------------------------------------------------------------- #
 
-observeEvent(input$rd_add_url_button, {
+observeEvent(input$rd_add_url_btn, {
   url <- input$rd_url_input
   sort <- input$rd_sort_select
 
@@ -28,7 +28,7 @@ observeEvent(input$rd_add_url_button, {
   updateTextInput(session, "rd_url_input", label = NULL, value = "")
 })
 
-observeEvent(input$rd_remove_url_button,{
+observeEvent(input$rd_remove_url_btn,{
   if (!is.null(input$rd_urls_table_rows_selected)) {
     red_rv$rd_urls <- red_rv$rd_urls[-as.numeric(input$rd_urls_table_rows_selected), ]
   }
@@ -36,10 +36,10 @@ observeEvent(input$rd_remove_url_button,{
   tbl_value <- red_rv$rd_urls
   if (!is.null(tbl_value)) {
     if (inherits(tbl_value, "data.frame") && nrow(tbl_value) < 1) {
-      shinyjs::disable("reddit_collect_button")
+      shinyjs::disable("rddt_collect_btn")
     }
   } else {
-    shinyjs::disable("reddit_collect_button") 
+    shinyjs::disable("rddt_collect_btn") 
   }
 })
 
@@ -47,7 +47,7 @@ observeEvent(red_rv$rd_urls,{
   tbl_value <- red_rv$rd_urls
   if (!is.null(tbl_value)) {
     if (inherits(tbl_value, "data.frame") && nrow(tbl_value)) {
-      shinyjs::enable("reddit_collect_button")
+      shinyjs::enable("rddt_collect_btn")
     }
   }
   
@@ -57,23 +57,23 @@ observeEvent(red_rv$rd_urls,{
 # ------
 
 # reddit collection button pushed
-observeEvent(input$reddit_collect_button, {
+observeEvent(input$rddt_collect_btn, {
   
   # disable button so it is not pushed again
-  shinyjs::disable("reddit_collect_button")
+  shinyjs::disable("rddt_collect_btn")
   
   withProgress(message = "Collecting threads", value = 0.5, {
     
-    with_console_redirect("reddit_console", {
-      # url_list <- sapply(reddit_url_list, function(x) paste0("https://reddit.com/", x))
+    with_console_redirect("rddt_console", {
+      # url_list <- sapply(rddt_url_list, function(x) paste0("https://reddit.com/", x))
       
       url_list <- isolate(red_rv$rd_urls$url)
       sort_list <- isolate(red_rv$rd_urls$sort)
         
       # collect reddit data and print any output to console
       tryCatch({
-        red_rv$reddit_data <- get_rddt_data(url_list, sort_list)
-        red_rv$data_cols <- names(red_rv$reddit_data)
+        red_rv$rddt_data <- get_rddt_data(url_list, sort_list)
+        red_rv$data_cols <- names(red_rv$rddt_data)
       }, error = function(err) {
         incProgress(1, detail = "Error")
         cat(paste("reddit collection error:", err))
@@ -81,7 +81,7 @@ observeEvent(input$reddit_collect_button, {
       })
       
       incProgress(1, detail = "Finished")
-      updateTabItems(session, "reddit_control_tabset", selected = "Create Network")
+      updateTabItems(session, "rddt_control_tabset", selected = "Create Network")
     }) # with_console_redirect
     
   }) # withProgress
@@ -89,37 +89,37 @@ observeEvent(input$reddit_collect_button, {
   # enable button
   #redditArgumentsOutput()
   
-  delay(gbl_scroll_delay, js$scroll_console("reddit_console"))
+  delay(gbl_scroll_delay, js$scroll_console("rddt_console"))
 })
 
-observeEvent(red_rv$reddit_data, {
-  if (!is.null(red_rv$reddit_data) && nrow(red_rv$reddit_data)) {
-    shinyjs::enable("reddit_create_button")
+observeEvent(red_rv$rddt_data, {
+  if (!is.null(red_rv$rddt_data) && nrow(red_rv$rddt_data)) {
+    shinyjs::enable("rddt_create_btn")
   } else {
-    shinyjs::disable("reddit_create_button")
+    shinyjs::disable("rddt_create_btn")
   }
 })
 
-observeEvent(input$reddit_create_button, {
-  net_type <- input$reddit_network_type_select
-  add_text <- input$reddit_network_text
+observeEvent(input$rddt_create_btn, {
+  net_type <- input$rddt_network_type_select
+  add_text <- input$rddt_network_text
   network <- NULL
   
-  shinyjs::disable("reddit_create_button")
+  shinyjs::disable("rddt_create_btn")
   
   withProgress(message = "Creating network", value = 0.5, {
     
-    with_console_redirect("reddit_console", {
+    with_console_redirect("rddt_console", {
       if (net_type == "activity") {
-        network <- vosonSML::Create(isolate(red_rv$reddit_data), "activity", verbose = TRUE)
-        if (add_text) { network <- vosonSML::AddText(network, isolate(red_rv$reddit_data), verbose = TRUE) }
+        network <- vosonSML::Create(isolate(red_rv$rddt_data), "activity", verbose = TRUE)
+        if (add_text) { network <- vosonSML::AddText(network, isolate(red_rv$rddt_data), verbose = TRUE) }
       } else if (net_type == "actor") {
-        network <- vosonSML::Create(isolate(red_rv$reddit_data), "actor", verbose = TRUE)
-        if (add_text) { network <- vosonSML::AddText(network, isolate(red_rv$reddit_data), verbose = TRUE) }
+        network <- vosonSML::Create(isolate(red_rv$rddt_data), "actor", verbose = TRUE)
+        if (add_text) { network <- vosonSML::AddText(network, isolate(red_rv$rddt_data), verbose = TRUE) }
       }
       if (!is.null(network)) {
-        red_rv$reddit_network <- network
-        red_rv$reddit_graphml <- vosonSML::Graph(network)
+        red_rv$rddt_network <- network
+        red_rv$rddt_graphml <- vosonSML::Graph(network)
         red_rv$created <- ts_utc()
       }
     }) # with_console_redirect
@@ -127,21 +127,21 @@ observeEvent(input$reddit_create_button, {
     incProgress(1, detail = "Finished")
   }) # withProgress
   
-  shinyjs::enable("reddit_create_button")
+  shinyjs::enable("rddt_create_btn")
   
-  delay(gbl_scroll_delay, js$scroll_console("reddit_console"))
+  delay(gbl_scroll_delay, js$scroll_console("rddt_console"))
 })
 
 # download and view actions
-callModule(collect_data_btns, "reddit", data = reactive({ red_rv$reddit_data }), file_prefix = "reddit")
-callModule(collect_network_btns, "reddit", network = reactive({ red_rv$reddit_network }), file_prefix = "reddit")
-callModule(collect_graph_btns, "reddit", graph = reactive({ red_rv$reddit_graphml }), file_prefix = "reddit")
-reddit_view_rvalues <- callModule(collect_view_graph_btns, "reddit", graph = reactive({ red_rv$reddit_graphml }))
+callModule(collect_data_btns, "reddit", data = reactive({ red_rv$rddt_data }), file_prefix = "reddit")
+callModule(collect_network_btns, "reddit", network = reactive({ red_rv$rddt_network }), file_prefix = "reddit")
+callModule(collect_graph_btns, "reddit", graph = reactive({ red_rv$rddt_graphml }), file_prefix = "reddit")
+rddt_view_rvalues <- callModule(collect_view_graph_btns, "reddit", graph = reactive({ red_rv$rddt_graphml }))
 
-observeEvent(reddit_view_rvalues$data, {
-  req(reddit_view_rvalues$data)
+observeEvent(rddt_view_rvalues$data, {
+  req(rddt_view_rvalues$data)
   # f_init_graph(
-  #   data = reddit_view_rvalues$data,
+  #   data = rddt_view_rvalues$data,
   #   meta = list(
   #     desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
   #     type = "reddit",
@@ -149,21 +149,21 @@ observeEvent(reddit_view_rvalues$data, {
   #     seed = sample(1:20000, 1)
   #   )
   # )
-  # #updateCheckboxInput(session, "expand_demo_data_check", value = FALSE)
+  # #updateCheckboxInput(session, "expand_demo_data_chk", value = FALSE)
   meta <- list(
     desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
     type = "reddit",
-    network = input$reddit_network_type_select,
-    name = paste0("reddit - ", input$reddit_network_type_select),
+    network = input$rddt_network_type_select,
+    name = paste0("reddit - ", input$rddt_network_type_select),
     created = red_rv$created
   )
   
-  g_rv$data <- list(data = reddit_view_rvalues$data, meta = meta)
+  g_rv$data <- list(data = rddt_view_rvalues$data, meta = meta)
   
 }, ignoreInit = TRUE)
 
-observeEvent(input$clear_reddit_console, {
-  reset_console("reddit_console")
+observeEvent(input$clear_rddt_console, {
+  reset_console("rddt_console")
 })
 #### output ---------------------------------------------------------------------------------------------------------- #
 
@@ -186,42 +186,42 @@ output$rd_urls_table_toggle <- reactive({
 outputOptions(output, "rd_urls_table_toggle", suspendWhenHidden = FALSE)
 
 # render reddit data table
-output$dt_reddit_data <- DT::renderDataTable({
+output$dt_rddt_data <- DT::renderDataTable({
   datatableRedditData()
 })
 
-observeEvent(input$select_all_reddit_dt_columns, {
-  updateCheckboxGroupInput(session, "show_reddit_cols", label = NULL,
+observeEvent(input$select_all_rddt_dt_columns, {
+  updateCheckboxGroupInput(session, "show_rddt_cols", label = NULL,
                            choices = isolate(red_rv$data_cols),
                            selected = isolate(red_rv$data_cols),
                            inline = TRUE)
 })
 
-observeEvent(input$clear_all_reddit_dt_columns, {
-  updateCheckboxGroupInput(session, "show_reddit_cols", label = NULL,
+observeEvent(input$clear_all_rddt_dt_columns, {
+  updateCheckboxGroupInput(session, "show_rddt_cols", label = NULL,
                            choices = isolate(red_rv$data_cols),
                            selected = character(0),
                            inline = TRUE)
 })
 
-observeEvent(input$reset_reddit_dt_columns, {
-  updateCheckboxGroupInput(session, "show_reddit_cols", label = NULL,
+observeEvent(input$reset_rddt_dt_columns, {
+  updateCheckboxGroupInput(session, "show_rddt_cols", label = NULL,
                            choices = isolate(red_rv$data_cols),
                            selected = c("subreddit", "thread_id", "comm_id", "comm_date", "user", 
                                         "comment_score", "comment"),
                            inline = TRUE)
 })
 
-output$reddit_data_cols_ui <- renderUI({
+output$rddt_data_cols_ui <- renderUI({
   data <- red_rv$data_cols
   
   if (is.null(data)) { return(NULL) }
   
-  conditionalPanel(condition = "input.expand_show_reddit_cols",
-                   div(actionButton("select_all_reddit_dt_columns", "Select all"), 
-                       actionButton("clear_all_reddit_dt_columns", "Clear all"),
-                       actionButton("reset_reddit_dt_columns", "Reset")),
-                   checkboxGroupInput("show_reddit_cols", label = NULL,
+  conditionalPanel(condition = "input.expand_show_rddt_cols",
+                   div(actionButton("select_all_rddt_dt_columns", "Select all"), 
+                       actionButton("clear_all_rddt_dt_columns", "Clear all"),
+                       actionButton("reset_rddt_dt_columns", "Reset")),
+                   checkboxGroupInput("show_rddt_cols", label = NULL,
                                       choices = red_rv$data_cols,
                                       selected = c("subreddit", "thread_id", "comm_id", "comm_date", "user", 
                                                    "comment_score", "comment"),
@@ -232,16 +232,16 @@ output$reddit_data_cols_ui <- renderUI({
 #### reactives ------------------------------------------------------------------------------------------------------- #
 
 datatableRedditData <- reactive({
-  data <- red_rv$reddit_data
+  data <- red_rv$rddt_data
   
   if (is.null(data)) { return(NULL) }
   
   cls_lst <- class(data)
   class(data) <- cls_lst[!cls_lst %in% c("datasource", "reddit")]
   
-  if (!is.null(input$show_reddit_cols)) {
-    if (length(input$show_reddit_cols) > 0) {
-      data <- dplyr::select(data, input$show_reddit_cols)
+  if (!is.null(input$show_rddt_cols)) {
+    if (length(input$show_rddt_cols) > 0) {
+      data <- dplyr::select(data, input$show_rddt_cols)
     } else { return(NULL) }
   } else { return(NULL) }
   
@@ -255,9 +255,9 @@ datatableRedditData <- reactive({
     }
   }
   
-  if (!is.null(red_rv$reddit_data)) {
+  if (!is.null(red_rv$rddt_data)) {
     col_defs <- NULL
-    if (input$dt_reddit_truncate_text_check == TRUE) {
+    if (input$dt_rddt_truncate_text_chk == TRUE) {
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
@@ -271,7 +271,7 @@ datatableRedditData <- reactive({
 
 #### functions ------------------------------------------------------------------------------------------------------- #
 
-output$reddit_arguments_output <- renderText({
+output$rddt_arguments_output <- renderText({
   tbl_value <- red_rv$rd_urls
   
   if (!is.null(tbl_value)) {

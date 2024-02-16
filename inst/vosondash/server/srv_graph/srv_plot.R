@@ -1,7 +1,3 @@
-source("server/srv_graph/srv_plot_layout.R", local = TRUE)
-source("server/srv_graph/srv_plot_igraph.R", local = TRUE)
-source("server/srv_graph/srv_plot_visnet.R", local = TRUE)
-
 # plot reactive variables
 g_plot_rv <- reactiveValues(
   height = gbl_plot_height,
@@ -10,7 +6,7 @@ g_plot_rv <- reactiveValues(
 )
 
 # normalize continuous values
-norm_values <- function(x) {
+f_norm_vals <- function(x) {
   # all values the same
   if (var(x) == 0) return(rep(0.1, length(x)))
   
@@ -39,10 +35,8 @@ observeEvent(c(
       
       if (tab == "visNetwork") {
         g_plot_rv$height_legend <- ifelse(input$visnet_id_sel_chk, 85, 42)
-        # disable_igraph_ctrls()
         enable_visnet_ctrls()
         
-        # shinyjs::enable("visnet_html_dl_btn")
         shinyjs::toggle("visnet_html_dl_btn", condition = input$overlay_dl_btns_chk)
       } else {
         g_plot_rv$height_legend <- 42
@@ -71,7 +65,6 @@ observeEvent(c(
 
 # init
 observeEvent(input$canvas_tab, {
-  #updateTabsetPanel(session, "canvas_tab", selected = "voson_info")
   addCssClass(selector = "a[data-value = 'igraph']", class = "inactive_menu_link")
   addCssClass(selector = "a[data-value = 'visNetwork']", class = "inactive_menu_link")
   addCssClass(selector = "a[data-value = 'graph_info']", class = "inactive_menu_link")
@@ -195,7 +188,6 @@ output$graph_summary_ui <- renderUI({
 # standard plots cannot be treated as objects
 # res = 109 consider allowing to change res to save plots at
 output$plot_igraph <- renderPlot({
-  # return(VOSONDash::get_empty_plot("Welcome to VOSON Lab"))
   r_graph_igraph_plot()
 }, height = function() as.numeric(g_plot_rv$height), res = 96)
 

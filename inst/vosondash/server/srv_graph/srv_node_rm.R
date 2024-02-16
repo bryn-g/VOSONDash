@@ -1,11 +1,11 @@
 dt_prev_sel <- reactiveValues(nodes = c())
 
 # add selected data table rows to pruned nodes list
-observeEvent(input$prune_selected_rows_button, {
+observeEvent(input$rm_sel_rows_btn, {
   g <- r_graph_filter()
   
   # this updates prune list and triggers graph redraw
-  pruneListAddNames()
+  node_rm_lst_add_sel()
   
   # update prune list select box
   prune_list <- g_nodes_rv$pruned
@@ -27,10 +27,10 @@ observeEvent(input$prune_selected_rows_button, {
 })
 
 # add unselected data table rows to pruned nodes list
-observeEvent(input$prune_unselected_rows_button, {
+observeEvent(input$rm_unsel_rows_btn, {
   g <- r_graph_filter()
   
-  pruneListAddOtherNames()
+  node_rm_lst_add_unsel()
   
   # update prune list select box
   prune_list <- g_nodes_rv$pruned
@@ -55,7 +55,7 @@ observeEvent(input$prune_unselected_rows_button, {
 observeEvent(input$nbh_prune_unsel, {
   g <- r_graph_filter()
   
-  pruneListAddOtherNames()
+  node_rm_lst_add_unsel()
   
   prune_list <- g_nodes_rv$pruned
   if (is.null(prune_list)) { 
@@ -170,7 +170,7 @@ observeEvent(input$nbh_undo_btn, {
 })
 
 # add selected data table row name values to pruned nodes list
-pruneListAddNames <- reactive({
+node_rm_lst_add_sel <- reactive({
   dt_nodes <- isolate(r_graph_nodes_df())
   dt_selected_rows <- input$dt_nodes_rows_selected
   prune_list <- g_nodes_rv$pruned
@@ -184,7 +184,7 @@ pruneListAddNames <- reactive({
 })
 
 # add deselected data table row name values to pruned nodes list
-pruneListAddOtherNames <- reactive({
+node_rm_lst_add_unsel <- reactive({
   dt_nodes <- isolate(r_graph_nodes_df())
   dt_selected_rows <- input$dt_nodes_rows_selected
   prune_list <- g_nodes_rv$pruned

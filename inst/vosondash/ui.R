@@ -42,16 +42,6 @@ ui <-
           )
         ),
         navbarMenu(
-          "Text Analysis",
-          icon = icon("quote-right"),
-          tabPanel(
-            "Word Frequency",
-            value = "word_freq_tab",
-            icon = icon("arrow-up-wide-short"),
-            source("ui/ui_text/ui_text.R")$value
-          )
-        ),
-        navbarMenu(
           "Collection",
           icon = icon("cloud-arrow-down"),
           "Social Media",
@@ -63,13 +53,13 @@ ui <-
           ),
           tabPanel(
             "Youtube",
-            value = "youtube_ui",
+            value = "ytbe_ui",
             icon = icon("youtube"),
             source("ui/ui_data/ui_collect_ytbe.R")$value
           ),
           tabPanel(
             "Reddit",
-            value = "reddit_ui",
+            value = "rddt_ui",
             icon = icon("reddit"),
             source("ui/ui_data/ui_collect_rddt.R")$value
           ),

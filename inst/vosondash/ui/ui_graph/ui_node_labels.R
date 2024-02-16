@@ -13,7 +13,6 @@ fluidRow(
       
       fluidRow(column(
         width = 6,
-        #shinyjs::disabled(
         selectInput(
           "node_label_sel",
           label = NULL,
@@ -21,7 +20,6 @@ fluidRow(
           selected = "None",
           multiple = FALSE
         )
-        #)
       )),
       checkboxInput("node_sel_labels_chk", "Only selected nodes", FALSE),
     ),
@@ -30,7 +28,7 @@ fluidRow(
     ),
     conditionalPanel(condition = gbl_is_macos,
                      disabled(
-                       checkboxInput("macos_font_check", "Arial Unicode MS", TRUE)
+                       checkboxInput("macos_font_chk", "Arial Unicode MS", TRUE)
                      )),
     fluidRow(column(
       width = 6,

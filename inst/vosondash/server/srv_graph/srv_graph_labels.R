@@ -41,8 +41,8 @@ observeEvent(g_nodes_rv$labels, {
     session,
     "node_label_sel",
     label = NULL,
-    choices = r_node_attr_lst()$attrs, # g_nodes_rv$labels
-    selected = r_node_attr_lst()$sel # g_nodes_rv$label_selected # r_node_attr_lst()$sel
+    choices = r_node_attr_lst()$attrs,
+    selected = r_node_attr_lst()$sel
   )
 })
 
@@ -89,32 +89,3 @@ observeEvent(g_edges_rv$labels, {
     selected = r_edge_attr_lst()$sel
   )
 })
-
-# setELabels <- function(attr_e) {
-#   sel <- NULL
-#   if ("label" %in% attr_e) {
-#     E(ng_rv$graph_data)$imported_Label <- E(ng_rv$graph_data)$label
-#     attr_e <- append(attr_e, "imported_Label")
-#     sel <- "imported_Label"
-#   }
-#   label_list <- sort(attr_e[!attr_e %in% c("label")])
-#   if (is.null(sel)) {
-#     sel <- "None"
-#   }
-#   
-#   updatePickerInput(
-#     session,
-#     "edge_label_select",
-#     label = NULL,
-#     choices = label_list,
-#     selected = sel
-#   )
-# }
-# 
-# observeEvent(input$edge_label_sel, {
-#   igraph::E(g)$label
-# })
-# 
-# observeEvent(input$edge_label_color, {
-#   igraph::E(g)$label.color
-# })

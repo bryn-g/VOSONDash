@@ -1,21 +1,21 @@
-tabItem(tabName = "hyperlink_collection_tab",
+tabItem(tabName = "web_collection_tab",
         fluidRow(
           column(width = 4, offset = 0,
                  fluidRow(
                    tabBox(
                      title = NULL,
-                     id = "hyperlink_control_tabset",
+                     id = "web_ctrl_tabset",
                      width = 12,
                      tabPanel(
                        "Collect Data",
                        
                        div(tags$b("Seed Page URL")),
-                       textInput("hyperlink_url_input", label = NULL, value = ""),
+                       textInput("web_url_input", label = NULL, value = ""),
                        div(
                          div(tags$b("Follow hrefs"), class = "div_inline", style = "padding-bottom:10px;padding-right:10px;"),
                          div(
                            selectInput(
-                             "hyperlink_crawl_type_select",
+                             "web_crawl_type_sel",
                              label = NULL,
                              choices = c(
                                "external" = "ext",
@@ -33,7 +33,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                          div(tags$b("Max depth"), class = "div_inline", style = "padding-bottom:10px;padding-right:10px;"),
                          div(
                            textInput(
-                             "hyperlink_max_depth_input",
+                             "web_max_depth_input",
                              label = NULL,
                              value = "",
                              width = "50px"
@@ -45,7 +45,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                          div(tags$b("Request delay"), class = "div_inline", style = "padding-bottom:10px;padding-right:10px;"),
                          div(
                            checkboxInput(
-                             "hyperlink_request_delay_robots_checkbox",
+                             "web_robots_delay_chk",
                              label = "Use robots.txt",
                              value = TRUE,
                              width = NULL
@@ -53,7 +53,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                            class = "div_inline"
                          )
                        ),
-                       conditionalPanel(condition = "!input.hyperlink_request_delay_robots_checkbox",
+                       conditionalPanel(condition = "!input.web_robots_delay_chk",
                                         div(
                                           div(
                                             tags$b("Custom delay (secs)"),
@@ -62,7 +62,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                                           ),
                                           div(
                                             textInput(
-                                              "hyperlink_delay_input",
+                                              "web_delay_input",
                                               label = NULL,
                                               value = 2,
                                               width = "50px"
@@ -71,19 +71,19 @@ tabItem(tabName = "hyperlink_collection_tab",
                                           )
                                         )),
                        
-                       actionButton("hyperlink_add_url_button", label = "Add"),
+                       actionButton("web_add_url_btn", label = "Add"),
                        conditionalPanel(
                          condition = "output.seed_table_toggle",
-                         DTOutput("hyperlink_seed_urls_table"),
+                         DTOutput("web_seed_urls_table"),
                          div(
-                           actionButton("hyperlink_remove_url_button", label = "Remove"),
+                           actionButton("web_remove_url_btn", label = "Remove"),
                            style = "padding-top:10px;"
                          )
                        ),
                        p(""),
                        disabled(
                          actionButton(
-                           "hyperlink_collect_button",
+                           "web_collect_btn",
                            label = "Collect Hyperlinks",
                            icon = icon("cloud-arrow-down")
                          )
@@ -95,7 +95,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                        "Create Network",
                        div(tags$b("Network")),
                        selectInput(
-                         "hyperlink_network_type_select",
+                         "web_network_type_select",
                          label = NULL,
                          choices = c("activity", "actor"),
                          multiple = FALSE
@@ -103,7 +103,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                        p(""),
                        disabled(
                          actionButton(
-                           "hyperlink_create_button",
+                           "web_create_btn",
                            label = "Create Network",
                            icon = icon("share-nodes")
                          )
@@ -122,7 +122,7 @@ tabItem(tabName = "hyperlink_collection_tab",
                      title = div(
                        span(
                          actionButton(
-                           "clear_hyperlink_console",
+                           "clear_web_console",
                            label = icon("erase", lib = "glyphicon"),
                            style = "padding: 2px 8px;",
                            title = "Clear Console"
@@ -130,22 +130,22 @@ tabItem(tabName = "hyperlink_collection_tab",
                          style = "padding-right: 10px;"
                        ),
                        span(
-                         icon("globe", class = "hyperlink_green"),
+                         icon("globe", class = "web_green"),
                          "Hyperlink Network Collection"
                        )
                      ),
                      tabPanel(
                        "Console",
                        width = 12,
-                       verbatimTextOutput("hyperlink_arguments_output"),
+                       verbatimTextOutput("web_arguments_output"),
                        tags$head(
                          tags$style(
-                           "#hyperlink_arguments_output{overflow-y:scroll; max-height: 80px;}"
+                           "#web_arguments_output{overflow-y:scroll; max-height: 80px;}"
                          )
                        ),
                        
                        # hyperlink collect console
-                       pre(id = "hyperlink_console", style = "height: 300px; overflow-y: scroll")
+                       pre(id = "web_console", style = "height: 300px; overflow-y: scroll")
                      )
                    ),
                    
@@ -162,17 +162,17 @@ tabItem(tabName = "hyperlink_collection_tab",
               "Results",
               fluidRow(
                 div(
-                  checkboxInput("expand_show_hyperlink_cols", "Column filters", FALSE),
+                  checkboxInput("expand_show_web_cols", "Column filters", FALSE),
                   style = "margin-left:12px; margin-right:5px;",
                   class = "div_inline"
                 ),
                 div(
-                  checkboxInput("dt_hyperlink_truncate_text_check", "Truncate text", TRUE),
+                  checkboxInput("dt_web_truncate_text_chk", "Truncate text", TRUE),
                   class = "div_inline"
                 )
               ),
-              uiOutput("hyperlink_data_cols_ui"),
-              DT::dataTableOutput("dt_hyperlink_data")
+              uiOutput("web_data_cols_ui"),
+              DT::dataTableOutput("dt_web_data")
             )
           )
         )

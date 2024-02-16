@@ -18,14 +18,9 @@ r_graph_igraph_plot <- reactive({
   })
   
   sel_node_rows <- input$dt_nodes_rows_selected
-  # sel_edges <- input$dt_edges_rows_selected
-  # g_layout <- input$graph_layout_select
-  # g_seed <- g_rv$seed
   g_spread <- input$igraph_spread_slider  
   node_size_attr <- input$node_size_sel
   node_size_mplr <- input$node_size_slider  
-  
-  # use_node_index_label <- input$node_index_chk
   
   # save and restore graphics parameters
   saved_par <- par(no.readonly = TRUE)  
@@ -96,7 +91,7 @@ r_graph_igraph_plot <- reactive({
   # create a list for plot parameters
   igraph_params <- list(g)
   
-  # edge attributes - ADD TO UI
+  # edge attributes
   igraph_params["edge.arrow.size"] <- input$edge_arrow_size
   igraph_params["edge.arrow.width"] <- input$edge_arrow_width
   igraph_params["edge.width"] <- input$edge_width
@@ -108,12 +103,12 @@ r_graph_igraph_plot <- reactive({
   igraph_params[["vertex.frame.color"]] <- ifelse(V(g)$id %in% sel_node_row_names, "#000000", "gray")
   igraph_params[["vertex.label.font"]] <- ifelse(V(g)$id %in% sel_node_row_names, 2, 1)
   
-  # ----- node size
+  # node size
   base_node_size <-input$igraph_node_base_size_slider
   
   # multiplier for normalized node sizes
   norm_mplr <- 3
-  igraph_node_size <- function(x) base_node_size + (((norm_values(x) + 0.1) * norm_mplr) * node_size_mplr)
+  igraph_node_size <- function(x) base_node_size + (((f_norm_vals(x) + 0.1) * norm_mplr) * node_size_mplr)
   
   # set node size
   if (node_size_attr != "None") {
@@ -123,7 +118,7 @@ r_graph_igraph_plot <- reactive({
   }
   igraph_params[["vertex.size"]] <- node_size
   
-  # ----- node labels
+  # node labels
   
   # label.degree defines the position of the node labels, relative to the center of the nodes
   # it is interpreted as an angle in radian, zero means 'to the right', and 'pi' means to the left,
@@ -140,7 +135,7 @@ r_graph_igraph_plot <- reactive({
     not_win <- .Platform$OS.type != "windows"
     arial_unicode <- "Arial Unicode MS" %in% VOSONDash::get_sysfont_names()
     
-    if (not_win & arial_unicode & input$macos_font_check) {
+    if (not_win & arial_unicode & input$macos_font_chk) {
       igraph_params["vertex.label.family"] <- igraph_params["edge.label.family"] <- "Arial Unicode MS"
     }
     
@@ -181,15 +176,15 @@ r_graph_igraph_plot <- reactive({
       if (input$node_label_prop_chk) {
         igraph_params[["vertex.label.cex"]] <- switch(
           node_size_attr,
-          "Degree" = (norm_values(V(g)$Degree)) + base_label_size,
-          "Indegree" = (norm_values(V(g)$Indegree)) + base_label_size,
-          "Outdegree" = (norm_values(V(g)$Outdegree)) + base_label_size,
-          "Betweenness" = (norm_values(V(g)$Betweenness)) + base_label_size,
-          "Closeness" = (norm_values(V(g)$Closeness)) + base_label_size,
+          "Degree" = (f_norm_vals(V(g)$Degree)) + base_label_size,
+          "Indegree" = (f_norm_vals(V(g)$Indegree)) + base_label_size,
+          "Outdegree" = (f_norm_vals(V(g)$Outdegree)) + base_label_size,
+          "Betweenness" = (f_norm_vals(V(g)$Betweenness)) + base_label_size,
+          "Closeness" = (f_norm_vals(V(g)$Closeness)) + base_label_size,
           "None" = base_label_size
         )  
       } else {
-        igraph_params[["vertex.label.cex"]] <- input$node_label_size  # node label size - ADD TO UI
+        igraph_params[["vertex.label.cex"]] <- input$node_label_size  # node label size
       }
       
     } else {
@@ -217,9 +212,7 @@ r_graph_igraph_plot <- reactive({
   if (isTruthy(g_spread)) graph_layout <- graph_layout * g_spread
   
   igraph_params[["layout"]] <- graph_layout
-  
-  #cat(file=stderr(), "running r_graph_igraph_plot\n")
-  
+
   # plot graph
   par(mar = rep(0, 4))
   do.call(plot.igraph, igraph_params)

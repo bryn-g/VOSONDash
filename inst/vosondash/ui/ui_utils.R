@@ -41,7 +41,7 @@ ui_console_tabbox <- function(title, id_params_out, id_console, height = "300") 
 ui_collect_data_btns <- function(id) {
   sidebarPanel(
     width = 12,
-    class = "custom_well_for_buttons",
+    class = "custom_well_for_btns",
     fluidRow(
       collect_data_btns_ui(id),
       collect_network_btns_ui(id),

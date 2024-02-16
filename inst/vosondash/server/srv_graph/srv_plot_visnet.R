@@ -2,9 +2,7 @@ r_graph_visnet_plot <- reactive({
   nodes <- r_graph_nodes_df()
   edges <- r_graph_edges_df()
 
-  if (is.null(nodes) | is.null(edges)) {
-    return(NULL)
-  }
+  if (is.null(nodes) | is.null(edges)) return(NULL)
   if (nrow(nodes) < 1) return(NULL)
   
   isolate({
@@ -21,19 +19,17 @@ r_graph_visnet_plot <- reactive({
   use_v_colors <- input$node_use_g_cols_chk
   node_index_chk <- input$node_index_chk
   
-  # nodes$font.size <- 24
   base_font_size <- 24
   
-  # base_node_size <- 20
   base_node_size <- input$visnet_node_base_size_slider
   norm_multi <- 5
   
   vis_vsize <- function(x) {
-    base_node_size + (((norm_values(x) + 0.1) * norm_multi) * node_size_multiplier)
+    base_node_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_multiplier)
   }
 
   vis_lab_size <- function(x) {
-    base_font_size + (((norm_values(x) + 0.1) * norm_multi) * node_size_multiplier)
+    base_font_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_multiplier)
   }
   
   node_size <- ((base_node_size + 0.1) * node_size_multiplier)
@@ -153,9 +149,9 @@ r_graph_visnet_plot <- reactive({
       img_shape <- "circularImage"
       if (input$node_mtdn_img_sq_chk) img_shape <- "image"
       nodes <- nodes |>
-        dplyr::mutate(image = ifelse(is.na(.data$user.avatar), "www/mast.png", .data$user.avatar), shape = img_shape) |>
-        dplyr::mutate(image = ifelse(is.null(.data$user.avatar), "www/mast.png", .data$user.avatar), shape = img_shape) |>
-        dplyr::mutate(image = ifelse(trimws(.data$user.avatar) == "", "www/mast.png", .data$user.avatar), shape = img_shape)
+        dplyr::mutate(image = ifelse(is.na(.data$user.avatar), "mast.png", .data$user.avatar), shape = img_shape) |>
+        dplyr::mutate(image = ifelse(is.null(.data$user.avatar), "mast.png", .data$user.avatar), shape = img_shape) |>
+        dplyr::mutate(image = ifelse(trimws(.data$user.avatar) == "", "mast.png", .data$user.avatar), shape = img_shape)
     }
   }
   
@@ -201,21 +197,15 @@ r_graph_visnet_plot <- reactive({
   
   e_arrows <- e_smooth <- NULL
   if (g_rv$dir) e_arrows <- "to"
-  if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { e_smooth <- list(enabled = TRUE, type = "diagonalCross") }
+  if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { 
+    e_smooth <- list(enabled = TRUE, type = "diagonalCross")
+  }
   
   vis_net <- vis_net |> 
     visNetwork::visEdges(
       arrows = e_arrows,
       smooth = e_smooth,
-      color = list(color = input$edge_color)) # "#b0b0b0"
-  
-  # if (isTruthy(input$edge_labels_chk) & ("label" %in% colnames(edges))) {
-  #   vis_net <- vis_net |> 
-  #     visNetwork::visEdges(
-  #       font.size = 12 + as.numeric(input$edge_label_size),
-  #       font.color = input$edge_label_color
-  #     )
-  # }
+      color = list(color = input$edge_color))
   
   vis_net
 })

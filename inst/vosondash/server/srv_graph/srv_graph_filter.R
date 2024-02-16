@@ -40,11 +40,7 @@ r_graph_filter <- reactive({
     for (cmd in f_order) {
       if (cmd == "rm_pruned") {
   
-        # to do
         if (input$fltr_prune_chk) {
-          # rm_ids <- which(igraph::V(g)$id %in% ids)
-          # g <- igraph::delete_vertices(g, rm_ids)
-          
           g <- VOSONDash::filter_nodes(g, g_nodes_rv$pruned)
    
           fltr_state$fltr_prune_chk <- TRUE
@@ -102,21 +98,13 @@ r_graph_filter <- reactive({
     }
   }
   
-  # remove nodes from layout coords
-  # coords_base <- g_layout_rv$coords_base
-  # if (igraph::gorder(g) > nrow(coords_base)) {
-  #   
-  # } else {
-  #   g_layout_rv$coords <- coords_base[rownames(coords_base) %in% igraph::V(g)$id, ] 
-  # }
-  
   # which filters ran
   f_post_fltr_state(fltr_state)
   
-  # measures of centrality
+  # add measures of centrality
   g <- VOSONDash::add_centrality_measures(g)
   
-  # update node attributes will also update labels
+  # update node and edge attributes
   g_nodes_rv$attrs <- igraph::vertex_attr_names(g)
   g_edges_rv$attrs <- igraph::edge_attr_names(g)
   
@@ -137,8 +125,6 @@ r_graph_filter <- reactive({
   if (isTruthy(g_edges_rv$label_selected)) {
     igraph::E(g)$label <- igraph::edge_attr(g, g_edges_rv$label_selected)
   }
-  
-  # cat(file=stderr(), paste0("- r_graph_filter - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   
   g
 })

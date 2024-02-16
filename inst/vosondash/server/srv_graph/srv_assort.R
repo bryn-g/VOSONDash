@@ -1,38 +1,25 @@
-#' VOSON Dashboard assortativityServer
-#'
-#' Measures of assortative mixing and homophily in network.
-#'
-
-#### values ---------------------------------------------------------------------------------------------------------- #
-
-assort_rvalues <- reactiveValues(
-  mixmat_message = NULL # displays a message if problem with mixing matrix
+assort_rv <- reactiveValues(
+  mixmat_msg = NULL # displays a message if problem with mixing matrix
 )
 
-#### events ---------------------------------------------------------------------------------------------------------- #
-
-#### output ---------------------------------------------------------------------------------------------------------- #
-
-output$assortativity_details_output <- renderText({
-  assortativityPrelimOutput()
+output$assort_details <- renderText({
+  assort_txt()
 })
 
-output$mixing_matrix <- DT::renderDataTable({
-  DT::datatable(assortativityMMOutput(), options = list(paging = F, searching = F, bInfo = F, ordering = F))
+output$mixmat <- DT::renderDataTable({
+  DT::datatable(mixmat_txt(), options = list(paging = FALSE, searching = FALSE, bInfo = FALSE, ordering = FALSE))
 })
 
-output$assortativity_homophily_output <- renderText({
-  homophilyOutput()
+output$homophily_details <- renderText({
+  homophily_txt()
 })
 
-output$mixing_matrix_details_output <- renderText({
-  assort_rvalues$mixmat_message
+output$mixmat_details <- renderText({
+  assort_rv$mixmat_msg
 })
-
-#### reactives ------------------------------------------------------------------------------------------------------- #
 
 # returns selected categorical attribute output message
-assortativityPrelimOutput <- reactive({
+assort_txt <- reactive({
   g <- r_graph_filter()
   
   output <- c()
@@ -49,27 +36,27 @@ assortativityPrelimOutput <- reactive({
 })
 
 # creates and returns mixing matrix dataframe, or returns null and sets an output message
-assortativityMMOutput <- reactive({
+mixmat_txt <- reactive({
   g <- r_graph_filter()
   
   if (!isTruthy(g)) {
-    assort_rvalues$mixmat_message <- "No Data."
+    assort_rv$mixmat_msg <- "No Data."
     return(NULL)
   }
   
   cat_sel <- g_nodes_rv$cat_selected
   if (nchar(cat_sel) && cat_sel != "All") {  # eventually will have cat attr selected by default...
-    assort_rvalues$mixmat_message <- NULL
+    assort_rv$mixmat_msg <- NULL
     df <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
     return(df)
   } else {
-    assort_rvalues$mixmat_message <- "Categorical attribute not present, or not selected."
+    assort_rv$mixmat_msg <- "Categorical attribute not present, or not selected."
     return(NULL)      
   }
 })
 
 # returns output for homophily index calculations
-homophilyOutput <- reactive({
+homophily_txt <- reactive({
   g <- r_graph_filter()
   
   output <- c()

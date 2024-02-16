@@ -7,58 +7,58 @@ yt_rv <- reactiveValues(
   created = NULL
 )
 
-youtube_api_key <- NULL        # youtube api key
-youtube_video_id_list <- c()   # list of youtube video ids to collect on
-youtube_max_comments <- 200
+ytbe_api_key <- NULL        # youtube api key
+ytbe_video_id_list <- c()   # list of youtube video ids to collect on
+ytbe_max_comments <- 200
 
 # update youtube api key when field input changes
-observeEvent(input$youtube_api_key_input, {
+observeEvent(input$ytbe_api_key_input, {
   setYoutubeAPIKey()
 })
 
 # when the youtube add video id button is pushed update the list and input fields
-observeEvent(input$youtube_add_video_id_button, {
-  updateTextInput(session, "youtube_video_id_input", value = "")
+observeEvent(input$ytbe_add_video_id_btn, {
+  updateTextInput(session, "ytbe_video_id_input", value = "")
   
   videoListAdd()
   
-  updateSelectInput(session, "youtube_video_id_list_output",
-                    choices = youtube_video_id_list)
+  updateSelectInput(session, "ytbe_video_id_list_output",
+                    choices = ytbe_video_id_list)
 })
 
 # when the youtube remove video id button is pushed update the list and input fields
-observeEvent(input$youtube_remove_video_id_button, {
+observeEvent(input$ytbe_remove_video_id_btn, {
   videoListRemove()
   
-  updateSelectInput(session, "youtube_video_id_list_output",
-                    choices = youtube_video_id_list)
+  updateSelectInput(session, "ytbe_video_id_list_output",
+                    choices = ytbe_video_id_list)
 })
 
 # set count parameter and reset if not numeric or less than one
-observeEvent(input$youtube_max_comments_input, {
-  if (!is.na(input$youtube_max_comments_input)) {
-    if (!is.numeric(input$youtube_max_comments_input) ||input$youtube_max_comments_input < 1) {
-      updateNumericInput(session, "youtube_max_comments_input", value = 200)
+observeEvent(input$ytbe_max_comments_input, {
+  if (!is.na(input$ytbe_max_comments_input)) {
+    if (!is.numeric(input$ytbe_max_comments_input) ||input$ytbe_max_comments_input < 1) {
+      updateNumericInput(session, "ytbe_max_comments_input", value = 200)
     }
   }
-  youtube_max_comments <<- input$youtube_max_comments_input
+  ytbe_max_comments <<- input$ytbe_max_comments_input
 })
 
 # youtube collection button pushed
-observeEvent(input$youtube_collect_button, {
+observeEvent(input$ytbe_collect_btn, {
   
   # disable button so it is not pushed again
-  shinyjs::disable("youtube_collect_button")
+  shinyjs::disable("ytbe_collect_btn")
   
   withProgress(message = "Collecting comments", value = 0.5, {
     
     with_console_redirect("ytbe_console", {
-      youtube_video_id_list <- sapply(youtube_video_id_list, 
+      ytbe_video_id_list <- sapply(ytbe_video_id_list, 
                                       function(x) gsub("^v=", "", x, ignore.case = TRUE, perl = TRUE))
       
       # collect youtube data and print any output to console
       tryCatch({
-        yt_rv$yt_data <- get_youtube_data(youtube_api_key, youtube_video_id_list, youtube_max_comments)
+        yt_rv$yt_data <- get_ytbe_data(ytbe_api_key, ytbe_video_id_list, ytbe_max_comments)
         
         yt_rv$data_cols <- names(yt_rv$yt_data)
       }, error = function(err) {
@@ -68,7 +68,7 @@ observeEvent(input$youtube_collect_button, {
       })
       
       incProgress(1, detail = "Finished")
-      updateTabItems(session, "youtube_control_tabset", selected = "Create Network")
+      updateTabItems(session, "ytbe_control_tabset", selected = "Create Network")
       
     }) # with_console_redirect
     
@@ -82,19 +82,19 @@ observeEvent(input$youtube_collect_button, {
 
 observeEvent(yt_rv$yt_data, {
   if (!is.null(yt_rv$yt_data) && nrow(yt_rv$yt_data)) {
-    shinyjs::enable("youtube_create_button")
+    shinyjs::enable("ytbe_create_btn")
   } else {
-    shinyjs::disable("youtube_create_button")
+    shinyjs::disable("ytbe_create_btn")
   }
 })
 
-observeEvent(input$youtube_create_button, {
-  net_type <- input$youtube_network_type_select
-  add_text <- input$youtube_network_text
+observeEvent(input$ytbe_create_btn, {
+  net_type <- input$ytbe_network_type_select
+  add_text <- input$ytbe_network_text
   yt_rv$created <- ts_utc()
   network <- NULL
   
-  shinyjs::disable("youtube_create_button")
+  shinyjs::disable("ytbe_create_btn")
   
   withProgress(message = "Creating network", value = 0.5, {
     
@@ -109,13 +109,13 @@ observeEvent(input$youtube_create_button, {
         if (add_text) {
               # vosonSML changed param name
               network <- vosonSML::AddText(network, isolate(yt_rv$yt_data), 
-                                           repliesFromText = input$youtube_network_replies_from_text, verbose = TRUE)
+                                           repliesFromText = input$ytbe_network_replies_from_text, verbose = TRUE)
 
         }
-        if (input$youtube_network_video_data) { 
-          creds <- vosonSML::Authenticate("youtube", apiKey = youtube_api_key)
+        if (input$ytbe_network_video_data) { 
+          creds <- vosonSML::Authenticate("youtube", apiKey = ytbe_api_key)
           network <- vosonSML::AddVideoData(network, youtubeAuth = creds,
-                                            actorSubOnly = input$youtube_network_video_subs, verbose = TRUE)
+                                            actorSubOnly = input$ytbe_network_video_subs, verbose = TRUE)
         }
       }
       if (!is.null(network)) { 
@@ -127,7 +127,7 @@ observeEvent(input$youtube_create_button, {
     incProgress(1, detail = "Finished")
   }) # withProgress
   
-  shinyjs::enable("youtube_create_button")
+  shinyjs::enable("ytbe_create_btn")
   
   delay(gbl_scroll_delay, js$scroll_console("ytbe_console"))
 })
@@ -136,61 +136,61 @@ observeEvent(input$youtube_create_button, {
 callModule(collect_data_btns, "youtube", data = reactive({ yt_rv$yt_data }), file_prefix = "youtube")
 callModule(collect_network_btns, "youtube", network = reactive({ yt_rv$yt_network }), file_prefix = "youtube")
 callModule(collect_graph_btns, "youtube", graph = reactive({ yt_rv$yt_graphml }), file_prefix = "youtube")
-youtube_view_rvalues <- callModule(collect_view_graph_btns, "youtube", graph = reactive(yt_rv$yt_graphml))  
+ytbe_view_rvalues <- callModule(collect_view_graph_btns, "youtube", graph = reactive(yt_rv$yt_graphml))  
 
-observeEvent(youtube_view_rvalues$data, {
-  req(youtube_view_rvalues$data)
+observeEvent(ytbe_view_rvalues$data, {
+  req(ytbe_view_rvalues$data)
   # f_init_graph(
-  #   data = youtube_view_rvalues$data, 
+  #   data = ytbe_view_rvalues$data, 
   #   meta = list(
-  #     desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ", "), sep = ""),
+  #     desc = paste0("Youtube network for videos: ", paste0(ytbe_video_id_list, collapse = ", "), sep = ""),
   #     type = "youtube",
   #     name = "",
   #     seed = sample(1:20000, 1)
   #   )
   # )
   meta <- list(
-    desc = paste0("Youtube network for videos: ", paste0(youtube_video_id_list, collapse = ", "), sep = ""),
+    desc = paste0("Youtube network for videos: ", paste0(ytbe_video_id_list, collapse = ", "), sep = ""),
     type = "hyperlink",
-    network = input$youtube_network_type_select,
-    name = paste0("hyperlink - ", input$youtube_network_type_select),
+    network = input$ytbe_network_type_select,
+    name = paste0("hyperlink - ", input$ytbe_network_type_select),
     created = yt_rv$created
   )
   
-  g_rv$data <- list(data = youtube_view_rvalues$data, meta = meta)
+  g_rv$data <- list(data = ytbe_view_rvalues$data, meta = meta)
 }, ignoreInit = TRUE)
 
 observeEvent(input$ytbe_console_clear_btn, reset_console("ytbe_console"))
 
 # render youtube collection arguments
 output$ytbe_collect_params_output <- renderText({
-  input$youtube_api_key_input
-  input$youtube_add_video_id_button
-  input$youtube_remove_video_id_button
-  input$youtube_max_comments_input
+  input$ytbe_api_key_input
+  input$ytbe_add_video_id_btn
+  input$ytbe_remove_video_id_btn
+  input$ytbe_max_comments_input
   
   # do not update arguments text on input field or list changes
-  isolate({ input$youtube_video_id_input
-            input$youtube_video_id_list_output })
+  isolate({ input$ytbe_video_id_input
+            input$ytbe_video_id_list_output })
   
   # get youtube collection arguments output
   youtubeArgumentsOutput()
 })
 
 # render youtube data table
-output$dt_youtube_data <- DT::renderDataTable({
+output$dt_ytbe_data <- DT::renderDataTable({
   datatableYoutubeData()
 })
 
-observeEvent(input$select_all_youtube_dt_columns, {
-  updateCheckboxGroupInput(session, "show_youtube_cols", label = NULL,
+observeEvent(input$select_all_ytbe_dt_columns, {
+  updateCheckboxGroupInput(session, "show_ytbe_cols", label = NULL,
                            choices = isolate(yt_rv$data_cols),
                            selected = isolate(yt_rv$data_cols),
                            inline = TRUE)
 })
 
-observeEvent(input$clear_all_youtube_dt_columns, {
-  updateCheckboxGroupInput(session, "show_youtube_cols", label = NULL,
+observeEvent(input$clear_all_ytbe_dt_columns, {
+  updateCheckboxGroupInput(session, "show_ytbe_cols", label = NULL,
                            choices = isolate(yt_rv$data_cols),
                            selected = character(0),
                            inline = TRUE)
@@ -200,60 +200,60 @@ dt_yt_cols <- function() {
   return(c("Comment", "AuthorDisplayName", "VideoID", "PublishedAt"))
 }
 
-observeEvent(input$reset_youtube_dt_columns, {
-  updateCheckboxGroupInput(session, "show_youtube_cols", label = NULL,
+observeEvent(input$reset_ytbe_dt_columns, {
+  updateCheckboxGroupInput(session, "show_ytbe_cols", label = NULL,
                            choices = isolate(yt_rv$data_cols),
                            selected = dt_yt_cols(),
                            inline = TRUE)
 })
 
-output$youtube_data_cols_ui <- renderUI({
+output$ytbe_data_cols_ui <- renderUI({
   data <- yt_rv$data_cols
   
   if (is.null(data)) { return(NULL) }
   
-  conditionalPanel(condition = "input.expand_show_youtube_cols",
-                   div(actionButton("select_all_youtube_dt_columns", "Select all"), 
-                       actionButton("clear_all_youtube_dt_columns", "Clear all"),
-                       actionButton("reset_youtube_dt_columns", "Reset")),
-                   checkboxGroupInput("show_youtube_cols", label = NULL,
+  conditionalPanel(condition = "input.expand_show_ytbe_cols",
+                   div(actionButton("select_all_ytbe_dt_columns", "Select all"), 
+                       actionButton("clear_all_ytbe_dt_columns", "Clear all"),
+                       actionButton("reset_ytbe_dt_columns", "Reset")),
+                   checkboxGroupInput("show_ytbe_cols", label = NULL,
                                       choices = yt_rv$data_cols,
                                       selected = dt_yt_cols(),
                                       inline = TRUE, width = "98%"))
 })
 
 setYoutubeAPIKey <- reactive({
-  youtube_api_key <- trimws(input$youtube_api_key_input)
+  ytbe_api_key <- trimws(input$ytbe_api_key_input)
   
-  return(youtube_api_key)
+  return(ytbe_api_key)
 })
 
 # add to the list of youtube video ids to collect on
 videoListAdd <- reactive({
-  if (is.null(input$youtube_video_id_input) || trimws(input$youtube_video_id_input) == "") {
+  if (is.null(input$ytbe_video_id_input) || trimws(input$ytbe_video_id_input) == "") {
     return(NULL)
   }
   
-  video_id <- get_ytbe_video_id(input$youtube_video_id_input)
+  video_id <- get_youtube_video_id(input$ytbe_video_id_input)
   if (is.null(video_id)) { return(NULL) }
   
   # only add if not already in list
-  if (!(trimws(video_id) %in% youtube_video_id_list)) {
-    youtube_video_id_list <<- append(youtube_video_id_list, trimws(video_id))
+  if (!(trimws(video_id) %in% ytbe_video_id_list)) {
+    ytbe_video_id_list <<- append(ytbe_video_id_list, trimws(video_id))
   }
   
-  return(youtube_video_id_list)
+  return(ytbe_video_id_list)
 })
 
 # remove from the list of youtube video ids to collect on
 videoListRemove <- reactive({
-  if (is.null(input$youtube_video_id_list_output) || trimws(input$youtube_video_id_list_output) == "") {
+  if (is.null(input$ytbe_video_id_list_output) || trimws(input$ytbe_video_id_list_output) == "") {
     return(NULL)
   }
   
-  youtube_video_id_list <<- youtube_video_id_list[!(youtube_video_id_list %in% input$youtube_video_id_list_output)]
+  ytbe_video_id_list <<- ytbe_video_id_list[!(ytbe_video_id_list %in% input$ytbe_video_id_list_output)]
   
-  return(youtube_video_id_list)
+  return(ytbe_video_id_list)
 })
 
 datatableYoutubeData <- reactive({
@@ -264,10 +264,10 @@ datatableYoutubeData <- reactive({
   cls_lst <- class(data)
   class(data) <- cls_lst[!cls_lst %in% c("datasource", "youtube")]
   
-  if (!is.null(input$show_youtube_cols)) {
-    if (length(input$show_youtube_cols) > 0) {
-      # data <- dplyr::select(yt_rv$yt_data, input$show_youtube_cols)
-      data <- dplyr::select(data, input$show_youtube_cols)
+  if (!is.null(input$show_ytbe_cols)) {
+    if (length(input$show_ytbe_cols) > 0) {
+      # data <- dplyr::select(yt_rv$yt_data, input$show_ytbe_cols)
+      data <- dplyr::select(data, input$show_ytbe_cols)
     } else { return(NULL) }
   } else { return(NULL) }
   
@@ -283,7 +283,7 @@ datatableYoutubeData <- reactive({
   
   if (!is.null(yt_rv$yt_data)) {
     col_defs <- NULL
-    if (input$dt_youtube_truncate_text_check == TRUE) {
+    if (input$dt_ytbe_truncate_text_chk == TRUE) {
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
@@ -300,27 +300,27 @@ youtubeArgumentsOutput <- function() {
   output <- c()
   key_flag <- video_id_flag <- count_flag <- FALSE
   
-  if (!is.null(youtube_api_key) && nchar(youtube_api_key) > 1) {
+  if (!is.null(ytbe_api_key) && nchar(ytbe_api_key) > 1) {
     key_flag <- TRUE
-    output <- append(output, trimws(paste0("api key: ", strtrim(youtube_api_key, 6), "...", sep = "")))
+    output <- append(output, trimws(paste0("api key: ", strtrim(ytbe_api_key, 6), "...", sep = "")))
   }
   
-  if (!is.null(youtube_video_id_list) && length(youtube_video_id_list) > 0) {
+  if (!is.null(ytbe_video_id_list) && length(ytbe_video_id_list) > 0) {
     video_id_flag <- TRUE
-    output <- append(output, paste0("videos: ", trimws(paste0(youtube_video_id_list, collapse = ", "))))
+    output <- append(output, paste0("videos: ", trimws(paste0(ytbe_video_id_list, collapse = ", "))))
   }
   
-  if (isTruthy(youtube_max_comments) && is.numeric(youtube_max_comments)) {
-    if (youtube_max_comments > 0 & !is.infinite(youtube_max_comments)) {
+  if (isTruthy(ytbe_max_comments) && is.numeric(ytbe_max_comments)) {
+    if (ytbe_max_comments > 0 & !is.infinite(ytbe_max_comments)) {
       count_flag <- TRUE
-      output <- append(output, paste0("max comments: ", youtube_max_comments))
+      output <- append(output, paste0("max comments: ", ytbe_max_comments))
     }
   }
   
   if (key_flag && video_id_flag && count_flag) {
-    shinyjs::enable("youtube_collect_button")
+    shinyjs::enable("ytbe_collect_btn")
   } else {
-    shinyjs::disable("youtube_collect_button")
+    shinyjs::disable("ytbe_collect_btn")
   }
   
   paste0(output, collapse = "\n")

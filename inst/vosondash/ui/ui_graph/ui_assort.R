@@ -5,14 +5,14 @@ tabPanel("Assortativity",
            box(
              width = 5,
              title = "Assortativity",
-             verbatimTextOutput("assortativity_details_output", placeholder = FALSE),
+             verbatimTextOutput("assort_details", placeholder = FALSE),
              h4("Homophily Index"),
-             verbatimTextOutput("assortativity_homophily_output", placeholder = FALSE)
+             verbatimTextOutput("homophily_details", placeholder = FALSE)
            ),
            box(
              width = 7,
              title = "Mixing Matrix",
-             verbatimTextOutput("mixing_matrix_details_output", placeholder = FALSE),
-             DT::dataTableOutput("mixing_matrix")
+             verbatimTextOutput("mixmat_details", placeholder = FALSE),
+             DT::dataTableOutput("mixmat")
            )
          ))

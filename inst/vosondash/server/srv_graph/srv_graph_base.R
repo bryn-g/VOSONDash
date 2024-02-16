@@ -27,7 +27,6 @@ observeEvent(g_rv$data, {
   g_meta_rv$data <- g_rv$data$meta
   dash_logger(paste0("igraph data object loaded. ", g_meta_rv$data$name))
   
-  ta_rv$plot_data_list <- NULL
   g_nodes_rv$pruned <- c()
   dt_prev_sel$nodes <- c()
   
@@ -59,7 +58,6 @@ r_graph_base <- reactive({
   g_comps_rv$range_base <- f_get_comp_ranges(g)
   g_nodes_rv$cats <- get_node_cats(g)
   
-  # cat(file=stderr(), paste0("- r_graph_base - n:", igraph::gorder(g), ", e:", igraph::gsize(g), "\n"))
   g
 })
 

@@ -1,10 +1,3 @@
-# unused - node_attr_reset_btn
-# unused - node_labels_reset_btn
-# dt - dt_nodes_rows_selected
-# visnet input - vis_node_select, vis_nbh_node_select
-
-# - grph filters
-
 f_disable_tab <- function(x) {
   addCssClass(selector = "a[data-value = '", x, "']", class = "inactive_menu_link")
 }
@@ -116,10 +109,10 @@ filter_ctrls <- function() {
 # component filter ctrls
 filter_comp_ctrls <- function() {
   c("comp_mode_picker",
-    "comp_slider"#,
+    "comp_slider" #,
     # "comp_set",
     # "comp_reset",
-    #"comp_recalc"
+    # "comp_recalc"
     )
 }
 
@@ -127,18 +120,6 @@ filter_comp_ctrls <- function() {
 filter_cat_ctrls <- function() {
   c("cat_sel",
     "cat_sub_sel")
-}
-
-text_analysis_ctrls <- function() {
-  c("ta_stopwords_check",
-    "ta_user_stopwords_input", 
-    "ta_user_stopwords_check",
-    "ta_stem_check",
-    "ta_wf_top_count",
-    "ta_wf_min_word_freq",
-    "ta_wc_min_word_freq",
-    "ta_wc_max_word_count",
-    "ta_cc_max_word_count")  
 }
 
 disable_g_ctrls <- function() {
@@ -202,13 +183,4 @@ enable_visnet_ctrls <- function() {
   disable_igraph_ctrls()
   set_ctrl_state(c(visnet_ctrls(), "visnet_html_dl_btn"), "enable")
   set_ctrl_state("visnet_html_dl_btn", "show")
-}
-
-# disable text analysis ctrls
-disable_ta_ctrls <- function() set_ctrl_state(text_analysis_ctrls(), "disable")
-
-# reset enable text analysis ctrls
-reset_enable_ta_ctrls <- function() {
-  set_ctrl_state(text_analysis_ctrls(), "reset")
-  set_ctrl_state(text_analysis_ctrls(), "enable")
 }

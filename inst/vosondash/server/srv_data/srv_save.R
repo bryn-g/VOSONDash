@@ -19,7 +19,7 @@ dlGraphButtonOutput <- reactive({
                    style = "float:right; margin-right:10px; margin-bottom:0px;", class = "div_inline"))
 })
 
-output$graph_dl_button_ui <- renderUI({
+output$graph_dl_btn_ui <- renderUI({
   tagList(div(div(
     dlGraphButtonOutput(),
     style = paste0("position:absolute; z-index:1; top:", (as.numeric(g_plot_rv$height)+16),
@@ -34,7 +34,6 @@ saveGraphFileName <- reactive({
 })
 
 # network graph data based on selected network graph tab
-# saveGraphFileData
 r_graph_visnet_save_data <- reactive({
   data <- switch(input$canvas_tab,
                  "visNetwork" = r_graph_visnet_plot())

@@ -8,17 +8,17 @@ tabItem(tabName = "ytbe_collection_tab",
              sidebarPanel(
                width = 12,
                class = "custom_well_for_controls",
-               checkboxInput("expand_youtube_keys_panel_check", "Show API Key", FALSE),
+               checkboxInput("expand_ytbe_keys_panel_chk", "Show API Key", FALSE),
                conditionalPanel(
-                 condition = "input.expand_youtube_keys_panel_check",
-                 textInput("youtube_api_key_input", label = "Data API Key", value = "")
+                 condition = "input.expand_ytbe_keys_panel_chk",
+                 textInput("ytbe_api_key_input", label = "Data API Key", value = "")
                )
              ),
              
              # collect tab set
              tabBox(
                title = NULL,
-               id = "youtube_control_tabset",
+               id = "ytbe_control_tabset",
                width = 12,
                
                # collect tab panel
@@ -30,7 +30,7 @@ tabItem(tabName = "ytbe_collection_tab",
                      po_info(i_ytbe_video_url),
                      style = "margin-bottom:5px;"),
                  textAreaInput(
-                   "youtube_video_id_input",
+                   "ytbe_video_id_input",
                    label = NULL,
                    value = "",
                    width = NULL,
@@ -40,22 +40,22 @@ tabItem(tabName = "ytbe_collection_tab",
                    placeholder = NULL,
                    resize = "vertical"
                  ),
-                 actionButton("youtube_add_video_id_button", label = "Add"),
+                 actionButton("ytbe_add_video_id_btn", label = "Add"),
                  selectInput(
-                   "youtube_video_id_list_output",
+                   "ytbe_video_id_list_output",
                    "",
                    c(),
                    multiple = TRUE,
                    selectize = FALSE,
                    size = 3
                  ),
-                 actionButton("youtube_remove_video_id_button", label = "Remove"),
+                 actionButton("ytbe_remove_video_id_btn", label = "Remove"),
                  
                  # number of comments
                  ui_inline_input(
                    "Max Comments",
                    numericInput(
-                     "youtube_max_comments_input",
+                     "ytbe_max_comments_input",
                      label = NULL,
                      value = 200,
                      min = 1,
@@ -66,7 +66,7 @@ tabItem(tabName = "ytbe_collection_tab",
                  p(""),
                  disabled(
                    actionButton(
-                     "youtube_collect_button",
+                     "ytbe_collect_btn",
                      label = "Collect Comments",
                      icon = icon("cloud-arrow-down")
                    )
@@ -79,38 +79,38 @@ tabItem(tabName = "ytbe_collection_tab",
                  "Create Network",
                  div(tags$b("Network")),
                  selectInput(
-                   "youtube_network_type_select",
+                   "ytbe_network_type_select",
                    label = NULL,
                    choices = c("activity", "actor"),
                    multiple = FALSE
                  ),
                  conditionalPanel(
-                   condition = "input.youtube_network_type_select == 'activity' ||
-                input.youtube_network_type_select == 'actor'",
-                checkboxInput("youtube_network_text", "Add Text", FALSE)
+                   condition = "input.ytbe_network_type_select == 'activity' ||
+                input.ytbe_network_type_select == 'actor'",
+                checkboxInput("ytbe_network_text", "Add Text", FALSE)
                  ),
                 conditionalPanel(
-                  condition = "input.youtube_network_type_select == 'actor' &&
-                input.youtube_network_text == 1",
+                  condition = "input.ytbe_network_type_select == 'actor' &&
+                input.ytbe_network_text == 1",
                 checkboxInput(
-                  "youtube_network_replies_from_text",
+                  "ytbe_network_replies_from_text",
                   "Find Replies in Text",
                   FALSE
                 )
                 ),
                 conditionalPanel(
-                  condition = "input.youtube_network_type_select == 'actor'",
-                  checkboxInput("youtube_network_video_data", "Add Video Details", FALSE)
+                  condition = "input.ytbe_network_type_select == 'actor'",
+                  checkboxInput("ytbe_network_video_data", "Add Video Details", FALSE)
                 ),
                 conditionalPanel(
-                  condition = "input.youtube_network_type_select == 'actor' &&
-                input.youtube_network_video_data == 1",
-                checkboxInput("youtube_network_video_subs", "Only replace Video ID's", FALSE)
+                  condition = "input.ytbe_network_type_select == 'actor' &&
+                input.ytbe_network_video_data == 1",
+                checkboxInput("ytbe_network_video_subs", "Only replace Video ID's", FALSE)
                 ),
                 p(""),
                 disabled(
                   actionButton(
-                    "youtube_create_button",
+                    "ytbe_create_btn",
                     label = "Create Network",
                     icon = icon("share-nodes")
                   )
@@ -125,7 +125,7 @@ tabItem(tabName = "ytbe_collection_tab",
     column(width = 9, offset = 0,
       fluidRow(
         ui_console_tabbox(
-          title = ui_console_title("Youtube Network Collection", "youtube", "youtube_red", "ytbe_console_clear_btn"),
+          title = ui_console_title("Youtube Network Collection", "youtube", "ytbe_red", "ytbe_console_clear_btn"),
           id_params_out = "ytbe_collect_params_output",
           id_console = "ytbe_console"
         ),
@@ -140,14 +140,14 @@ tabItem(tabName = "ytbe_collection_tab",
       tabPanel("Results", 
         fluidRow(
           div(
-            checkboxInput("expand_show_youtube_cols", "Column filters", FALSE),
+            checkboxInput("expand_show_ytbe_cols", "Column filters", FALSE),
               style = "margin-left:12px; margin-right:5px;",
             class = "div_inline"
           ),                            
-          div(checkboxInput("dt_youtube_truncate_text_check", "Truncate text", TRUE), class = "div_inline")
+          div(checkboxInput("dt_ytbe_truncate_text_chk", "Truncate text", TRUE), class = "div_inline")
         ),
-        uiOutput("youtube_data_cols_ui"),                          
-        DT::dataTableOutput("dt_youtube_data"))
+        uiOutput("ytbe_data_cols_ui"),                          
+        DT::dataTableOutput("dt_ytbe_data"))
       )
     ) # end fluidRow
 ) # end tabItem

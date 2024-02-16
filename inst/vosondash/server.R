@@ -8,11 +8,11 @@ shinyServer(function(input, output, session) {
   # on startup
   observeEvent(input$nav_sel_tab_id, {
     # clear consoles
-    cons <- list("mtdn_console", "ytbe_console", "reddit_console", "hyperlink_console")
+    cons <- list("mtdn_console", "ytbe_console", "rddt_console", "web_console")
     for (i in seq_len(length(cons))) reset_console(cons[[i]], FALSE)
    
     # macos
-    if (VOSONDash::is_macos()) shinyjs::enable("macos_font_check")
+    if (VOSONDash::is_macos()) shinyjs::enable("macos_font_chk")
   }, once = TRUE, ignoreInit = FALSE)
   
   # stop app when browser closes

@@ -3,7 +3,7 @@ tabPanel(
   icon = icon("circle-dot"),
   fluidRow(
     div(
-      checkboxInput("graph_dt_v_truncate_text_check", "Truncate text", TRUE),
+      checkboxInput("graph_dt_v_truncate_text_chk", "Truncate text", TRUE),
       style = "margin-left:12px; margin-right:5px;",
       class = "div_inline"
     )
@@ -29,8 +29,8 @@ tabPanel(
     column(
       width = 1,
       actionButton("prune_desel_rows_btn", "Deselect All"),
-      actionButton("prune_selected_rows_button", "Prune Selected"),
-      actionButton("prune_unselected_rows_button", "Prune Unselected")
+      actionButton("rm_sel_rows_btn", "Prune Selected"),
+      actionButton("rm_unsel_rows_btn", "Prune Unselected")
     )
   )
 )

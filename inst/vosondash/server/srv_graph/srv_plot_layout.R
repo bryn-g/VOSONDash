@@ -8,7 +8,6 @@ g_layout_rv <- reactiveValues(
 f_get_coords <- function(g, layout) {
   coords <- as.data.frame(layout)
   rownames(coords) <- igraph::V(g)$id
-  
   coords
 }
 
@@ -81,6 +80,7 @@ observeEvent(c(input$graph_layout_set_btn, g_rv$seed), {
   
 }, ignoreInit = TRUE)
 
+# update node coords and reset if node coords missing
 observeEvent(r_graph_filter(), {
   g <- req(r_graph_filter())
   
@@ -114,11 +114,6 @@ observeEvent(input$graph_reseed_btn, {
   updateNumericInput(session, "graph_seed_input", value = g_rv$seed)
 })
 
-# update seed input
-# observeEvent(g_rv$seed, {
-#   # updateNumericInput(session, "graph_seed_input", value = g_rv$seed)
-# })
-
 # set seed value
 observeEvent(input$graph_seed_set_btn, {
   req(input$graph_seed_input)
@@ -147,38 +142,6 @@ f_get_layout_name <- function(selection) {
     "layout_nicely")
 }
 
-# f_get_graphopt(g, ...) {
-#   # if layout graphopt get additional options
-#   # if (g_layout == "Graphopt") {
-#     graph_layout <- layout_with_graphopt(
-#       g,
-#       niter = input$graph_niter, 
-#       charge = input$graph_charge,
-#       mass = input$graph_mass,
-#       spring.length = input$graph_spr_len,
-#       spring.constant = input$graph_spr_const
-#     )
-#   # }
-# }
-
 f_get_fr <- function(...) {
-  # igraph::layout_with_fr(g, dim = 2, niter = input$graph_niter)
-  # igraph::layout_with_fr(g, dim = dim, niter = niter)
   igraph::layout_with_fr(g, dim = 2)
 }
-
-# "Auto" = igraph::layout_nicely(g, dim = 2),
-# "FR" = igraph::layout_with_fr(g, dim = 2),
-# "KK" = igraph::layout_with_kk(g, dim = 2),
-# "DH" = igraph::layout_with_dh(g),
-# "LGL" = igraph::layout_with_lgl(g),
-# "DrL" = igraph::layout_with_drl(g),
-# "GEM" = igraph::layout_with_gem(g),
-# "MDS" = igraph::layout_with_mds(g),
-# "Tree" = igraph::layout_as_tree(g, circular = TRUE),
-# "Grid" = igraph::layout_on_grid(g),
-# "Sphere" = igraph::layout_on_sphere(g),
-# "Circle" = igraph::layout_in_circle(g),
-# "Star" = igraph::layout_as_star(g),
-# "Random" = igraph::layout_randomly(g),
-# igraph::layout_nicely(g, dim = 2)
