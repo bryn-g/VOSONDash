@@ -10,6 +10,8 @@ g_nodes_rv <- reactiveValues(
   cat_selected = "All",
   cat_sub_selected = "All",
   
+  properties = NULL,
+  
   pruned = NULL
 )
 

@@ -7,6 +7,7 @@ Description: A 'Shiny' application for the interactive visualisation and
 Type: Package
 Imports:
     data.table,
+    dplyr,
     graphics,
     httpuv,
     httr,
@@ -17,12 +18,12 @@ Imports:
     SnowballC,
     systemfonts,
     textutils,
+    tibble,
     tm,
     utils,
     vosonSML (>= 0.34.1),
     wordcloud
 Suggests:
-    dplyr,
     DT,
     htmlwidgets,
     purrr,

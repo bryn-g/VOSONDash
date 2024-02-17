@@ -54,6 +54,7 @@ node_ctrls <- function() {
     "node_label_size",
     "node_label_rot",
     "node_label_dist",
+    "node_color",
     "node_use_g_cols_chk",
     "node_size_sel",
     "node_size_slider",

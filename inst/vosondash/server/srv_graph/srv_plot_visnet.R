@@ -57,7 +57,7 @@ r_graph_visnet_plot <- reactive({
   if ("color" %in% names(nodes)) v_color_in_data <- TRUE
   
   if (nrow(nodes) > 0) {
-    nodes$color.background <- as.character(gbl_plot_def_node_color)
+    nodes$color.background <- input$node_color
 
     if (use_v_colors & v_color_in_data) { # added checkbox
       nodes$color.background <- nodes$color
@@ -149,9 +149,8 @@ r_graph_visnet_plot <- reactive({
       img_shape <- "circularImage"
       if (input$node_mtdn_img_sq_chk) img_shape <- "image"
       nodes <- nodes |>
-        dplyr::mutate(image = ifelse(is.na(.data$user.avatar), "mast.png", .data$user.avatar), shape = img_shape) |>
-        dplyr::mutate(image = ifelse(is.null(.data$user.avatar), "mast.png", .data$user.avatar), shape = img_shape) |>
-        dplyr::mutate(image = ifelse(trimws(.data$user.avatar) == "", "mast.png", .data$user.avatar), shape = img_shape)
+        dplyr::mutate(image = .data$user.avatar, shape = img_shape) |>
+        dplyr::mutate(brokenImage = "mast.png")
     }
   }
   

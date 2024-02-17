@@ -57,10 +57,10 @@ r_graph_igraph_plot <- reactive({
   
   # set node color
   if (input$node_use_g_cols_chk == FALSE) {
-    igraph::V(g)$color <- as.character(gbl_plot_def_node_color)  
+    igraph::V(g)$color <- input$node_color
   } else {
     if (!has_color_attr) {
-      igraph::V(g)$color <- as.character(gbl_plot_def_node_color)
+      igraph::V(g)$color <- input$node_color
     }
   }
   

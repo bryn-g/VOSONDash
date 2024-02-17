@@ -52,13 +52,13 @@ r_graph_filter <- reactive({
           cat_sel <- g_nodes_rv$cat_selected
           cat_sub_sel <- g_nodes_rv$cat_sub_selected
   
-          g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel)
+          g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel, cat_prefix = "")
           
           fltr_state$fltr_cat_chk <- TRUE
         }
         
       } else if (cmd == "rm_components") {
-      
+ 
         if (input$fltr_comp_chk) {
           slider_vals <- input$comp_slider
           mode <- input$comp_mode_picker

@@ -1,8 +1,6 @@
 fluidRow(
   column(
     width = 12,
-    
-    div("Labels", style = "font-weight: bold;"),
     disabled(checkboxInput("node_index_chk", "Node index", FALSE)),
     disabled(checkboxInput(
       "node_labels_chk", "Label attribute", FALSE

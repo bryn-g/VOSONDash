@@ -76,12 +76,18 @@ filter_comps <- function(g, mode = "strong", range = NULL, ids = NULL) {
     }
   }
   
+  # named list - names are cluster is, values are node names
+  
   if (!is.null(ids)) {
-    rm_nodes <- unique(append(rm_nodes, which(!cc$membership %in% ids)))
+    rm_nodes <- append(rm_nodes, V(g)[which(!cc$membership %in% ids)]$name)
   }
   
   # remove nodes from graph
-  if (length(rm_nodes) > 0) g <- igraph::delete_vertices(g, unlist(rm_nodes))
+  if (length(rm_nodes) > 0) {
+    rm_chk <- which(igraph::V(g)$name %in% rm_nodes)
+    
+    g <- igraph::delete_vertices(g, rm_chk)
+  }
   
   g
 }

@@ -55,7 +55,8 @@ r_graph_base <- reactive({
   layout <- f_get_layout(g, seed, layout)
   g_layout_rv$coords_base <- f_get_coords(g, layout)
   
-  g_nodes_rv$cats <- get_node_cats(g)
+  g_nodes_rv$cats <- VOSONDash::get_node_cats(g)
+  g_nodes_rv$properties <- VOSONDash::get_node_properties(g)
   
   g
 })

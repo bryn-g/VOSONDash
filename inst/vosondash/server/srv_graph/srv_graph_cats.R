@@ -3,11 +3,22 @@ f_unchk_disable_cat_fltr <- function() {
   filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
 }
 
+f_get_cats <- function(df) {
+  df |> dplyr::filter(type == "cat") |> dplyr::pull("key") |> unique()
+}
+
+f_get_cat_values <- function(df, x) {
+  df |> dplyr::filter(type == "cat" & key == x) |> dplyr::pull("value")
+}
+
 observeEvent(g_nodes_rv$cats, {
   if (!isTruthy(g_nodes_rv$cats)) f_unchk_disable_cat_fltr()
   if (length(names(g_nodes_rv$cats)) < 1) f_unchk_disable_cat_fltr()
   
-  cats <- append("All", names(g_nodes_rv$cats))
+  # cats <- append("All", names(g_nodes_rv$cats))
+  
+  cat_keys <- f_get_cats(g_nodes_rv$properties)
+  cats <- append("All", cat_keys)
   
   updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
   updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
@@ -22,7 +33,11 @@ observeEvent(input$cat_sel, {
   req(g_nodes_rv$cats, input$cat_sel)
   
   if (input$cat_sel != "All") {
-    sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
+    # sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
+    
+    cat_vals <- f_get_cat_values(g_nodes_rv$properties, input$cat_sel)
+    sub_cats <- append("All", cat_vals)
+    
     updateSelectInput(session, "cat_sub_sel", choices = sub_cats, selected = "All")
     
     g_nodes_rv$cat_selected <- input$cat_sel
@@ -62,25 +77,39 @@ r_graph_legend <- reactive({
   g <- req(r_graph_filter())
   req(g_nodes_rv$cats, input$cat_sub_sel, input$fltr_cat_chk)
 
-  cat_attrs <- g_nodes_rv$cats
+  cat_attrs <- f_get_cats(isolate(g_nodes_rv$properties))
+  
+  # cat_attrs <- g_nodes_rv$cats
   cat_attr_selected <- input$cat_sel
   
   if (cat_attr_selected == "All" || input$fltr_cat_chk == FALSE) return(NULL)
   
   if (input$node_use_g_cols_chk & ("color" %in% igraph::vertex_attr_names(g))) {
-    attr_name_selected <- sub("\\^", "", paste0(voson_cat_prefix, cat_attr_selected))
+    
+    # attr_name_selected <- sub("\\^", "", paste0(voson_cat_prefix, cat_attr_selected))
+    # attr_vals <- igraph::vertex_attr(g, attr_name_selected)
+    
+    attr_vals <- igraph::vertex_attr(g, cat_attr_selected)
 
-    attr_vals <- igraph::vertex_attr(g, attr_name_selected)
     color_vals <- igraph::V(g)$color
+    # df <- data.frame(
+    #   cat = attr_vals,
+    #   color = color_vals
+    # ) |> dplyr::distinct()
+
     df <- data.frame(
-      cat = attr_vals,
-      color = color_vals
+      key = cat_attr_selected,
+      value = attr_vals,
+      color.set = color_vals
     ) |> dplyr::distinct()
     
-  } else {
-    cats <- cat_attrs[[cat_attr_selected]]
+    #g_nodes_rv$properties <- g_nodes_rv$properties |> dplyr::left_join(df, dplyr::join_by("key", "value"))
     
-    df <- data.frame("cat" = cats)
+  } else {
+    # cats <- cat_attrs[[cat_attr_selected]]
+    cat_vals <- f_get_cat_values(isolate(g_nodes_rv$properties), cat_attr_selected)
+    
+    df <- data.frame(key = cat_attr_selected, value = cat_vals)
     df$color <- gbl_plot_palette()[1:nrow(df)]
   }
   
@@ -95,10 +124,10 @@ r_graph_legend <- reactive({
           "<tr><td style='vertical-align:middle'>",
           "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
           "background-color:",
-          df[row, 2],
+          df[row, 3],
           ";'></span></td>",
           "<td>&nbsp;</td><td style='vertical-align:middle'>",
-          df[row, 1],
+          df[row, 2],
           "</td></tr>"
         )
       )
@@ -108,3 +137,4 @@ r_graph_legend <- reactive({
   
   output
 })
+

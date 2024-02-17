@@ -41,3 +41,4 @@ cred.R
 *.rds
 *.csv
 .Rproj.user
+inst/vosondash/test.R
