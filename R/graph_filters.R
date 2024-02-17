@@ -1,3 +1,32 @@
+#' @title Get component count and min max size ranges for component modes
+#'
+#' @description This function gets the number of components and the minimum size and maximum size range for all
+#'   components for a given mode.
+#'
+#' @param g \pkg{igraph} \code{graph} object.
+#' @param mode Character string. Use strongly or weakly connected components by specifying \code{"strong"} or
+#'   \code{"weak"}. Ignored for undirected graphs. Default is \code{"NULL"} for both modes.
+#'
+#' @return A named list of size and range values per component mode.
+#'
+#' @export
+get_comps_range <- function(g, mode = NULL) {
+  modes <- list(weak = "weak", strong = "strong")
+  if (!is.null(mode)) modes <- modes[[which(names(modes) == mode)]]
+  
+  comp_ranges <- sapply(
+    modes,
+    function(x) {
+      c <- igraph::components(g, mode = x)
+      list(
+        no = c$no,
+        min = suppressWarnings(min(c$csize)),
+        max = suppressWarnings(max(c$csize)),
+        csize = c$csize
+      )
+    }, simplify = FALSE, USE.NAMES = TRUE)  
+}
+
 #' @title Filter out graph nodes not in component size range
 #' 
 #' @description This function removes any graph nodes that are in components that fall outside of the specified 
@@ -7,15 +36,19 @@
 #' @param mode Character string. Use strongly or weakly connected components by specifying \code{"strong"} or 
 #' \code{"weak"}. Ignored for undirected graphs. Default is \code{"strong"}.
 #' @param range Numeric vector. Min and max values or size range of component.
-#' 
+#' @param ids Numeric vector. Retun only nodes belonging to component ids.
+#'
 #' @return An igraph graph object.
 #' 
 #' @export
-filter_comps <- function(g, mode = "strong", range) {
+filter_comps <- function(g, mode = "strong", range = NULL, ids = NULL) {
+  if (is.null(range) && is.null(ids)) return(NULL)
+    
   min_range <- range[1]
   max_range <- range[2]
   
   cc <- igraph::components(g, mode = mode)
+  igraph::V(g)$c_id <- cc$membership
   
   min_cc_size <- suppressWarnings(min(cc$csize)) # suppress no non-missing arguments to min
   max_cc_size <- suppressWarnings(max(cc$csize)) # returning Inf warning
@@ -41,6 +74,10 @@ filter_comps <- function(g, mode = "strong", range) {
     if (length(nodes_gt_max_cc) > 0) {
       rm_nodes <- sapply(nodes_gt_max_cc, function(x) append(rm_nodes, names(which(cc$membership == x))))
     }
+  }
+  
+  if (!is.null(ids)) {
+    rm_nodes <- unique(append(rm_nodes, which(!cc$membership %in% ids)))
   }
   
   # remove nodes from graph

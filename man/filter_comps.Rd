@@ -4,7 +4,7 @@
 \alias{filter_comps}
 \title{Filter out graph nodes not in component size range}
 \usage{
-filter_comps(g, mode = "strong", component_range)
+filter_comps(g, mode = "strong", range = NULL, ids = NULL)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
@@ -12,7 +12,9 @@ filter_comps(g, mode = "strong", component_range)
 \item{mode}{Character string. Use strongly or weakly connected components by specifying \code{"strong"} or
 \code{"weak"}. Ignored for undirected graphs. Default is \code{"strong"}.}
 
-\item{component_range}{Numeric vector. Min and max values or size range of component.}
+\item{range}{Numeric vector. Min and max values or size range of component.}
+
+\item{ids}{Numeric vector. Retun only nodes belonging to component ids.}
 }
 \value{
 An igraph graph object.

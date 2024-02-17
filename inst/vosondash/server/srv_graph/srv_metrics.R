@@ -18,11 +18,11 @@ r_node_distrib_plot <- reactive({
   distrib_type <- input$metrics_distrib_sel
   
   if (distrib_type == "component") {
-    cc <- igraph::components(g, mode = g_comps_rv$mode)
+    cc <- igraph::components(g, mode = input$comp_mode_picker)
     get_std_plot(
       table(cc$csize),
       xlab = paste0("N nodes"),
-      ylab = paste0("N components [mode = ", g_comps_rv$mode, "]")
+      ylab = paste0("N components [mode = ", input$comp_mode_picker, "]")
     )
   } else if (distrib_type == "component2") {
     dist <- igraph::component_distribution(g)
@@ -88,7 +88,7 @@ r_graph_metrics <- reactive({
 
   if (!isTruthy(g)) return("No graph data.")
 
-  metrics <- fmt_double_values(get_graph_metrics(g, mode = g_comps_rv$mode))
+  metrics <- fmt_double_values(get_graph_metrics(g, mode = input$comp_mode_picker))
   out <- c(
     paste("Num of nodes:", metrics$nodes_n),
     paste("Num of edges:", metrics$edges_n),

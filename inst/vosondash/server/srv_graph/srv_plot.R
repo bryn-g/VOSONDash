@@ -24,7 +24,7 @@ observeEvent(c(
   ), {
   tab <- input$canvas_tab
   
-  if (!isTruthy(tab)) tab <- "igraph"
+  if (!isTruthy(tab)) tab <- "voson_info"
   
   if (tab %in% c("igraph", "visNetwork")) {
     if (isTruthy(r_graph_filter())) {
@@ -130,7 +130,7 @@ output$vis_plot_ui <- renderUI({
   tabBox(
     width = 12,
     title = span(icon("share-nodes", class = "social_green"), "Network Graphs"),
-    selected = isolate(input$canvas_tab), # "voson_info", # input$canvas_tab,
+    selected = isolate(ifelse(isTruthy(input$canvas_tab), input$canvas_tab, "voson_info")), # "voson_info", # input$,
     id = "canvas_tab",
     tabPanel(
       "igraph",

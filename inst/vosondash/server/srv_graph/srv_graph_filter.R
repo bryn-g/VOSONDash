@@ -60,13 +60,16 @@ r_graph_filter <- reactive({
       } else if (cmd == "rm_components") {
       
         if (input$fltr_comp_chk) {
-          comp_slider <- g_comps_rv$slider
-          mode <- g_comps_rv$mode
-  
-          g_comps_rv$pre_comps <- f_get_comp_ranges(g, mode = mode)
-          # could update range
+          slider_vals <- input$comp_slider
+          mode <- input$comp_mode_picker
           
-          g <- VOSONDash::filter_comps(g, mode, comp_slider)
+          comp_range <- VOSONDash::get_comps_range(g, mode = mode)
+          g_comps_rv$pre_comps <- comp_range
+          
+          id_vals <- input$comp_memb_sel
+          if (!is.null(id_vals)) id_vals <- as.numeric(id_vals)
+          
+          g <- VOSONDash::filter_comps(g, mode, range = slider_vals, ids = id_vals)
           
           fltr_state$fltr_comp_chk <- TRUE
         } else {

@@ -109,7 +109,8 @@ filter_ctrls <- function() {
 # component filter ctrls
 filter_comp_ctrls <- function() {
   c("comp_mode_picker",
-    "comp_slider" #,
+    "comp_slider",
+    "comp_memb_sel" # ,
     # "comp_set",
     # "comp_reset",
     # "comp_recalc"
@@ -134,7 +135,6 @@ disable_g_ctrls <- function() {
     filter_ctrls(),
     filter_comp_ctrls(),
     filter_cat_ctrls(),
-    
     overlay_ctrls()
   )
   set_ctrl_state(x, "disable")
@@ -150,6 +150,7 @@ reset_enable_g_ctrls <- function() {
     node_ctrls(),
     node_prune_ctrls(),
     node_nbh_ctrls(),
+    "comp_mode_picker",
     edge_ctrls(),
     filter_ctrls(),
     overlay_ctrls()

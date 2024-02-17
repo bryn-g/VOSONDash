@@ -4,7 +4,7 @@
 \alias{get_node_cats}
 \title{Get a list of node category attribute names and values}
 \usage{
-get_node_cats(g, cat_prefix = "vosonCA_")
+get_node_cats(g, cat_prefix = "vosonCA_", cat_colors = FALSE)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}

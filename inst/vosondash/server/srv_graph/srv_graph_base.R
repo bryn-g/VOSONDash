@@ -55,7 +55,6 @@ r_graph_base <- reactive({
   layout <- f_get_layout(g, seed, layout)
   g_layout_rv$coords_base <- f_get_coords(g, layout)
   
-  g_comps_rv$range_base <- f_get_comp_ranges(g)
   g_nodes_rv$cats <- get_node_cats(g)
   
   g

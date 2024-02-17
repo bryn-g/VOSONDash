@@ -4,31 +4,66 @@ fluidRow(column(
     width = 12,
     verbatimTextOutput("comp_input_ui")
   )),
+  
   fluidRow(
-    column(width = 4,
-           shinyjs::disabled(
-             selectInput(
-               "comp_mode_picker",
-               div("Type", style = "font-weight: normal;"),
-               choices = c("weak", "strong"),
-               selected = "weak",
-               multiple = FALSE
-             )
-           )),
-    column(width = 8,
-           fluidRow(
-           disabled(
-             sliderInput(
-               "comp_slider",
-               div("Size", style = "font-weight: normal;"),
-               min = 1,
-               max = 500,
-               value = c(1, 500),
-               ticks = FALSE
-             )
-           )
-    )
-  )),
+    tabBox(
+      title = NULL,
+      id = "comp_filters_tabset",
+      width = 12,
+      tabPanel("Range",
+               
+               fluidRow(
+                 column(width = 4,
+                        shinyjs::disabled(
+                          selectInput(
+                            "comp_mode_picker",
+                            div("Type", style = "font-weight: normal;"),
+                            choices = c("weak", "strong"),
+                            selected = "weak",
+                            multiple = FALSE
+                          )
+                        )),
+                 column(width = 8,
+                        fluidRow(
+                          disabled(
+                            sliderInput(
+                              "comp_slider",
+                              div("Size", style = "font-weight: normal;"),
+                              min = 1,
+                              max = 500,
+                              value = c(1, 500),
+                              ticks = FALSE
+                            )
+                          )
+                        )
+                 ))
+               ),
+      tabPanel("Membership",
+               disabled(
+                 pickerInput(
+                   inputId = "comp_memb_sel", 
+                   div("Id", style = "font-weight: normal;"),
+                   choices = NULL, 
+                   options = pickerOptions(
+                     actionsBox = TRUE, 
+                     size = 5,
+                     selectedTextFormat = "count > 3"
+                   ), 
+                   multiple = TRUE
+                 )
+                 
+                 # selectInput(
+                 #   "comp_memb_sel",
+                 #   div("Id", style = "font-weight: normal;"),
+                 #   choices = c(""),
+                 #   multiple = TRUE,
+                 #   selected = "",
+                 #   selectize = FALSE,
+                 #   size = 5
+                 # )
+               ))
+               )),
+  
   fluidRow(column(
     width = 12,
     verbatimTextOutput("comp_summary_ui")

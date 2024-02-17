@@ -4,12 +4,12 @@
 \alias{mixmat}
 \title{Create a mixing matrix}
 \usage{
-mixmat(g, attrib, use_density = TRUE)
+mixmat(g, node_attr, use_density = TRUE)
 }
 \arguments{
 \item{g}{\pkg{igraph} graph object.}
 
-\item{attrib}{Character string. Node attribute or category.}
+\item{node_attr}{Character string. Node attribute or category.}
 
 \item{use_density}{Logical. Use edge density. Default is \code{TRUE}.}
 }
