@@ -6,45 +6,45 @@
 #' @param g \pkg{igraph} \code{graph} object.
 #' @param mode Character string. Use strongly or weakly connected components by specifying \code{"strong"} or 
 #' \code{"weak"}. Ignored for undirected graphs. Default is \code{"strong"}.
-#' @param component_range Numeric vector. Min and max values or size range of component.
+#' @param range Numeric vector. Min and max values or size range of component.
 #' 
 #' @return An igraph graph object.
 #' 
 #' @export
-filter_comps <- function(g, mode = "strong", component_range) {
-  min_range <- component_range[1]
-  max_range <- component_range[2]
+filter_comps <- function(g, mode = "strong", range) {
+  min_range <- range[1]
+  max_range <- range[2]
   
-  graph_clusters <- igraph::components(g, mode = mode)
+  cc <- igraph::components(g, mode = mode)
   
-  min_cluster_size <- suppressWarnings(min(graph_clusters$csize)) # suppress no non-missing arguments to min;
-  max_cluster_size <- suppressWarnings(max(graph_clusters$csize)) # returning Inf warning
+  min_cc_size <- suppressWarnings(min(cc$csize)) # suppress no non-missing arguments to min
+  max_cc_size <- suppressWarnings(max(cc$csize)) # returning Inf warning
   
-  filter_nodes_under <- NULL
-  filter_nodes_over <- NULL
+  nodes_lt_min_cc <- nodes_gt_max_cc <- NULL
   rm_nodes <- c()
   
   # remove nodes not part of components in component size range by name
-  if (min_range > min_cluster_size) {
-    filter_nodes_under <- names(which(table(graph_clusters$membership) < min_range))
+  
+  # add nodes in components < range min to list
+  if (min_range > min_cc_size) {
+    nodes_lt_min_cc <- names(which(table(cc$membership) < min_range))
     
-    if (length(filter_nodes_under) > 0) {
-      rm_nodes <- sapply(filter_nodes_under, function(x) append(rm_nodes, names(which(graph_clusters$membership == x))))
+    if (length(nodes_lt_min_cc) > 0) {
+      rm_nodes <- sapply(nodes_lt_min_cc, function(x) append(rm_nodes, names(which(cc$membership == x))))
     }
   }
   
-  if (max_range < max_cluster_size) {
-    filter_nodes_over <- names(which(table(graph_clusters$membership) > max_range))
+  # add nodes in components > range max to list
+  if (max_range < max_cc_size) {
+    nodes_gt_max_cc <- names(which(table(cc$membership) > max_range))
     
-    if (length(filter_nodes_over) > 0) {
-      rm_nodes <- sapply(filter_nodes_over, function(x) append(rm_nodes, names(which(graph_clusters$membership == x))))
+    if (length(nodes_gt_max_cc) > 0) {
+      rm_nodes <- sapply(nodes_gt_max_cc, function(x) append(rm_nodes, names(which(cc$membership == x))))
     }
   }
   
-  if (length(rm_nodes) > 0) {
-    rm_nodes <- unlist(rm_nodes)
-    g <- igraph::delete_vertices(g, rm_nodes)
-  }
+  # remove nodes from graph
+  if (length(rm_nodes) > 0) g <- igraph::delete_vertices(g, unlist(rm_nodes))
   
   g
 }

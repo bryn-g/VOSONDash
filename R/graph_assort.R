@@ -5,7 +5,7 @@
 #' @note Mixing matrix original function written by Gary Weissman. See: https://gist.github.com/gweissman/2402741.
 #'
 #' @param g \pkg{igraph} graph object.
-#' @param attrib Character string. Node attribute or category.
+#' @param node_attr Character string. Node attribute or category.
 #' @param use_density Logical. Use edge density. Default is \code{TRUE}.
 #' 
 #' @return A mixing matrix.
@@ -20,23 +20,23 @@
 #' }
 #' 
 #' @export
-mixmat <- function(g, attrib, use_density = TRUE) {
+mixmat <- function(g, node_attr, use_density = TRUE) {
   # get unique list of characteristics of the attribute
-  attlist <- sort(unique(igraph::vertex_attr(g, attrib)))
+  attr_lst <- sort(unique(igraph::vertex_attr(g, node_attr)))
   
-  numatts <- length(attlist)
+  attr_n <- length(attr_lst)
   
   # mixing matrix by attribute
-  mm <- matrix(nrow = numatts, 
-               ncol = numatts, 
-               dimnames = list(attlist, attlist))
+  mm <- matrix(nrow = attr_n, 
+               ncol = attr_n, 
+               dimnames = list(attr_lst, attr_lst))
   
   el <- igraph::as_edgelist(g, names = FALSE)
-  for (i in 1:numatts) {
-    for (j in 1:numatts) {
+  for (i in 1:attr_n) {
+    for (j in 1:attr_n) {
       mm[i, j] <- length(which(apply(el, 1, function(x) {
-        igraph::vertex_attr(g, attrib, x[1] ) == attlist[i] &&
-          igraph::vertex_attr(g, attrib, x[2] ) == attlist[j] } )))
+        igraph::vertex_attr(g, node_attr, x[1] ) == attr_lst[i] &&
+          igraph::vertex_attr(g, node_attr, x[2] ) == attr_lst[j] } )))
     }
   }
   
