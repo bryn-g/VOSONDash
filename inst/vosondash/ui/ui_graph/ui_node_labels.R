@@ -1,6 +1,7 @@
 fluidRow(
   column(
     width = 12,
+    h4("Node Labels"),
     disabled(checkboxInput("node_index_chk", "Node index", FALSE)),
     disabled(checkboxInput(
       "node_labels_chk", "Label attribute", FALSE
@@ -75,7 +76,11 @@ fluidRow(
         step = 0.1,
         ticks = FALSE
       )
-    )))
+    ))),
+    fluidRow(column(
+      width = 6,
+      disabled(actionButton("reset_node_labels_btn", label = "reset"))
+    )),
     
   )
 )

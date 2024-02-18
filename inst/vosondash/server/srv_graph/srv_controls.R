@@ -22,7 +22,9 @@ overlay_ctrls <- function() {
 # igraph plot ctrls
 igraph_ctrls <- function() {
   c("igraph_spread_slider",
-    "igraph_node_base_size_slider")
+    "igraph_node_base_size_slider",
+    "igraph_x_slider",
+    "igraph_y_slider")
 }
 
 # visnet plot ctrls
@@ -61,7 +63,9 @@ node_ctrls <- function() {
     "mtdn_img_opts_chk",
     "node_mtdn_img_chk",
     "node_mtdn_img_sq_chk",
-    "node_mtdn_img_bord_chk")
+    "node_mtdn_img_bord_chk",
+    "reset_node_attrs_btn",
+    "reset_node_labels_btn")
 }
 
 # node nbh ctrls

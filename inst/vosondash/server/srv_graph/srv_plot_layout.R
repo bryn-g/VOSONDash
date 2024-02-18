@@ -145,3 +145,12 @@ f_get_layout_name <- function(selection) {
 f_get_fr <- function(...) {
   igraph::layout_with_fr(g, dim = 2)
 }
+
+observeEvent(input$graph_reset_coord_btn, {
+  if (isTruthy(input$graph_reset_coord_btn)) {
+    set_ctrl_state(
+      c("igraph_spread_slider",
+        "igraph_x_slider",
+        "igraph_y_slider"), "reset")
+  }
+}, ignoreInit = TRUE)

@@ -274,9 +274,17 @@ body.skin-blue {
   color:"#006cb7";
 }
 
+.green-knight {
+  background-color: green;
+}
+
 .txt_sel_blue {
   color: #428bca;
 }
+
+.active_filter {
+  background-color: blue;
+} 
 
 [class*="col-lg-"],[class*="col-md-"],
 [class*="col-sm-"],[class*="col-xs-"] {

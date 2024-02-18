@@ -77,6 +77,8 @@ r_graph_legend <- reactive({
   g <- req(r_graph_filter())
   req(g_nodes_rv$cats, input$cat_sub_sel, input$fltr_cat_chk)
 
+  if (igraph::gorder(g) < 1) return(NULL)
+  
   cat_attrs <- f_get_cats(isolate(g_nodes_rv$properties))
   
   # cat_attrs <- g_nodes_rv$cats

@@ -8,9 +8,7 @@ tabPanel(
   )),
   fluidRow(column(
     width = 12,
-    actionButton("graph_filter_sort_reset",
-                 "Reset",
-                 icon = icon("elementor")),
+    actionButton("graph_filter_sort_reset", "reset"),
     hr()
   )),
   fluidRow(
@@ -18,10 +16,8 @@ tabPanel(
       title = NULL,
       id = "node_filters_tabset",
       width = 12,
-      tabPanel("Components",
-               source("ui/ui_graph/ui_filter_comps.R")$value),
-      tabPanel("Categorical",
-               source("ui/ui_graph/ui_filter_cats.R")$value)
+      tabPanel("Components", source("ui/ui_graph/ui_filter_comps.R")$value),
+      tabPanel("Categorical", source("ui/ui_graph/ui_filter_cats.R")$value)
     )
   )
 )

@@ -2,8 +2,10 @@ r_graph_visnet_plot <- reactive({
   nodes <- r_graph_nodes_df()
   edges <- r_graph_edges_df()
 
-  if (is.null(nodes) | is.null(edges)) return(NULL)
-  if (nrow(nodes) < 1) return(NULL)
+  if (is.null(nodes)) return(NULL)
+  n_nodes <- nrow(nodes)
+  n_edges <- nrow(edges)
+  if (n_nodes < 1) return(NULL)
   
   isolate({
     categorical_attributes <- g_nodes_rv$cats
@@ -118,16 +120,18 @@ r_graph_visnet_plot <- reactive({
     if (!node_index_chk) nodes$label <- ""
   }
   
-  if (!"width" %in% names(edges)) {
-    if ("weight" %in% names(edges)) {
-      edges$width <- edges$weight
-    } else {
-      medge <- input$fltr_edge_multi_chk # isolate(input$fltr_edge_multi_chk)
-      if (!is.null(medge) && medge == FALSE) {
-        edges <- edges |>
-          dplyr::group_by(to, from) |>
-          dplyr::summarise(width = n(), .groups = "drop") |>
-          dplyr::ungroup()
+  if (n_edges) {
+    if (!"width" %in% names(edges)) {
+      if ("weight" %in% names(edges)) {
+        edges$width <- edges$weight
+      } else {
+        medge <- input$fltr_edge_multi_chk # isolate(input$fltr_edge_multi_chk)
+        if (!is.null(medge) && medge == FALSE) {
+          edges <- edges |>
+            dplyr::group_by(to, from) |>
+            dplyr::summarise(width = n(), .groups = "drop") |>
+            dplyr::ungroup()
+        }
       }
     }
   }
@@ -141,6 +145,7 @@ r_graph_visnet_plot <- reactive({
   
   if ("color" %in% names(nodes)) nodes <- dplyr::select(nodes, -color)
 
+  # custom mastodon - add drop down selection
   use_node_mtdn_img_chk <- FALSE
   # mast images
   if (input$node_mtdn_img_chk) {
@@ -154,19 +159,31 @@ r_graph_visnet_plot <- reactive({
     }
   }
   
-  if (isTruthy(input$edge_labels_chk) & ("label" %in% colnames(edges))) {
-    edges$title <- row.names(edges)
-    edges <- dplyr::mutate(edges, label = ifelse(is.na(.data$label), .data$id, .data$label))
-    edges$font.size <- (12 + as.numeric(input$edge_label_size))
-    edges$font.color <- input$edge_label_color
-  } else {
-    edges$label <- ""
+  if (n_edges) {
+    cat(file=stderr(), paste0("debug - sel: ", input$edge_label_sel, ", cols - ", paste(colnames(edges), collapse = ","), "\n"))
+    
+    if (isTruthy(input$edge_label_sel)) {
+      if (input$edge_label_sel %in% colnames(edges)) {
+        edges$label <- edges[[input$edge_label_sel]]
+      } 
+    }
+    
+    if (isTruthy(input$edge_labels_chk) & ("label" %in% colnames(edges))) {
+      edges$title <- row.names(edges)
+      # edges <- dplyr::mutate(edges, label = ifelse(is.na(.data$label), .data$id, .data$label))
+      
+      edges$font.size <- (12 + as.numeric(input$edge_label_size))
+      edges$font.color <- input$edge_label_color
+    } else {
+      edges$label <- ""
+    }
   }
   
   vis_net <- visNetwork::visNetwork(nodes, edges, main = NULL)
   
   coords <- g_layout_rv$coords
   coords$V2 <- (coords$V2 * -1) # V2 coords are mirrored with visnet
+  
   l_params <- list(vis_net, layout = "layout.norm", randomSeed = isolate(g_rv$seed), layoutMatrix = as.matrix(coords))
   
   vis_net <- do.call(visIgraphLayout, l_params)
@@ -194,17 +211,19 @@ r_graph_visnet_plot <- reactive({
     }
   }
   
-  e_arrows <- e_smooth <- NULL
-  if (g_rv$dir) e_arrows <- "to"
-  if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { 
-    e_smooth <- list(enabled = TRUE, type = "diagonalCross")
+  if (n_edges) {
+    e_arrows <- e_smooth <- NULL
+    if (g_rv$dir) e_arrows <- "to"
+    if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { 
+      e_smooth <- list(enabled = TRUE, type = "diagonalCross")
+    }
+    
+    vis_net <- vis_net |> 
+      visNetwork::visEdges(
+        arrows = e_arrows,
+        smooth = e_smooth,
+        color = list(color = input$edge_color))  
   }
-  
-  vis_net <- vis_net |> 
-    visNetwork::visEdges(
-      arrows = e_arrows,
-      smooth = e_smooth,
-      color = list(color = input$edge_color))
   
   vis_net
 })

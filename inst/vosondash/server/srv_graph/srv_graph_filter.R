@@ -15,13 +15,12 @@ filter_btn_txt_sel <- function(id, state) {
 }
 
 f_init_fltr_state <- function() {
-  sapply(fltr_state, function(x) x = FALSE, simplify = FALSE, USE.NAMES = TRUE)
+  sapply(fltr_state(), function(x) x = FALSE, simplify = FALSE, USE.NAMES = TRUE)
 }
 
-f_post_fltr_state <- function(fltr_state) {
-  req(fltr_state)
-  sapply(names(fltr_state), function(x) {
-    val <- fltr_state[[x]]
+f_post_fltr_state <- function(state) {
+  sapply(names(state), function(x) {
+    val <- state[[x]]
     if (isTruthy(val)) {
       filter_btn_txt_sel(paste(x, "_label"), val)
     }
@@ -32,6 +31,8 @@ r_graph_filter <- reactive({
   g <- r_graph_base()
   if (!isTruthy(g)) return(NULL)
 
+  cat(file=stderr(), paste0(ts_utc(), " - r_graph_filter entry.\n"))
+  
   fltr_state <- f_init_fltr_state()
   
   # filtering
@@ -115,19 +116,24 @@ r_graph_filter <- reactive({
   g_rv$dir <- igraph::is_directed(g)
   
   # set labels
-  if (isTruthy(g_nodes_rv$label_type)) {
-    if (g_nodes_rv$label_type == "index") {
-      igraph::V(g)$label <- sub("n", "", igraph::V(g)$id)
-    } else if (g_nodes_rv$label_type == "attribute") {
-      if (isTruthy(g_nodes_rv$label_selected)) {
-        igraph::V(g)$label <- igraph::vertex_attr(g, g_nodes_rv$label_selected)
+  isolate({
+    if (isTruthy(g_nodes_rv$label_type)) {
+      if (g_nodes_rv$label_type == "index") {
+        igraph::V(g)$label <- sub("n", "", igraph::V(g)$id)
+      } else if (g_nodes_rv$label_type == "attribute") {
+        if (isTruthy(g_nodes_rv$label_selected)) {
+          igraph::V(g)$label <- igraph::vertex_attr(g, g_nodes_rv$label_selected)
+        }
       }
     }
-  }
   
   if (isTruthy(g_edges_rv$label_selected)) {
     igraph::E(g)$label <- igraph::edge_attr(g, g_edges_rv$label_selected)
   }
+    
+  })
+  
+  cat(file=stderr(), paste0(ts_utc(), " - r_graph_filter exit.\n"))
   
   g
 })
@@ -137,7 +143,7 @@ output$filter_rank_list <- renderUI({
   input$graph_filter_sort_reset
 
   rank_list(
-    text = "Apply filters in order:",
+    text = "",
     labels = list(
       "rm_pruned" = list(
         div(
@@ -184,6 +190,6 @@ output$filter_rank_list <- renderUI({
     ),
     
     input_id = "fltr_order",
-    options = sortable_options(swap = TRUE)
+    options = sortable_options(swap = TRUE, animation = 150, handle = NULL)
   )
 })

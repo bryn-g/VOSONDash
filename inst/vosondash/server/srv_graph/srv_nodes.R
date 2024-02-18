@@ -30,3 +30,36 @@ r_node_attr_lst <- reactive({
 observeEvent(input$node_size_sel, {
   if (input$node_size_sel == "None") shinyjs::reset("node_size_slider")
 }, ignoreInit = TRUE)
+
+observeEvent(input$reset_node_attrs_btn, {
+  if (isTruthy(input$reset_node_attrs_btn)) {
+    set_ctrl_state(
+      c("node_color",
+        "igraph_node_base_size_slider",
+        "visnet_node_base_size_slider",
+        "node_use_g_cols_chk",
+        "node_size_sel",
+        "node_size_slider",
+        "node_label_prop_chk",
+        "mtdn_img_opts_chk",
+        "node_mtdn_img_chk",
+        "node_mtdn_img_sq_chk",
+        "node_mtdn_img_bord_chk"), "reset")
+  }
+}, ignoreInit = TRUE)
+
+observeEvent(input$reset_node_labels_btn, {
+  if (isTruthy(input$reset_node_labels_btn)) {
+    set_ctrl_state(
+      c("node_index_chk",
+        "node_labels_chk",
+        "node_label_sel",
+        "node_sel_labels_chk",
+        "visnet_id_sel_chk",
+        "macos_font_chk",
+        "node_label_color",
+        "node_label_size",
+        "node_label_rot",
+        "node_label_dist"), "reset")
+  }
+}, ignoreInit = TRUE)

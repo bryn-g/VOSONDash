@@ -28,7 +28,7 @@ tabPanel(
   )),
   
   fluidRow(column(
-    width = 12,
+    width = 8,
     div(tags$b("Graph Layout"),
         po_info(i_graph_layout),
         style = "margin-bottom:5px;"),
@@ -62,7 +62,7 @@ tabPanel(
   
   conditionalPanel(condition = "input.graph_layout_select == 'FR' | input.graph_layout_select == 'Graphopt'",
    fluidRow(column(
-     width = 6,
+     width = 8,
      numericInput(
        inputId = "graph_niter",
        "Iterations (niter)",
@@ -76,7 +76,7 @@ tabPanel(
   conditionalPanel(condition = "input.graph_layout_select == 'Graphopt'",
     fluidRow(
       column(
-        width = 6,
+        width = 8,
         numericInput(
           inputId = "graph_charge",
           "Charge",
@@ -87,7 +87,7 @@ tabPanel(
         )
       ),
       column(
-        width = 6,
+        width = 8,
         numericInput(
           inputId = "graph_mass",
           "Mass",
@@ -100,7 +100,7 @@ tabPanel(
   
     fluidRow(
       column(
-        width = 6,
+        width = 8,
         numericInput(
           inputId = "graph_spr_len",
           "Spring Length",
@@ -110,7 +110,7 @@ tabPanel(
         )
       ),
       column(
-        width = 6,
+        width = 8,
         numericInput(
           inputId = "graph_spr_const",
           "Constant",
@@ -122,20 +122,43 @@ tabPanel(
     )),
   
   # spread
-  fluidRow(column(width = 12,
+  fluidRow(column(width = 6,
   disabled(actionButton("graph_layout_set_btn", label = "apply layout")))),
-  
-  fluidRow(column(width = 12,
+  hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
+  fluidRow(column(width = 8,
+                  h4("Adjust Node Coordinates"),
                   disabled(
                     sliderInput(
                       "igraph_spread_slider",
-                      "Plot Spread",
+                      "coordinate multiplier",
                       min = 0.25,
                       max = 2.5,
                       step = 0.1,
                       value = c(1),
                       ticks = FALSE
                     )
-                  )))
+                  ),
+                  sliderInput(
+                    "igraph_x_slider",
+                    "x-axis range",
+                    min = -4,
+                    max = 4,
+                    step = 0.1,
+                    value = c(-1,1),
+                    ticks = TRUE
+                  ),
+                  sliderInput(
+                    "igraph_y_slider",
+                    "y-axis range",
+                    min = -4,
+                    max = 4,
+                    step = 0.1,
+                    value = c(-1,1),
+                    ticks = TRUE
+                  )
+      )
+    ),
+  fluidRow(column(width = 6,
+                  actionButton("graph_reset_coord_btn", label = "reset")))
 
 )

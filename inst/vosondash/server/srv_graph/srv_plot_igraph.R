@@ -206,7 +206,11 @@ r_graph_igraph_plot <- reactive({
   graph_layout <- as.matrix(g_layout_rv$coords)
     
   # graph spread option changes scale
-  graph_layout <- igraph::norm_coords(graph_layout, ymin = -1, ymax = 1, xmin = -1, xmax = 1)
+  # graph_layout <- igraph::norm_coords(graph_layout, ymin = -1, ymax = 1, xmin = -1, xmax = 1)
+  x <- input$igraph_x_slider
+  y <- input$igraph_y_slider
+  
+  graph_layout <- igraph::norm_coords(graph_layout, ymin = y[1], ymax = y[2], xmin = x[1], xmax = x[2])
   igraph_params["rescale"] <- FALSE
   
   if (isTruthy(g_spread)) graph_layout <- graph_layout * g_spread

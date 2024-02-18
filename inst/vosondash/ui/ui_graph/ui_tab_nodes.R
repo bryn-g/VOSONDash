@@ -96,7 +96,10 @@ tabPanel(
     disabled(checkboxInput("node_mtdn_img_sq_chk", "Square", FALSE)),
     disabled(checkboxInput("node_mtdn_img_bord_chk", "Border", FALSE))
   ),
+  fluidRow(column(
+    width = 6,
+    disabled(actionButton("reset_node_attrs_btn", label = "reset"))
+  )),
   hr(style = "border-top: 1px solid #cccccc; margin-top: 0px; margin-bottom: 5px;"),
-  h4("Node Labels"),
   source("ui/ui_graph/ui_node_labels.R")$value,
 )

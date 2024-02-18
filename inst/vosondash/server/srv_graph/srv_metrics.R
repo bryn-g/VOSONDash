@@ -88,7 +88,7 @@ r_graph_metrics <- reactive({
 
   if (!isTruthy(g)) return("No graph data.")
 
-  metrics <- fmt_double_values(get_graph_metrics(g, mode = input$comp_mode_picker))
+  metrics <- fmt_double_values(VOSONDash::get_graph_metrics(g, mode = input$comp_mode_picker))
   out <- c(
     paste("Num of nodes:", metrics$nodes_n),
     paste("Num of edges:", metrics$edges_n),
@@ -107,7 +107,7 @@ r_graph_metrics <- reactive({
     paste("Reciprocity - 2:", metrics$reciprocity_ratio),
       "  Ratio of total num of reciprocated edges to\n  total num of edges.", "")
 
-  centrlzn <- fmt_double_values(get_graph_centrlzn(g))
+  centrlzn <- fmt_double_values(VOSONDash::get_graph_centrlzn(g))
   out <- c(out, "Graph Centralization", "", paste("Degree:", centrlzn$degree))
   if (metrics$directed) {
     out <- c(out, c(

@@ -44,7 +44,7 @@ fluidRow(column(
                       disabled(
                         pickerInput(
                           inputId = "comp_memb_sel", 
-                          div("Id", style = "font-weight: normal;"),
+                          div("Cluster id", style = "font-weight: normal;"),
                           choices = NULL, 
                           options = pickerOptions(
                             actionsBox = TRUE, 
