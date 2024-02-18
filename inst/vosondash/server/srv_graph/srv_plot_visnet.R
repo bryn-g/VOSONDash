@@ -103,10 +103,13 @@ r_graph_visnet_plot <- reactive({
     nodes$title <- nodes$id
   }
   
+  is_node_labels <- ifelse(("label" %in% colnames(nodes)), TRUE, FALSE)
+    
   # node labels
   if (input$node_labels_chk == TRUE) {
     nodes$title <- row.names(nodes)
-    nodes <- dplyr::mutate(nodes, label = ifelse(is.na(.data$label), .data$id, .data$label))
+    
+    # nodes <- dplyr::mutate(nodes, label = ifelse(is.na(.data$label), .data$id, .data$label))
     
     # selected only
     if (input$node_sel_labels_chk == TRUE) {

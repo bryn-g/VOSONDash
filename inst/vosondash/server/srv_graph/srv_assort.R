@@ -47,7 +47,7 @@ mixmat_txt <- reactive({
   cat_sel <- g_nodes_rv$cat_selected
   if (nchar(cat_sel) && cat_sel != "All") {  # eventually will have cat attr selected by default...
     assort_rv$mixmat_msg <- NULL
-    df <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
+    df <- VOSONDash::mixmat(g, cat_sel, use_density = FALSE)
     return(df)
   } else {
     assort_rv$mixmat_msg <- "Categorical attribute not present, or not selected."
@@ -64,10 +64,12 @@ homophily_txt <- reactive({
   if (!is.null(g)) {
     cat_sel <- g_nodes_rv$cat_selected
     if (nchar(cat_sel) && cat_sel != "All") {   # eventually will have cat attr selected by default...
-      vattr <- paste0("vosonCA_", cat_sel)
-      mm <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
+      # vattr <- paste0("vosonCA_", cat_sel)
+      # mm <- VOSONDash::mixmat(g, paste0("vosonCA_", cat_sel), use_density = FALSE)
+      mm <- VOSONDash::mixmat(g, cat_sel, use_density = FALSE)
       
-      attr_list <- g_nodes_rv$cats[[cat_sel]]
+      # attr_list <- g_nodes_rv$cats[[cat_sel]]
+      attr_list <- f_get_cat_values(g_nodes_rv$properties, cat_sel)
       
       # if subset of attributes selected
       if (input$cat_sub_sel[1] != "All") {
@@ -76,7 +78,7 @@ homophily_txt <- reactive({
       
       for (i in attr_list) {
         output <- append(output, paste0("Category: ", i))
-        w_i <- length(which(igraph::vertex_attr(g, vattr) == i)) / length(igraph::V(g))
+        w_i <- length(which(igraph::vertex_attr(g, cat_sel) == i)) / length(igraph::V(g))
         output <- append(output, paste0("  Population share: ", sprintf("%.3f", w_i)))
         if (w_i > 0) {
           H_i <- mm[i, i] / rowSums(mm)[i]

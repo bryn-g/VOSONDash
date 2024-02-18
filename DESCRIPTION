@@ -30,6 +30,7 @@ Suggests:
     shinydashboard,
     shinyjs,
     sortable,
+    tidygraph,
     visNetwork
 Depends: R (>= 4.1)
 Encoding: UTF-8

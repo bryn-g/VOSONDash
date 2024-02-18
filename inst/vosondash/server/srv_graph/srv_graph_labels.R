@@ -15,18 +15,37 @@ f_set_id_and_label <- function(g) {
 }
 
 # set labels on change of node attributes
-observeEvent(g_nodes_rv$attrs, {
-  req(g_nodes_rv$attrs)
+observeEvent(g_nodes_rv$properties, {
+  req(g_nodes_rv$properties)
+  
+  attrs <- g_nodes_rv$properties |> dplyr::filter(unit == "node") |> pull(key) |> unique()
   
   if (is.null(g_nodes_rv$label_selected)) {
-    g_nodes_rv$label_selected <- ifelse("imported_label" %in% g_nodes_rv$attrs, "imported_label", "id")
+    # g_nodes_rv$label_selected <- ifelse("imported_label" %in% g_nodes_rv$attrs, "imported_label", "id")
+    g_nodes_rv$label_selected <- ifelse("imported_label" %in% attrs, "imported_label", "id")
   } else {
-    if (!g_nodes_rv$label_selected %in% g_nodes_rv$attrs) g_nodes_rv$label_selected <- NULL
+    # if (!g_nodes_rv$label_selected %in% g_nodes_rv$attrs) g_nodes_rv$label_selected <- NULL
+    if (!g_nodes_rv$label_selected %in% attrs) g_nodes_rv$label_selected <- NULL
   }
   
   # sort and remove attribute option named label
-  g_nodes_rv$labels <- c("", sort(g_nodes_rv$attrs[!"label" %in% g_nodes_rv$attrs]))
+  # g_nodes_rv$labels <- c("", sort(g_nodes_rv$attrs[!"label" %in% g_nodes_rv$attrs]))
+  g_nodes_rv$labels <- c("", sort(attrs[!"label" %in% attrs]))
 })
+
+# # set labels on change of node attributes
+# observeEvent(g_nodes_rv$attrs, {
+#   req(g_nodes_rv$attrs)
+#   
+#   if (is.null(g_nodes_rv$label_selected)) {
+#     g_nodes_rv$label_selected <- ifelse("imported_label" %in% g_nodes_rv$attrs, "imported_label", "id")
+#   } else {
+#     if (!g_nodes_rv$label_selected %in% g_nodes_rv$attrs) g_nodes_rv$label_selected <- NULL
+#   }
+#   
+#   # sort and remove attribute option named label
+#   g_nodes_rv$labels <- c("", sort(g_nodes_rv$attrs[!"label" %in% g_nodes_rv$attrs]))
+# })
 
 observeEvent(input$node_label_sel, {
   if (isTruthy(input$node_label_sel) & (input$node_label_sel != "None")) {

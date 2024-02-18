@@ -45,7 +45,8 @@ observeEvent(g_rv$data, {
 r_graph_base <- reactive({
   req(r_is_data_valid())
   
-  g <- g_rv$data$data
+  # g <- g_rv$data$data
+  g <- tidygraph::as_tbl_graph(g_rv$data$data)
   g <- f_set_id_and_label(g)
   
   seed <- sample(1:20000, 1)
@@ -55,8 +56,8 @@ r_graph_base <- reactive({
   layout <- f_get_layout(g, seed, layout)
   g_layout_rv$coords_base <- f_get_coords(g, layout)
   
-  g_nodes_rv$cats <- VOSONDash::get_node_cats(g)
-  g_nodes_rv$properties <- VOSONDash::get_node_properties(g)
+  # g_nodes_rv$cats <- VOSONDash::get_node_cats(g)
+  g_nodes_rv$properties <- VOSONDash::get_attr_properties(g)
   
   g
 })

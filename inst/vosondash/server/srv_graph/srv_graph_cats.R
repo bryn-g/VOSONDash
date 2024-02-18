@@ -4,17 +4,19 @@ f_unchk_disable_cat_fltr <- function() {
 }
 
 f_get_cats <- function(df) {
-  df |> dplyr::filter(type == "cat") |> dplyr::pull("key") |> unique()
+  df |> dplyr::filter(unit == "node" & type == "cat") |> dplyr::pull("key") |> unique()
 }
 
 f_get_cat_values <- function(df, x) {
-  df |> dplyr::filter(type == "cat" & key == x) |> dplyr::pull("value")
+  df |> dplyr::filter(unit == "node" & type == "cat" & key == x) |> dplyr::pull("value")
 }
 
-observeEvent(g_nodes_rv$cats, {
-  if (!isTruthy(g_nodes_rv$cats)) f_unchk_disable_cat_fltr()
-  if (length(names(g_nodes_rv$cats)) < 1) f_unchk_disable_cat_fltr()
+# observeEvent(g_nodes_rv$cats, {
+observeEvent(g_nodes_rv$properties, {
+  if (!isTruthy(g_nodes_rv$properties)) f_unchk_disable_cat_fltr()
   
+ # if (length(names(g_nodes_rv$properties)) < 1) f_unchk_disable_cat_fltr()
+  if (!length(f_get_cats(g_nodes_rv$properties))) f_unchk_disable_cat_fltr()
   # cats <- append("All", names(g_nodes_rv$cats))
   
   cat_keys <- f_get_cats(g_nodes_rv$properties)
@@ -30,7 +32,7 @@ observeEvent(g_nodes_rv$cats, {
 })
 
 observeEvent(input$cat_sel, {
-  req(g_nodes_rv$cats, input$cat_sel)
+  req(g_nodes_rv$properties, input$cat_sel)
   
   if (input$cat_sel != "All") {
     # sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
@@ -53,7 +55,7 @@ observeEvent(input$cat_sel, {
 }, ignoreInit = TRUE)
 
 observeEvent(input$cat_sub_sel, {
-  req(g_nodes_rv$cats, input$cat_sel, input$cat_sub_sel)
+  req(g_nodes_rv$properties, input$cat_sel, input$cat_sub_sel)
   
   g_nodes_rv$cat_sub_selected <- input$cat_sub_sel
   updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
@@ -75,7 +77,7 @@ observeEvent(input$fltr_cat_chk, {
 
 r_graph_legend <- reactive({
   g <- req(r_graph_filter())
-  req(g_nodes_rv$cats, input$cat_sub_sel, input$fltr_cat_chk)
+  req(g_nodes_rv$properties, input$cat_sub_sel, input$fltr_cat_chk)
 
   if (igraph::gorder(g) < 1) return(NULL)
   

@@ -11,6 +11,7 @@ required_pkgs <- c(
   "shinyjs",
   "shinyWidgets",
   "sortable",
+  "tidygraph",
   "visNetwork",
   "gargoyle"
 )
