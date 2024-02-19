@@ -5,58 +5,15 @@ dt_nodes_proxy <- dataTableProxy("dt_nodes")
 r_graph_nodes_df <- reactive({
   g <- r_graph_filter()
 
-  df_params <- list()
+  nodes <- g |> igraph::as_data_frame(what = c("vertices"))
   
-  df_params[["name"]] <- igraph::V(g)$name
-  if (!(is.null(igraph::vertex_attr(g, "label")))) df_params[["label"]] <- igraph::V(g)$label
-  if ("color" %in% igraph::vertex_attr_names(g)) df_params[["color"]] <- igraph::V(g)$color
-  
-  if (input$node_mtdn_img_chk) {
-    if ("user.avatar" %in% igraph::vertex_attr_names(g)) {
-      df_params[["user.avatar"]] <- igraph::V(g)$user.avatar
-    }
+  if ("id.n" %in% colnames(nodes)) {
+    row.names(nodes) <- igraph::V(g)$id.n
+  } else {
+    row.names(nodes) <- igraph::V(g)$id
   }
-  
-  df_params[["degree"]] <- igraph::V(g)$Degree
-  df_params[["indegree"]] <- igraph::V(g)$Indegree
-  df_params[["outdegree"]] <- igraph::V(g)$Outdegree
-  df_params[["betweenness"]] <- igraph::V(g)$Betweenness
-  df_params[["closeness"]] <- igraph::V(g)$Closeness
-  
-  attr_v <- igraph::vertex_attr_names(g)
-  voson_txt_attrs <- attr_v[grep(voson_txt_prefix, attr_v, perl = T)]
-  if (length(voson_txt_attrs)) {
-    attr <- voson_txt_attrs[1]
-    df_txt_attr <- gsub(voson_txt_prefix, "", attr, perl = TRUE)
-    df_params[[df_txt_attr]] <- igraph::vertex_attr(g, attr, index = V(g))
-  }
-  
-  voson_cat_attrs <- attr_v[grep(voson_cat_prefix, attr_v, perl = T)]
-  if (length(voson_cat_attrs) > 0) {
-    for (i in 1:length(voson_cat_attrs)) {
-      attr <- voson_cat_attrs[i]
-      df_txt_attr <- gsub(voson_cat_prefix, "", attr, perl = TRUE) # vosonCA_
-      df_params[[df_txt_attr]] <- igraph::vertex_attr(g, attr, index = V(g))
-    }  
-  }
-  
-  for (attr in attr_v) {
-    values <- igraph::vertex_attr(g, attr)
-    if (is.numeric(values) &
-        (!attr %in% voson_txt_attrs) &
-        (!attr %in% voson_cat_attrs) &
-        (!attr %in% names(df_params)) &
-        (!tolower(attr) %in% names(df_params))) {
-      df_params[[attr]] <- values
-    }
-  }
-  
-  df_params["stringsAsFactors"] <- FALSE
-  df <- do.call(data.frame, df_params)
-  
-  row.names(df) <- igraph::V(g)$id
-  
-  df
+
+  nodes
 })
 
 # graph nodes data table
@@ -69,8 +26,16 @@ output$dt_nodes <- DT::renderDataTable({
     col_defs <- gbl_dt_col_defs
     col_defs[[1]]$targets <- "_all"
   }
+  # list(targets = {{some vector of 0-based column numbers}}, visible = FALSE)
+  
+  # buttons = list(list(extend = 'colvis', text='Column Picker', columns = c(1:19, 23:24)))
   
   if (!is.null(data)) {
+    data <- data |> dplyr::relocate(id, label)
+    
+    cols_hide <- match(c("name", "id.n", "id.imp", "label.imp", "label"), colnames(data))
+    col_defs <- append(col_defs, list(list(targets = cols_hide, visible = FALSE)))
+    
     dt <- DT::datatable(
       data,
       extensions = "Buttons",
@@ -81,14 +46,26 @@ output$dt_nodes <- DT::renderDataTable({
         scrollX = TRUE,
         columnDefs = col_defs,
         dom = "lBfrtip",
-        buttons = c("copy", "csv", "excel", "print")
+        buttons = list(
+          "copy",
+          "csv",
+          "excel",
+          "print",
+          list(
+            extend = "colvis",
+            text = "Choose Columns",
+            columns = c(1:length(colnames(data)))
+          )
+        )
       ),
       class = "cell-border stripe compact hover"
     )
     
     # format betweeness and closeness values to display 3 decimal places
     if (nrow(data) > 0) {
-      dt <- DT::formatRound(dt, columns = c("betweenness", "closeness"), digits = 3)
+      if (all(c("betweenness", "closeness") %in% colnames(data))) {
+        dt <- DT::formatRound(dt, columns = c("betweenness", "closeness"), digits = 3)
+      }
     }
     
     return(dt)

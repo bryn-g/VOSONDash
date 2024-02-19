@@ -115,50 +115,6 @@ r_graph_filter <- reactive({
   # directed
   g_rv$dir <- igraph::is_directed(g)
   
-  # # set labels
-  # isolate({
-  #   if (isTruthy(g_nodes_rv$label_type)) {
-  #     if (g_nodes_rv$label_type == "index") {
-  #       igraph::V(g)$label <- sub("n", "", igraph::V(g)$id)
-  #     } else if (g_nodes_rv$label_type == "attribute") {
-  #       if (isTruthy(g_nodes_rv$label_selected)) {
-  #         igraph::V(g)$label <- igraph::vertex_attr(g, g_nodes_rv$label_selected)
-  #       }
-  #     }
-  #   }
-  # 
-  # if (isTruthy(g_edges_rv$label_selected)) {
-  #   igraph::E(g)$label <- igraph::edge_attr(g, g_edges_rv$label_selected)
-  # }
-  #   
-  # })
-  g <- g |> tidygraph::as_tbl_graph()
-  
-  if (isTruthy(g_nodes_rv$label_type)) {
-    if (g_nodes_rv$label_type == "index") {
-      g <- g |> tidygraph::activate(nodes) |> dplyr::mutate(label = sub("n", "", id))
-
-    } else if (g_nodes_rv$label_type == "attribute") {
-      if (isTruthy(g_nodes_rv$label_selected)) {
-        lbl <- g_nodes_rv$label_selected
-        
-        if (lbl %in% igraph::vertex_attr_names(g)) {
-          g <- g |> tidygraph::activate(nodes) |> dplyr::mutate(label = .data[[lbl]]) 
-        } else {
-          igraph::V(g)$label <- NA
-        }
-        # igraph::V(g)$label <- igraph::vertex_attr(g, g_nodes_rv$label_selected)
-      }
-    }
-  }
-  
-  # g <- g |>
-  #   activate(nodes) %>%
-  #   mutate(degree = centrality_degree()) %>% 
-  #   activate(edges) %>% 
-  #   mutate(centrality = centrality_edge_betweenness()) %>% 
-  #   arrange(centrality)
-  
   cat(file=stderr(), paste0(ts_utc(), " - r_graph_filter exit.\n"))
   
   g

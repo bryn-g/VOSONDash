@@ -1,10 +1,3 @@
-#' VOSON Dashboard redditServer
-#'
-#' Collects Reddit thread comments and creates an actor network using the vosonSML package.
-#'
-
-#### values ---------------------------------------------------------------------------------------------------------- #
-
 red_rv <- reactiveValues(
   rddt_data = NULL,      # dataframe returned by vosonSML collection
   rddt_network = NULL,
@@ -14,8 +7,6 @@ red_rv <- reactiveValues(
   data_cols = NULL,
   created = NULL
 )
-
-#### events ---------------------------------------------------------------------------------------------------------- #
 
 observeEvent(input$rd_add_url_btn, {
   url <- input$rd_url_input
@@ -53,8 +44,6 @@ observeEvent(red_rv$rd_urls,{
   
   FALSE
 })
-
-# ------
 
 # reddit collection button pushed
 observeEvent(input$rddt_collect_btn, {
@@ -136,20 +125,12 @@ observeEvent(input$rddt_create_btn, {
 callModule(collect_data_btns, "reddit", data = reactive({ red_rv$rddt_data }), file_prefix = "reddit")
 callModule(collect_network_btns, "reddit", network = reactive({ red_rv$rddt_network }), file_prefix = "reddit")
 callModule(collect_graph_btns, "reddit", graph = reactive({ red_rv$rddt_graphml }), file_prefix = "reddit")
+
 rddt_view_rvalues <- callModule(collect_view_graph_btns, "reddit", graph = reactive({ red_rv$rddt_graphml }))
 
 observeEvent(rddt_view_rvalues$data, {
   req(rddt_view_rvalues$data)
-  # f_init_graph(
-  #   data = rddt_view_rvalues$data,
-  #   meta = list(
-  #     desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
-  #     type = "reddit",
-  #     name = "",
-  #     seed = sample(1:20000, 1)
-  #   )
-  # )
-  # #updateCheckboxInput(session, "expand_demo_data_chk", value = FALSE)
+  
   meta <- list(
     desc = paste0("Reddit network for threads: ", paste0(red_rv$rd_urls$url, collapse = ", "), sep = ""),
     type = "reddit",
@@ -162,10 +143,7 @@ observeEvent(rddt_view_rvalues$data, {
   
 }, ignoreInit = TRUE)
 
-observeEvent(input$clear_rddt_console, {
-  reset_console("rddt_console")
-})
-#### output ---------------------------------------------------------------------------------------------------------- #
+observeEvent(input$clear_rddt_console, reset_console("rddt_console"))
 
 output$rd_urls_table <- DT::renderDT({
   DT::datatable(
@@ -186,66 +164,17 @@ output$rd_urls_table_toggle <- reactive({
 outputOptions(output, "rd_urls_table_toggle", suspendWhenHidden = FALSE)
 
 # render reddit data table
-output$dt_rddt_data <- DT::renderDataTable({
-  datatableRedditData()
-})
-
-observeEvent(input$select_all_rddt_dt_columns, {
-  updateCheckboxGroupInput(session, "show_rddt_cols", label = NULL,
-                           choices = isolate(red_rv$data_cols),
-                           selected = isolate(red_rv$data_cols),
-                           inline = TRUE)
-})
-
-observeEvent(input$clear_all_rddt_dt_columns, {
-  updateCheckboxGroupInput(session, "show_rddt_cols", label = NULL,
-                           choices = isolate(red_rv$data_cols),
-                           selected = character(0),
-                           inline = TRUE)
-})
-
-observeEvent(input$reset_rddt_dt_columns, {
-  updateCheckboxGroupInput(session, "show_rddt_cols", label = NULL,
-                           choices = isolate(red_rv$data_cols),
-                           selected = c("subreddit", "thread_id", "comm_id", "comm_date", "user", 
-                                        "comment_score", "comment"),
-                           inline = TRUE)
-})
-
-output$rddt_data_cols_ui <- renderUI({
-  data <- red_rv$data_cols
-  
-  if (is.null(data)) { return(NULL) }
-  
-  conditionalPanel(condition = "input.expand_show_rddt_cols",
-                   div(actionButton("select_all_rddt_dt_columns", "Select all"), 
-                       actionButton("clear_all_rddt_dt_columns", "Clear all"),
-                       actionButton("reset_rddt_dt_columns", "Reset")),
-                   checkboxGroupInput("show_rddt_cols", label = NULL,
-                                      choices = red_rv$data_cols,
-                                      selected = c("subreddit", "thread_id", "comm_id", "comm_date", "user", 
-                                                   "comment_score", "comment"),
-                                      inline = TRUE, width = "98%")
-  )
-})
-
-#### reactives ------------------------------------------------------------------------------------------------------- #
+output$dt_rddt_data <- DT::renderDataTable(datatableRedditData())
 
 datatableRedditData <- reactive({
   data <- red_rv$rddt_data
   
-  if (is.null(data)) { return(NULL) }
+  if (is.null(data)) return(NULL)
   
   cls_lst <- class(data)
   class(data) <- cls_lst[!cls_lst %in% c("datasource", "reddit")]
   
-  if (!is.null(input$show_rddt_cols)) {
-    if (length(input$show_rddt_cols) > 0) {
-      data <- dplyr::select(data, input$show_rddt_cols)
-    } else { return(NULL) }
-  } else { return(NULL) }
-  
-  if (nrow(data) < 1) { return(NULL) }
+  if (nrow(data) < 1) return(NULL)
   
   col_classes <- sapply(data, class)
   for (i in seq(1, length(col_classes))) {
@@ -261,15 +190,39 @@ datatableRedditData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = "Buttons", filter = "top",
-                  options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = "lBfrtip",
-                                 buttons = c("copy", "csv", "excel", "print")),
-                  class = "cell-border stripe compact hover")
+    
+    cols_hide <- match(c(), colnames(data))
+    if (length(cols_hide)) {
+      col_defs <- append(col_defs, list(list(targets = cols_hide, visible = FALSE)))
+    }
+    
+    DT::datatable(
+      data,
+      extensions = "Buttons",
+      filter = "top",
+      selection = "none",
+      options = list(
+        lengthMenu = gbl_dt_menu_len,
+        pageLength = gbl_dt_page_len,
+        scrollX = TRUE,
+        columnDefs = col_defs,
+        dom = "lBfrtip",
+        buttons = list(
+          "copy",
+          "csv",
+          "excel",
+          "print",
+          list(
+            extend = "colvis",
+            text = "Choose Columns",
+            columns = c(1:length(colnames(data)))
+          )
+        )
+      ),
+      class = "cell-border stripe compact hover"
+    )
   }
 })
-
-#### functions ------------------------------------------------------------------------------------------------------- #
 
 output$rddt_arguments_output <- renderText({
   tbl_value <- red_rv$rd_urls

@@ -140,15 +140,7 @@ ytbe_view_rvalues <- callModule(collect_view_graph_btns, "youtube", graph = reac
 
 observeEvent(ytbe_view_rvalues$data, {
   req(ytbe_view_rvalues$data)
-  # f_init_graph(
-  #   data = ytbe_view_rvalues$data, 
-  #   meta = list(
-  #     desc = paste0("Youtube network for videos: ", paste0(ytbe_video_id_list, collapse = ", "), sep = ""),
-  #     type = "youtube",
-  #     name = "",
-  #     seed = sample(1:20000, 1)
-  #   )
-  # )
+
   meta <- list(
     desc = paste0("Youtube network for videos: ", paste0(ytbe_video_id_list, collapse = ", "), sep = ""),
     type = "hyperlink",
@@ -180,46 +172,6 @@ output$ytbe_collect_params_output <- renderText({
 # render youtube data table
 output$dt_ytbe_data <- DT::renderDataTable({
   datatableYoutubeData()
-})
-
-observeEvent(input$select_all_ytbe_dt_columns, {
-  updateCheckboxGroupInput(session, "show_ytbe_cols", label = NULL,
-                           choices = isolate(yt_rv$data_cols),
-                           selected = isolate(yt_rv$data_cols),
-                           inline = TRUE)
-})
-
-observeEvent(input$clear_all_ytbe_dt_columns, {
-  updateCheckboxGroupInput(session, "show_ytbe_cols", label = NULL,
-                           choices = isolate(yt_rv$data_cols),
-                           selected = character(0),
-                           inline = TRUE)
-})
-
-dt_yt_cols <- function() {
-  return(c("Comment", "AuthorDisplayName", "VideoID", "PublishedAt"))
-}
-
-observeEvent(input$reset_ytbe_dt_columns, {
-  updateCheckboxGroupInput(session, "show_ytbe_cols", label = NULL,
-                           choices = isolate(yt_rv$data_cols),
-                           selected = dt_yt_cols(),
-                           inline = TRUE)
-})
-
-output$ytbe_data_cols_ui <- renderUI({
-  data <- yt_rv$data_cols
-  
-  if (is.null(data)) { return(NULL) }
-  
-  conditionalPanel(condition = "input.expand_show_ytbe_cols",
-                   div(actionButton("select_all_ytbe_dt_columns", "Select all"), 
-                       actionButton("clear_all_ytbe_dt_columns", "Clear all"),
-                       actionButton("reset_ytbe_dt_columns", "Reset")),
-                   checkboxGroupInput("show_ytbe_cols", label = NULL,
-                                      choices = yt_rv$data_cols,
-                                      selected = dt_yt_cols(),
-                                      inline = TRUE, width = "98%"))
 })
 
 setYoutubeAPIKey <- reactive({
@@ -264,14 +216,7 @@ datatableYoutubeData <- reactive({
   cls_lst <- class(data)
   class(data) <- cls_lst[!cls_lst %in% c("datasource", "youtube")]
   
-  if (!is.null(input$show_ytbe_cols)) {
-    if (length(input$show_ytbe_cols) > 0) {
-      # data <- dplyr::select(yt_rv$yt_data, input$show_ytbe_cols)
-      data <- dplyr::select(data, input$show_ytbe_cols)
-    } else { return(NULL) }
-  } else { return(NULL) }
-  
-  if (nrow(data) < 1) { return(NULL) }
+  if (nrow(data) < 1) return(NULL)
 
   col_classes <- sapply(data, class)
   for (i in seq(1, length(col_classes))) {
@@ -287,11 +232,37 @@ datatableYoutubeData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = "Buttons", filter = "top",
-                  options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = "lBfrtip",
-                                 buttons = c("copy", "csv", "excel", "print")),
-                  class = "cell-border stripe compact hover")
+    
+    cols_hide <- match(c(), colnames(data))
+    if (length(cols_hide)) {
+      col_defs <- append(col_defs, list(list(targets = cols_hide, visible = FALSE)))
+    }
+    
+    DT::datatable(
+      data,
+      extensions = "Buttons",
+      filter = "top",
+      selection = "none",
+      options = list(
+        lengthMenu = gbl_dt_menu_len,
+        pageLength = gbl_dt_page_len,
+        scrollX = TRUE,
+        columnDefs = col_defs,
+        dom = "lBfrtip",
+        buttons = list(
+          "copy",
+          "csv",
+          "excel",
+          "print",
+          list(
+            extend = "colvis",
+            text = "Choose Columns",
+            columns = c(1:length(colnames(data)))
+          )
+        )
+      ),
+      class = "cell-border stripe compact hover"
+    )
   }
 })
 

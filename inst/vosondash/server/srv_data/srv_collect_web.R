@@ -1,10 +1,3 @@
-#' VOSON Dashboard webServer
-#'
-#' Collects hyperlinks and creates a network using the vosonSML package.
-#'
-
-#### values ---------------------------------------------------------------------------------------------------------- #
-
 web_rv <- reactiveValues(
   web_seed_urls = NULL,
   web_data = NULL,
@@ -13,8 +6,6 @@ web_rv <- reactiveValues(
   data_cols = NULL,
   created = NULL
 )
-
-#### events ---------------------------------------------------------------------------------------------------------- #
 
 observeEvent(input$web_add_url_btn, {
   page <- input$web_url_input
@@ -161,19 +152,7 @@ web_view_rvalues <- callModule(collect_view_graph_btns, "hyperlink", graph = rea
 
 observeEvent(web_view_rvalues$data, {
   req(web_view_rvalues$data)
-  # f_init_graph(
-  #   data = web_view_rvalues$data, 
-  #   meta = list(
-  #     desc = paste0(
-  #       "Hyperlink network for seed pages: ",
-  #        paste0(web_rv$web_seed_urls$page, collapse = ", "),
-  #        sep = ""),
-  #     type = "hyperlink",
-  #     name = "",
-  #     seed = sample(1:20000, 1)
-  #   )
-  # )
-  #updateCheckboxInput(session, "expand_demo_data_chk", value = FALSE)
+
   meta <- list(
     desc = paste0(
             "Hyperlink network for seed pages: ",
@@ -192,7 +171,6 @@ observeEvent(web_view_rvalues$data, {
 observeEvent(input$clear_web_console, {
   reset_console("web_console")
 })
-#### output ---------------------------------------------------------------------------------------------------------- #
 
 output$web_seed_urls_table <- DT::renderDT({
   DT::datatable(
@@ -217,45 +195,6 @@ output$seed_table_toggle <- reactive({
 
 outputOptions(output, "seed_table_toggle", suspendWhenHidden = FALSE)
 
-observeEvent(input$select_all_web_dt_columns, {
-  updateCheckboxGroupInput(session, "show_web_cols", label = NULL,
-                           choices = isolate(web_rv$data_cols),
-                           selected = isolate(web_rv$data_cols),
-                           inline = TRUE)
-})
-
-observeEvent(input$clear_all_web_dt_columns, {
-  updateCheckboxGroupInput(session, "show_web_cols", label = NULL,
-                           choices = isolate(web_rv$data_cols),
-                           selected = character(0),
-                           inline = TRUE)
-})
-
-observeEvent(input$reset_web_dt_columns, {
-  updateCheckboxGroupInput(session, "show_web_cols", label = NULL,
-                           choices = isolate(web_rv$data_cols),
-                           selected = c("url", "n", "page_err", "page", "depth", "max_depth", "seed", "type"),
-                           inline = TRUE)
-})
-
-output$web_data_cols_ui <- renderUI({
-  data <- web_rv$data_cols
-  
-  if (is.null(data)) { return(NULL) }
-  
-  conditionalPanel(condition = "input.expand_show_web_cols",
-                   div(actionButton("select_all_web_dt_columns", "Select all"), 
-                       actionButton("clear_all_web_dt_columns", "Clear all"),
-                       actionButton("reset_web_dt_columns", "Reset")),
-                   checkboxGroupInput("show_web_cols", label = NULL,
-                                      choices = web_rv$data_cols,
-                                      selected = c("url", "n", "page_err", "page", "depth", "max_depth", "seed", "type"),
-                                      inline = TRUE, width = "98%")
-  )
-})
-
-#### reactives ------------------------------------------------------------------------------------------------------- #
-
 datatableHyperlinkData <- reactive({
   data <- web_rv$web_data
   
@@ -263,12 +202,6 @@ datatableHyperlinkData <- reactive({
   
   cls_lst <- class(data)
   class(data) <- cls_lst[!cls_lst %in% c("datasource", "web")]
-  
-  if (!is.null(input$show_web_cols)) {
-    if (length(input$show_web_cols) > 0) {
-      data <- dplyr::select(data, input$show_web_cols)
-    } else { return(NULL) }
-  } else { return(NULL) }
   
   if (nrow(data) < 1) { return(NULL) }
   
@@ -286,11 +219,37 @@ datatableHyperlinkData <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = "Buttons", filter = "top",
-                  options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = "lBfrtip",
-                                 buttons = c("copy", "csv", "excel", "print")),
-                  class = "cell-border stripe compact hover")
+    
+    cols_hide <- match(c(), colnames(data))
+    if (length(cols_hide)) {
+      col_defs <- append(col_defs, list(list(targets = cols_hide, visible = FALSE)))
+    }
+    
+    DT::datatable(
+      data,
+      extensions = "Buttons",
+      filter = "top",
+      selection = "none",
+      options = list(
+        lengthMenu = gbl_dt_menu_len,
+        pageLength = gbl_dt_page_len,
+        scrollX = TRUE,
+        columnDefs = col_defs,
+        dom = "lBfrtip",
+        buttons = list(
+          "copy",
+          "csv",
+          "excel",
+          "print",
+          list(
+            extend = "colvis",
+            text = "Choose Columns",
+            columns = c(1:length(colnames(data)))
+          )
+        )
+      ),
+      class = "cell-border stripe compact hover"
+    )
   }
 })
 

@@ -138,15 +138,9 @@ tabItem(tabName = "ytbe_collection_tab",
     # collect data table
     tabBox(width = 12, title = "Youtube Data",
       tabPanel("Results", 
-        fluidRow(
-          div(
-            checkboxInput("expand_show_ytbe_cols", "Column filters", FALSE),
-              style = "margin-left:12px; margin-right:5px;",
-            class = "div_inline"
-          ),                            
+        fluidRow(                            
           div(checkboxInput("dt_ytbe_truncate_text_chk", "Truncate text", TRUE), class = "div_inline")
-        ),
-        uiOutput("ytbe_data_cols_ui"),                          
+        ),                          
         DT::dataTableOutput("dt_ytbe_data"))
       )
     ) # end fluidRow

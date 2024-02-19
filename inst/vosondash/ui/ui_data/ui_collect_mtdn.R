@@ -147,20 +147,15 @@ tabItem(tabName = "mtdn_collection_tab",
     tabBox(
       width = 12,
       title = "Mastodon Data",
+      
       tabPanel(
         "Posts",
         fluidRow(
-          div(
-            checkboxInput("mtdn_data_posts_cols_sel_chk", "Column select", FALSE),
-            style = "margin-left:12px; margin-right:5px;",
-            class = "div_inline"
-          ),
           div(
             checkboxInput("mtdn_data_posts_trunc_text_chk", "Truncate text", TRUE),
             class = "div_inline"
           )
         ),
-        uiOutput("mtdn_data_posts_cols_ui"),
         DT::dataTableOutput("mtdn_data_posts_dt")
       ),
       
@@ -168,16 +163,10 @@ tabItem(tabName = "mtdn_collection_tab",
         "Users",
         fluidRow(
           div(
-            checkboxInput("mtdn_data_users_cols_sel_chk", "Column select", FALSE),
-            style = "margin-left:12px; margin-right:5px;",
-            class = "div_inline"
-          ),
-          div(
             checkboxInput("mtdn_data_users_trunc_text_chk", "Truncate text", TRUE),
             class = "div_inline"
           )
         ),
-        uiOutput("mtdn_data_users_cols_ui"),
         DT::dataTableOutput("mtdn_data_users_dt")
       )
     )

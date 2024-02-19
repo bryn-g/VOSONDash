@@ -1,187 +1,110 @@
 r_graph_visnet_plot <- reactive({
-  nodes <- r_graph_nodes_df()
-  edges <- r_graph_edges_df()
-
-  if (is.null(nodes)) return(NULL)
-  n_nodes <- nrow(nodes)
-  n_edges <- nrow(edges)
-  if (n_nodes < 1) return(NULL)
+  g <- r_graph_visual()
   
-  isolate({
-    categorical_attributes <- g_nodes_rv$cats
-    selected_categorical_attribute <- input$cat_sel
-    gcs <- g_nodes_rv$cat_selected
-  })
+  if (is.null(g)) return(NULL)
+  if (igraph::gorder(g) < 1) return(NULL)
   
-  nodes_rows_selected <- input$dt_nodes_rows_selected
-  node_degree_type <- input$node_size_sel
-  node_size_multiplier <- input$node_size_slider
-  plot_height <- g_plot_rv$height
+  g <- g |> tidygraph::activate(nodes)
   
-  use_v_colors <- input$node_use_g_cols_chk
-  node_index_chk <- input$node_index_chk
+  node_attrs <- igraph::vertex_attr_names(g)
+  edge_attrs <- igraph::edge_attr_names(g)
   
-  base_font_size <- 24
+  n_edges <- igraph::gsize(g)
+  
+  # node color
+  if ("color" %in% node_attrs) g <- g |> dplyr::mutate(color.background = color)
+  
+  # node size
+  node_size_attr <- isolate(input$node_size_sel)
+  node_size_mplr <- isolate(input$node_size_slider)
   
   base_node_size <- input$visnet_node_base_size_slider
+  
+  mpld_size <- (base_node_size + 0.1) * node_size_mplr
   norm_multi <- 5
+  visnet_node_size <- function(x) base_node_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_mplr)
   
-  vis_vsize <- function(x) {
-    base_node_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_multiplier)
-  }
-
-  vis_lab_size <- function(x) {
-    base_font_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_multiplier)
-  }
-  
-  node_size <- ((base_node_size + 0.1) * node_size_multiplier)
-  lab_size <- base_font_size
-  
-  if (node_degree_type != "None") {
-    v <- NULL
-    if (node_degree_type %in% names(nodes)) {
-      v <- nodes[[node_degree_type]]
-    } else if (tolower(node_degree_type) %in% names(nodes)) {
-      v <- nodes[[tolower(node_degree_type)]]
-    }
-    if (!is.null(v)) {
-      node_size <- vis_vsize(v) 
-      if (input$node_label_prop_chk) {
-        lab_size <- vis_lab_size(v)
-      }
+  if ("size" %in% node_attrs) {
+    if (node_size_attr != "None") {
+      g <- g |> dplyr::mutate(size = visnet_node_size(.data[[node_size_attr]]))
+    } else {
+      g <- g |> dplyr::mutate(size = mpld_size)
     }
   }
   
-  nodes$size <- node_size
-  nodes$font.size <- lab_size
-  
-  v_color_in_data <- FALSE
-  if ("color" %in% names(nodes)) v_color_in_data <- TRUE
-  
-  if (nrow(nodes) > 0) {
-    nodes$color.background <- input$node_color
-
-    if (use_v_colors & v_color_in_data) { # added checkbox
-      nodes$color.background <- nodes$color
-    }
-    
-    nodes$font.color <- gbl_plot_def_label_color
-    nodes$id <- nodes$name
-  }
-  
-  # node colours (only if cat attr selected)
-  if (length(categorical_attributes) > 0) { # only if have categorical attributes
-    
-    if (nchar(selected_categorical_attribute) && selected_categorical_attribute != "All") {
-      
-      categories <- categorical_attributes[[selected_categorical_attribute]]
-      df <- data.frame('cat' = categories)
-      if (nrow(df) > 0) {
-        df$color <- gbl_plot_palette()[1:nrow(df)]
-        if (use_v_colors == FALSE || !v_color_in_data) { # added checkbox
-          nodes$color.background <- df$color[match(nodes[[selected_categorical_attribute]], df$cat)]
-        }
-      }
-    }
-  }
-  
-  sel_dt_row_names <- sel_subset <- c()
-  if (length(nodes_rows_selected) > 0) {
-    sel_dt_row_names <- row.names(nodes)[c(nodes_rows_selected)] # get df row names for nodes in dt selection
-    sel_subset <- row.names(nodes) %in% sel_dt_row_names
-    nodes$color.background[sel_subset] <- gbl_plot_sel_node_color
-    nodes$font.color[sel_subset] <- gbl_sel_label_col
-  }
-
-  # node index
-  if (node_index_chk) {
-    nodes$label <- sub("n", "", row.names(nodes))
-    nodes$title <- nodes$id
-    nodes$shape <- "circle"
-  } else {
-    nodes$shape <- "dot"
-    nodes$title <- nodes$id
-  }
-  
-  is_node_labels <- ifelse(("label" %in% colnames(nodes)), TRUE, FALSE)
-    
   # node labels
-  if (input$node_labels_chk == TRUE) {
-    nodes$title <- row.names(nodes)
-    
-    # nodes <- dplyr::mutate(nodes, label = ifelse(is.na(.data$label), .data$id, .data$label))
-    
-    # selected only
-    if (input$node_sel_labels_chk == TRUE) {
-      if (length(sel_subset)) {
-        nodes$sel_label[sel_subset] <- nodes$label[sel_subset]
-        nodes <- dplyr::mutate(nodes, label = ifelse(!is.na(.data$sel_label), .data$sel_label, ""),
-                               sel_label = NULL) 
-      }
-    }
-  } else {
-    if (!node_index_chk) nodes$label <- ""
-  }
+  label_type <- isolate(g_nodes_rv$label_type)
   
-  if (n_edges) {
-    if (!"width" %in% names(edges)) {
-      if ("weight" %in% names(edges)) {
-        edges$width <- edges$weight
-      } else {
-        medge <- input$fltr_edge_multi_chk # isolate(input$fltr_edge_multi_chk)
-        if (!is.null(medge) && medge == FALSE) {
-          edges <- edges |>
-            dplyr::group_by(to, from) |>
-            dplyr::summarise(width = n(), .groups = "drop") |>
-            dplyr::ungroup()
-        }
-      }
+  g <- g |> dplyr::mutate(title = id)
+  
+  if (isTruthy(label_type)) {
+    if (label_type == "index") {
+      g <- g |> dplyr::mutate(shape = "circle")
+    } else {
+      g <- g |> dplyr::mutate(shape = "dot")
     }
   }
   
-  category_selection <- NULL
-  if (!is.null(gcs) && (!(gcs %in% c("All", "")))) {
-    category_selection <- list(variable = gcs, multiple = TRUE)
-  }
+  visnet_label_size <- function(x) base_font_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_mplr)
   
-  if (!input$visnet_id_sel_chk) category_selection <- NULL
-  
-  if ("color" %in% names(nodes)) nodes <- dplyr::select(nodes, -color)
+  base_font_size <- 24
+  g <- g |> dplyr::mutate(font.size = base_font_size)
 
-  # custom mastodon - add drop down selection
-  use_node_mtdn_img_chk <- FALSE
+  if (isolate(input$node_label_prop_chk)) {
+    if (node_size_attr %in% node_attrs) {
+      g <- g |> dplyr::mutate(font.size = visnet_label_size(.data[[node_size_attr]]))
+    }
+  }
+  
+  if ("label.color" %in% node_attrs) g <- g |> dplyr::mutate(font.color = label.color)
+  
   # mast images
   if (input$node_mtdn_img_chk) {
-    if ("user.avatar" %in% colnames(nodes)) {
-      use_node_mtdn_img_chk <- TRUE
+    if ("user.avatar" %in% node_attrs) {
       img_shape <- "circularImage"
       if (input$node_mtdn_img_sq_chk) img_shape <- "image"
-      nodes <- nodes |>
-        dplyr::mutate(image = .data$user.avatar, shape = img_shape) |>
-        dplyr::mutate(brokenImage = "mast.png")
+      g <- g |>
+        dplyr::mutate(image = user.avatar, shape = img_shape, brokenImage = "mast.png")
     }
   }
   
-  if (n_edges) {
-    cat(file=stderr(), paste0("debug - sel: ", input$edge_label_sel, ", cols - ", paste(colnames(edges), collapse = ","), "\n"))
-    
-    if (isTruthy(input$edge_label_sel)) {
-      if (input$edge_label_sel %in% colnames(edges)) {
-        edges$label <- edges[[input$edge_label_sel]]
-      } 
-    }
-    
-    if (isTruthy(input$edge_labels_chk) & ("label" %in% colnames(edges))) {
-      edges$title <- row.names(edges)
-      # edges <- dplyr::mutate(edges, label = ifelse(is.na(.data$label), .data$id, .data$label))
-      
-      edges$font.size <- (12 + as.numeric(input$edge_label_size))
-      edges$font.color <- input$edge_label_color
-    } else {
-      edges$label <- ""
-    }
-  }
+  g <- g |> tidygraph::activate(edges)
+  g <- g |> dplyr::mutate(title = id)
   
+  # if (igraph::gsize(g)) {
+  #   if (!"width" %in% edge_attrs) {
+  #     if ("weight" %in% edge_attrs) {
+  #       g <- g |> dplyr::mutate(width = weight)
+  #     } else {
+  #       edge_multi_chk <- isolate(input$fltr_edge_multi_chk)
+  #       if (!is.null(edge_multi_chk) && edge_multi_chk == FALSE) {
+  #         g <- g |>
+  #           dplyr::group_by(to, from) |>
+  #           dplyr::summarise(width = n(), .groups = "drop") |>
+  #           dplyr::ungroup()
+  #       }
+  #     }
+  #   }
+  # }
+
+  # edges <- g |> tibble::as_tibble() |>
+  #   dplyr::mutate(label = ifelse(is.na(label), "", label))
+  #   
+  # nodes <- g |> tidygraph::activate(nodes) |>
+  #   tibble::as_tibble() |>
+  #   dplyr::mutate(label = ifelse(is.na(label), "", label)) |>
+  #   dplyr::relocate(id)
+  
+  # browser()
+  edges <- g |> tidygraph::activate(edges) |>
+    igraph::as_data_frame(what = c("edges")) |>
+    dplyr::mutate(label = ifelse(is.na(label), "", label))
+  
+  nodes <- g |> tidygraph::activate(nodes) |>
+    igraph::as_data_frame(what = c("vertices")) |>
+    dplyr::mutate(label = ifelse(is.na(label), "", label))
+  
+  # browser()
   vis_net <- visNetwork::visNetwork(nodes, edges, main = NULL)
   
   coords <- g_layout_rv$coords
@@ -191,10 +114,12 @@ r_graph_visnet_plot <- reactive({
   
   vis_net <- do.call(visIgraphLayout, l_params)
   
+  plot_height <- g_plot_rv$height
+  
   vis_net <- vis_net |>
     visNetwork::visOptions(collapse = FALSE, 
                highlightNearest = list(enabled = TRUE, hover = TRUE),
-               selectedBy = category_selection,
+               # selectedBy = category_selection,
                nodesIdSelection = input$visnet_id_sel_chk,
                height = plot_height) |>
     visNetwork::visInteraction(multiselect = TRUE) |>
@@ -206,26 +131,19 @@ r_graph_visnet_plot <- reactive({
                 // }
                 }")
   
-  if (input$node_mtdn_img_bord_chk) {
-    if (use_node_mtdn_img_chk) {
-      vis_net <- vis_net |> visNetwork::visNodes(shapeProperties = list(useBorderWithImage = TRUE))
-    } else {
-      vis_net <- vis_net |> visNetwork::visNodes(shapeProperties = list(useBorderWithImage = FALSE))
-    }
+  if (input$node_mtdn_img_chk) {
+    img_bord <- input$node_mtdn_img_bord_chk
+    vis_net <- vis_net |> visNetwork::visNodes(shapeProperties = list(useBorderWithImage = isTruthy(img_bord)))
   }
   
   if (n_edges) {
     e_arrows <- e_smooth <- NULL
-    if (g_rv$dir) e_arrows <- "to"
-    if (isTruthy(input$fltr_edge_multi_chk) && input$fltr_edge_multi_chk == TRUE) { 
+    if (isolate(g_rv$dir)) e_arrows <- "to"
+    if (isTruthy(isolate(input$fltr_edge_multi_chk)) && isolate(input$fltr_edge_multi_chk) == TRUE) { 
       e_smooth <- list(enabled = TRUE, type = "diagonalCross")
     }
     
-    vis_net <- vis_net |> 
-      visNetwork::visEdges(
-        arrows = e_arrows,
-        smooth = e_smooth,
-        color = list(color = input$edge_color))  
+    vis_net <- vis_net |> visNetwork::visEdges(arrows = e_arrows, smooth = e_smooth)
   }
   
   vis_net

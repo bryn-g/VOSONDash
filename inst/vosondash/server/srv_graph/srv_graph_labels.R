@@ -1,19 +1,3 @@
-# modify base graph labels
-f_set_id_and_label <- function(g) {
-  
-  # add node ids if not present
-  attr_v <- igraph::vertex_attr_names(g)
-  if (!("id" %in% attr_v)) igraph::V(g)$id <- paste0("n", as.numeric(igraph::V(g))-1) # n0, n1 ..
-  if ("label" %in% attr_v) igraph::V(g)$imported_label <- igraph::V(g)$label
-  
-  # add edge ids if not present
-  attr_e <- igraph::edge_attr_names(g)
-  if (!("id" %in% attr_e)) igraph::E(g)$id <- paste0("e", as.numeric(igraph::E(g))-1) # n0, n1 ..
-  if ("label" %in% attr_e) igraph::E(g)$imported_label <- igraph::E(g)$label
-  
-  g
-}
-
 # set labels on change of node attributes
 observeEvent(g_nodes_rv$properties, {
   req(g_nodes_rv$properties)

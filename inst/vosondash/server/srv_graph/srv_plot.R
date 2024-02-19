@@ -27,7 +27,7 @@ observeEvent(c(
   if (!isTruthy(tab)) tab <- "voson_info"
   
   if (tab %in% c("igraph", "visNetwork")) {
-    if (isTruthy(r_graph_filter())) {
+    if (isTruthy(r_graph_visual())) {
       shinyjs::toggle("graph_summary_ui", condition = input$overlay_summary_chk)
       
       shinyjs::enable("graph_graphml_dl_btn")

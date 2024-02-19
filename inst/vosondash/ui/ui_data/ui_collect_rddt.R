@@ -121,16 +121,10 @@ tabItem(tabName = "rddt_collection_tab",
               "Results",
               fluidRow(
                 div(
-                  checkboxInput("expand_show_rddt_cols", "Column filters", FALSE),
-                  style = "margin-left:12px; margin-right:5px;",
-                  class = "div_inline"
-                ),
-                div(
                   checkboxInput("dt_rddt_truncate_text_chk", "Truncate text", TRUE),
                   class = "div_inline"
                 )
               ),
-              uiOutput("rddt_data_cols_ui"),
               DT::dataTableOutput("dt_rddt_data")
             )
           ))

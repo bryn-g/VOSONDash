@@ -45,9 +45,8 @@ observeEvent(g_rv$data, {
 r_graph_base <- reactive({
   req(r_is_data_valid())
   
-  # g <- g_rv$data$data
-  g <- tidygraph::as_tbl_graph(g_rv$data$data)
-  g <- f_set_id_and_label(g)
+  g <- f_set_id_and_label(g_rv$data$data)
+  g <- tidygraph::as_tbl_graph(g)
   
   seed <- sample(1:20000, 1)
   updateNumericInput(session, "graph_seed_input", value = seed)
@@ -65,3 +64,40 @@ r_graph_base <- reactive({
 observeEvent(g_layout_rv$coords_base, {
   g_layout_rv$coords <- g_layout_rv$coords_base
 })
+
+# modify graph id and labels
+f_set_id_and_label <- function(g) {
+  attr_v <- igraph::vertex_attr_names(g)
+  attr_e <- igraph::edge_attr_names(g)
+  
+  # nodes
+  if ("id" %in% attr_v) {
+    if (!"id.imp" %in% attr_v) igraph::V(g)$id.imp <- igraph::V(g)$id
+  }
+  igraph::V(g)$id <- paste0("n", as.numeric(igraph::V(g))-1) # n0, n1 ..
+  
+  if (!igraph::is_named(g)) {
+    igraph::V(g)$name <- igraph::V(g)$id
+  } else {
+    igraph::V(g)$id.n <- igraph::V(g)$id
+    igraph::V(g)$id <- igraph::V(g)$name
+  }
+  
+  if ("label" %in% attr_v) {
+    if (!"label.imp" %in% attr_v) igraph::V(g)$label.imp <- igraph::V(g)$label
+  }
+  igraph::V(g)$label <- igraph::V(g)$name
+  
+  # edges
+  if ("id" %in% attr_e) {
+    if (!"id.imp" %in% attr_e) igraph::E(g)$id.imp <- igraph::E(g)$id
+  }
+  igraph::E(g)$id <- paste0("e", as.numeric(igraph::E(g))-1) # e0, e1 ..
+  
+  if ("label" %in% attr_e) {
+    if (!"label.imp" %in% attr_e) igraph::E(g)$label.imp <- igraph::E(g)$label
+  }
+  igraph::E(g)$label <- igraph::E(g)$id
+  
+  g
+}

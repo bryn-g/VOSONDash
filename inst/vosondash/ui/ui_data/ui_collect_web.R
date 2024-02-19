@@ -162,16 +162,10 @@ tabItem(tabName = "web_collection_tab",
               "Results",
               fluidRow(
                 div(
-                  checkboxInput("expand_show_web_cols", "Column filters", FALSE),
-                  style = "margin-left:12px; margin-right:5px;",
-                  class = "div_inline"
-                ),
-                div(
                   checkboxInput("dt_web_truncate_text_chk", "Truncate text", TRUE),
                   class = "div_inline"
                 )
               ),
-              uiOutput("web_data_cols_ui"),
               DT::dataTableOutput("dt_web_data")
             )
           )

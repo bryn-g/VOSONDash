@@ -359,45 +359,6 @@ output$mtdn_data_posts_dt <- DT::renderDataTable(mtdn_data_posts_dt_rv())
 # render users data table
 output$mtdn_data_users_dt <- DT::renderDataTable(mtdn_data_users_dt_rv())
 
-# panel for data posts cols selection
-output$mtdn_data_posts_cols_ui <- renderUI({
-  data <- mtdn_data_rv$posts_colnames
-  
-  if (is.null(data)) return(NULL)
-  
-  conditionalPanel(condition = "input.mtdn_data_posts_cols_sel_chk",
-                   div(actionButton("mtdn_data_posts_sel_all_cols_btn", "Select all"), 
-                       actionButton("mtdn_data_posts_desel_all_cols_btn", "Clear all"),
-                       actionButton("mtdn_data_posts_reset_cols_btn", "Reset")),
-                   checkboxGroupInput("mtdn_data_posts_col_chkgrp", label = NULL,
-                                      choices = mtdn_data_rv$posts_colnames,
-                                      selected = c("id", "created_at", "visibility", "sensitive", "reblogs_count", 
-                                                   "favourites_count", "replies_count", "tags", "content.text"),
-                                      inline = TRUE, width = "98%")
-  )
-})
-
-# panel for data users cols selection
-output$mtdn_data_users_cols_ui <- renderUI({
-  data <- mtdn_data_rv$users_colnames
-  
-  if (is.null(data)) return(NULL)
-  
-  conditionalPanel(condition = "input.mtdn_data_users_cols_sel_chk",
-                   div(actionButton("mtdn_data_users_sel_all_cols_btn", "Select all"), 
-                       actionButton("mtdn_data_users_desel_all_cols_btn", "Clear all"),
-                       actionButton("mtdn_data_users_reset_cols_btn", "Reset")),
-                   checkboxGroupInput("mtdn_data_users_col_chkgrp", label = NULL,
-                                      choices = mtdn_data_rv$users_colnames,
-                                      selected = c("id", "acct", "display_name", "bot", "created_at",
-                                                   "followers_count", "following_count", "statuses_count", 
-                                                   "note.text"),
-                                      inline = TRUE, width = "98%")
-  )
-})
-
-#### reactives ------------------------------------------------------------------------------------------------------- #
-
 # posts data update
 mtdn_data_posts_dt_rv <- reactive({
   data <- mtdn_rv$data
@@ -405,21 +366,17 @@ mtdn_data_posts_dt_rv <- reactive({
   # check data
   if (is.null(data)) return(NULL)
   
-  if ((is.null(input$mtdn_data_posts_col_chkgrp)) || (length(input$mtdn_data_posts_col_chkgrp) <= 0)) return(NULL)
-  
   # use posts
-  data <- dplyr::select(data$posts, input$mtdn_data_posts_col_chkgrp)
+  data <- data$posts
   
   if (nrow(data) < 1) return(NULL)
   
   # comma seperate list values in display dataframe
   data <- data |>
-    dplyr::mutate(
-      dplyr::across(
+    dplyr::mutate(dplyr::across(
         dplyr::where(is.list),
         function(x) purrr::map_chr(x, function(y) paste0(y, collapse = ","))
-      )
-    )
+    ))
   
   # render table and options
   if (!is.null(data)) {
@@ -428,11 +385,37 @@ mtdn_data_posts_dt_rv <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
-    DT::datatable(data, extensions = "Buttons", filter = "top",
-                  options = list(lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-                                 columnDefs = col_defs, dom = "lBfrtip",
-                                 buttons = c("copy", "csv", "excel", "print")),
-                  class = "cell-border stripe compact hover")
+    
+    cols_hide <- match(c(), colnames(data))
+    if (length(cols_hide)) {
+      col_defs <- append(col_defs, list(list(targets = cols_hide, visible = FALSE)))
+    }
+    
+    DT::datatable(
+      data,
+      extensions = "Buttons",
+      filter = "top",
+      selection = "none",
+      options = list(
+        lengthMenu = gbl_dt_menu_len,
+        pageLength = gbl_dt_page_len,
+        scrollX = TRUE,
+        columnDefs = col_defs,
+        dom = "lBfrtip",
+        buttons = list(
+          "copy",
+          "csv",
+          "excel",
+          "print",
+          list(
+            extend = "colvis",
+            text = "Choose Columns",
+            columns = c(1:length(colnames(data)))
+          )
+        )
+      ),
+      class = "cell-border stripe compact hover"
+    )
   }
 })
 
@@ -442,11 +425,9 @@ mtdn_data_users_dt_rv <- reactive({
 
   # check data
   if (is.null(data)) return(NULL)
-
-  if ((is.null(input$mtdn_data_users_col_chkgrp)) || (length(input$mtdn_data_users_col_chkgrp) <= 0)) return(NULL)
   
   # users
-  data <- dplyr::select(data$users, input$mtdn_data_users_col_chkgrp)
+  data <- data$users
 
   if (nrow(data) < 1) return(NULL)
 
@@ -466,12 +447,32 @@ mtdn_data_users_dt_rv <- reactive({
       col_defs <- gbl_dt_col_defs
       col_defs[[1]]$targets = "_all"
     }
+    
+    cols_hide <- match(c(), colnames(data))
+    col_defs <- append(col_defs, list(list(targets = cols_hide, visible = FALSE)))
+    
     DT::datatable(
-      data, extensions = "Buttons", filter = "top",
+      data,
+      extensions = "Buttons",
+      filter = "top",
+      selection = "none",
       options = list(
-        lengthMenu = gbl_dt_menu_len, pageLength = gbl_dt_page_len, scrollX = TRUE,
-        columnDefs = col_defs, dom = "lBfrtip",
-        buttons = c("copy", "csv", "excel", "print")
+        lengthMenu = gbl_dt_menu_len,
+        pageLength = gbl_dt_page_len,
+        scrollX = TRUE,
+        columnDefs = col_defs,
+        dom = "lBfrtip",
+        buttons = list(
+          "copy",
+          "csv",
+          "excel",
+          "print",
+          list(
+            extend = "colvis",
+            text = "Choose Columns",
+            columns = c(1:length(colnames(data)))
+          )
+        )
       ),
       class = "cell-border stripe compact hover"
     )
