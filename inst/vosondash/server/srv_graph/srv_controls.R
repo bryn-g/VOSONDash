@@ -29,7 +29,11 @@ igraph_ctrls <- function() {
 
 # visnet plot ctrls
 visnet_ctrls <- function() {
-  c("visnet_node_base_size_slider")
+  c("visnet_node_base_size_slider",
+    "visnet_edge_arrows_chk",
+    "visnet_edge_arrows",
+    "visnet_edge_smooth_chk",
+    "visnet_edge_smooth_type")
 }
 
 # layout ctrls
@@ -48,8 +52,7 @@ layout_ctrls <- function() {
 
 # node ctrls
 node_ctrls <- function() {
-  c("node_index_chk",
-    "node_labels_chk",
+  c("node_labels_picker",
     "node_label_prop_chk",
     "node_sel_labels_chk",
     "node_label_color",

@@ -20,30 +20,11 @@ r_graph_igraph_plot <- reactive({
     if (!is.null(saved_win_font)) windowsFonts(Arial = windowsFont(saved_win_font))
   })
   
-  # node colors if nodes have cat attrs and one is selected
-  if (isTruthy(isolate(input$fltr_cat_chk))) {
-    if (length(node_cats) > 0) {
-      if (nchar(node_cat_selected) && node_cat_selected != "All") {
-        
-        node_cats <- node_cats[[node_cat_selected]]
-        node_cats_df <- data.frame("cat" = node_cats)
-        if (nrow(node_cats_df) > 0) {
-          if (input$node_use_g_cols_chk == FALSE || !has_color_attr) {
-            node_cats_df$color <- gbl_plot_palette()[1:nrow(node_cats_df)]
-            cat_attr <- paste0("vosonCA_", node_cat_selected)
-            igraph::V(g)$color <- node_cats_df$color[match(igraph::vertex_attr(g, cat_attr), node_cats_df$cat)]  
-          }
-        }
-  
-      }
-    }
-  }
-  
   # create a list for plot parameters
   igraph_params <- list(g)
   
   label_type <- isolate(g_nodes_rv$label_type)
-  if (label_type %in% c("index", "attribute")) {
+  if (label_type != "None") {
     
     # set font family
     igraph_params["vertex.label.family"] <- igraph_params["edge.label.family"] <- "Arial"

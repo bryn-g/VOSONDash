@@ -3,34 +3,76 @@ g_nodes_rv <- reactiveValues(
   attrs = NULL,
   
   labels = NULL,
-  label_type = "none",
+  label_type = "None",
   label_selected = NULL,
   
   cats = NULL,
   cat_selected = "All",
   cat_sub_selected = "All",
+  cats_color_map = NULL,
   
-  properties = NULL,
-  
-  pruned = NULL
+  conts = NULL
 )
 
-# base graph node attribute list
-r_node_attr_lst <- reactive({
-  g <- req(r_graph_base())
-  
-  node_attr <- igraph::vertex_attr_names(g)
-  init_attr_sel <- ifelse("imported_label" %in% node_attr, "imported_label", "id")
-  node_attr <- sort(node_attr[!node_attr %in% c("label")])
-  
-  list(attrs = node_attr, sel = init_attr_sel)
-})
+# update node attribute label select
+observeEvent(g_nodes_rv$labels, {
+  updateSelectInput(
+    session,
+    "node_label_sel",
+    label = NULL,
+    choices = c("None", g_nodes_rv$labels),
+    selected = "None"
+  )
+  shinyjs::enable("node_label_sel")
+}, ignoreInit = TRUE)
+
+# change node label field
+observeEvent(input$node_label_sel, {
+  if (isTruthy(input$node_label_sel)) {
+    g_nodes_rv$label_selected <- input$node_label_sel 
+  }
+}, ignoreInit = TRUE)
+
+# node index or node attribute checkbox
+observeEvent(input$node_labels_picker, {
+  g_nodes_rv$label_type <- input$node_labels_picker
+  if (input$node_labels_picker == "index") {
+    if (input$node_label_dist != 0) updateSliderInput(session, inputId = "node_label_dist", value = 0)
+  } else {
+    if (input$node_label_dist == 0) shinyjs::reset("node_label_dist")
+  }
+}, ignoreInit = TRUE)
 
 # reset node size slider when changed to none
 observeEvent(input$node_size_sel, {
   if (input$node_size_sel == "None") shinyjs::reset("node_size_slider")
 }, ignoreInit = TRUE)
 
+f_get_node_cont_attr <- function(df) {
+  df |> dplyr::filter(unit == "node" & type == "cont") |> dplyr::pull("key") |> unique()
+}
+
+observeEvent(g_rv$attrs, {
+  attr <- f_get_node_cont_attr(g_rv$attrs)
+
+  choices <- c("None",
+    "degree",
+    "indegree",
+    "outdegree",
+    "betweenness",
+    "closeness", attr)
+  
+  updateSelectInput(
+    session,
+    "node_size_sel",
+    label = NULL,
+    choices = choices,
+    selected = "None"
+  )
+  # shinyjs::enable("node_size_sel")
+}, ignoreInit = TRUE)
+
+# reset node visual ctrls
 observeEvent(input$reset_node_attrs_btn, {
   if (isTruthy(input$reset_node_attrs_btn)) {
     set_ctrl_state(
@@ -48,11 +90,11 @@ observeEvent(input$reset_node_attrs_btn, {
   }
 }, ignoreInit = TRUE)
 
+# reset node label visual ctrls
 observeEvent(input$reset_node_labels_btn, {
   if (isTruthy(input$reset_node_labels_btn)) {
     set_ctrl_state(
-      c("node_index_chk",
-        "node_labels_chk",
+      c("node_labels_picker",
         "node_label_sel",
         "node_sel_labels_chk",
         "visnet_id_sel_chk",

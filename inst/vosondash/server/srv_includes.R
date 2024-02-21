@@ -1,7 +1,6 @@
 source("server/srv_graph/srv_controls.R", local = TRUE)
 
 source("server/srv_graph/srv_graph_base.R", local = TRUE)
-source("server/srv_graph/srv_graph_labels.R", local = TRUE)
 source("server/srv_graph/srv_graph_comps.R", local = TRUE)
 source("server/srv_graph/srv_graph_cats.R", local = TRUE)
 source("server/srv_graph/srv_graph_filter.R", local = TRUE)

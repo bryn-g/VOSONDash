@@ -1,205 +1,106 @@
-dt_prev_sel <- reactiveValues(nodes = c())
+# graph reactive variables
+g_prune_rv <- reactiveValues(
+  nodes = NULL,
+  selected = NULL,
+  prev_selected = NULL,
+  restore = NULL,
+  action = NULL
+)
 
-# add selected data table rows to pruned nodes list
+r_rm_nodes_dt <- reactive({
+  pruned <- g_prune_rv$nodes
+  selected <- g_prune_rv$selected
+  
+  df <- NULL
+  if (!is.null(pruned) && nrow(pruned)) df <- pruned
+  if (!is.null(selected) && nrow(selected)) df <- df |> dplyr::bind_rows(selected)
+
+  df
+})
+
+# # add selected data table rows to pruned nodes list
 observeEvent(input$rm_sel_rows_btn, {
-  g <- r_graph_filter()
-  
-  # this updates prune list and triggers graph redraw
-  node_rm_lst_add_sel()
-  
-  # update prune list select box
-  prune_list <- g_nodes_rv$pruned
-  if (is.null(prune_list)) { 
-    prune_list <- character(0) 
-  } else {
-    temp <- list()
-    for (i in prune_list) {
-      if (is.null(igraph::vertex_attr(g, "label"))) {
-        n_value <- V(g)[which(V(g)$id == i)]$name
-      } else {
-        n_value <- V(g)[which(V(g)$id == i)]$label
-      }
-      temp[paste0(i, " - ", n_value)] <- i
-    }
-    prune_list <- temp
-  }
-  updateSelectInput(session, "prune_nodes_sel", choices = prune_list)
-})
+  g_prune_rv$action <- r_rm_nodes()
+}, ignoreInit = TRUE)
 
-# add unselected data table rows to pruned nodes list
-observeEvent(input$rm_unsel_rows_btn, {
-  g <- r_graph_filter()
+# remove selected nodes
+r_rm_nodes <- reactive({
+  pruned <- g_prune_rv$nodes
+  selected <- g_prune_rv$selected
   
-  node_rm_lst_add_unsel()
-  
-  # update prune list select box
-  prune_list <- g_nodes_rv$pruned
-  if (is.null(prune_list)) { 
-    prune_list <- character(0) 
-  } else {
-    temp <- list()
-    for (i in prune_list) {
-      if (is.null(igraph::vertex_attr(g, "label"))) {
-        n_value <- igraph::V(g)[which(igraph::V(g)$id == i)]$name
-      } else {
-        n_value <- igraph::V(g)[which(igraph::V(g)$id == i)]$label
-      }
-      
-      temp[paste0(i, " - ", n_value)] <- i
-    }
-    prune_list <- temp
-  }
-  updateSelectInput(session, "prune_nodes_sel", choices = prune_list)
-})
-
-observeEvent(input$nbh_prune_unsel, {
-  g <- r_graph_filter()
-  
-  node_rm_lst_add_unsel()
-  
-  prune_list <- g_nodes_rv$pruned
-  if (is.null(prune_list)) { 
-    prune_list <- character(0) 
-  } else {
-    temp <- list()
-    for (i in prune_list) {
-      if (is.null(igraph::vertex_attr(g, "label"))) {
-        n_value <- V(g)[which(V(g)$id == i)]$name
-      } else {
-        n_value <- V(g)[which(V(g)$id == i)]$label
-      }
-      
-      temp[paste0(i, " - ", n_value)] <- i
-    }
-    prune_list <- temp
-  }
-  updateSelectInput(session, "prune_nodes_sel", choices = prune_list)
-})
-
-# remove selected nodes from prune list
-observeEvent(input$prune_nodes_ret_btn, {
-  g <- r_graph_filter()
-  
-  g_nodes_rv$pruned <- g_nodes_rv$pruned[!(g_nodes_rv$pruned %in% input$prune_nodes_sel)]
-  
-  # update prune list select box
-  prune_list <- g_nodes_rv$pruned
-  if (is.null(prune_list)) { 
-    prune_list <- character(0) 
-  } else {
-    temp <- list()
-    for (i in prune_list) {
-      if (is.null(igraph::vertex_attr(g, "label"))) {
-        n_value <- igraph::V(g)[which(igraph::V(g)$id == i)]$name
-      } else {
-        n_value <- igraph::V(g)[which(igraph::V(g)$id == i)]$label
-      }
-      temp[paste0(i, " - ", n_value)] <- i
-    }
-    prune_list <- temp
-  }
-  updateSelectInput(session, "prune_nodes_sel", choices = prune_list)
-})
-
-# reset prune list
-observeEvent(input$prune_reset_btn, {
-  g_nodes_rv$pruned <- c()
-  updateSelectInput(session, "prune_nodes_sel", choices = character(0))
-})
-
-observeEvent(input$nbh_reset_btn, {
-  g_nodes_rv$pruned <- c()
-  updateSelectInput(session, "prune_nodes_sel", choices = character(0))
-})
-
-# deselect all data table selected rows
-observeEvent(input$prune_desel_rows_btn, {
-  DT::selectRows(dt_nodes_proxy, NULL)
-})
-
-observeEvent(input$nbh_desel_btn, {
-  DT::selectRows(dt_nodes_proxy, NULL)
-})
-
-# nodes clicked event in visnetwork
-observeEvent(input$vis_node_select, {
-  dt_nodes <- r_graph_nodes_df()
-  
-  selected_rows <- row.names(dt_nodes)[c(input$dt_nodes_rows_selected)] # selected in dt
-  plot_sel_nodes <- row.names(dt_nodes)[dt_nodes$name %in% input$vis_node_select] # selected in plot
-  
-  deselect_nodes <- plot_sel_nodes[plot_sel_nodes %in% selected_rows] # deselect if already selected in dt
-  all_selected <- union(selected_rows, plot_sel_nodes)
-  
-  sel <- all_selected[!all_selected %in% deselect_nodes]
-  sel <- which(rownames(dt_nodes) %in% sel) # require indices not row names
-  
-  DT::selectRows(dt_nodes_proxy, sel)
-})
-
-observeEvent(input$nbh_sel_btn, {
-  req(length(input$dt_nodes_rows_selected) > 0)
-  
-  g <- r_graph_filter()
-
-  dt_nodes <- r_graph_nodes_df()
-  sel_rows <- row.names(dt_nodes)[c(input$dt_nodes_rows_selected)]
-  
-  dt_prev_sel$nodes <- sel_rows
-  shinyjs::enable("nbh_undo_btn")
-  
-  sel_row_names <- V(g)[V(g)$id %in% sel_rows]$name
-  
-  order <- input$nbh_order_sel
-  g_ego <- make_ego_graph(g, order = order, nodes = sel_row_names, mode = "all", mindist = 0)
-  ids <- unlist(sapply(g_ego, function(x) V(x)$id))
-  sel <- which(rownames(dt_nodes) %in% ids)
-  
-  DT::selectRows(dt_nodes_proxy, sel)
-})
-
-observeEvent(input$nbh_undo_btn, {
-  if (length(dt_prev_sel$nodes) > 0) {
+  # clear seleect list
+  if (!is.null(selected)) {
+    selected <- selected |> dplyr::mutate(status = "pending")
+    pruned <- selected |> dplyr::bind_rows(pruned)
+    
     DT::selectRows(dt_nodes_proxy, NULL)
-    sel <- which(rownames(r_graph_nodes_df()) %in% dt_prev_sel$nodes)
-    DT::selectRows(dt_nodes_proxy, sel)
-    
-    dt_prev_sel$nodes <- c()
-    shinyjs::disable("nbh_undo_btn")
   }
+  
+  if (!is.null(pruned)) {
+    # rm_nodes <- pruned |> dplyr::filter(status != "removed")
+    
+    # nodes pending removal
+    # if (nrow(rm_nodes)) {
+      g_prune_rv$nodes <- pruned
+      g_prune_rv$selected <- NULL
+      
+      # return(rm_nodes)
+      return(pruned)
+    # }
+  }
+  
+  NULL
 })
 
-# add selected data table row name values to pruned nodes list
-node_rm_lst_add_sel <- reactive({
-  dt_nodes <- isolate(r_graph_nodes_df())
-  dt_selected_rows <- input$dt_nodes_rows_selected
-  prune_list <- g_nodes_rv$pruned
+# when selection changes
+observeEvent(input$dt_nodes_rows_selected, {
+  selected <- input$dt_nodes_rows_selected
   
-  selected_rows <- row.names(dt_nodes)[c(dt_selected_rows)]
+  nodes <- r_graph_nodes_df()
+  prune_lst <- g_prune_rv$nodes
   
-  # add name if not already in list
-  lapply(selected_rows, function(x) {
-    if (!x %in% g_nodes_rv$pruned) g_nodes_rv$pruned <<- append(g_nodes_rv$pruned, x)
-  })
-})
-
-# add deselected data table row name values to pruned nodes list
-node_rm_lst_add_unsel <- reactive({
-  dt_nodes <- isolate(r_graph_nodes_df())
-  dt_selected_rows <- input$dt_nodes_rows_selected
-  prune_list <- g_nodes_rv$pruned
-  
-  # does not let user prune all data this way requires two or more selected rows
-  if (length(dt_selected_rows) > 1) {
-    selected_rows <- row.names(dt_nodes)[c(dt_selected_rows)]
+  df <- NULL
+  if (!is.null(selected) && length(selected)) {
+    df <- nodes |> 
+      tibble::as_tibble() |>
+      dplyr::slice(selected) |>
+      dplyr::select("idx", "id", "name") |>
+      dplyr::mutate(status = "selected")
     
-    # names of nodes not selected
-    sdf <- subset(dt_nodes, !(row.names(dt_nodes) %in% selected_rows))
-    selected_rows <- row.names(sdf)
-    
-    # add name if not already in list
-    lapply(selected_rows, function(x) {
-      if (!x %in% prune_list) g_nodes_rv$pruned <<- append(g_nodes_rv$pruned, x)
-    }) 
+    # remove from seleect list if already in prune list 
+    if (!is.null(prune_lst)) {
+      df <- df |> dplyr::filter(!id %in% (prune_lst |> dplyr::pull(id)))
+      DT::selectRows(dt_nodes_proxy, df |> dplyr::pull(idx))
+    }
   }
+  
+  g_prune_rv$selected <-df
+}, ignoreInit = TRUE, ignoreNULL = FALSE)
+
+# graph nodes data table
+output$dt_nodes_rm <- DT::renderDataTable({
+  data <- r_rm_nodes_dt()
+
+  if (!is.null(data)) {
+    data <- data |> tibble::column_to_rownames(var = "id")
+    selection <- list(target = "row", c())
+  } else {
+    data <- tibble::tibble(data = "no nodes selected.")
+    selection <- "none"
+  }
+  
+  dt <- DT::datatable(
+    data,
+    extensions = c("FixedColumns", "Responsive"),
+    selection = selection,
+    options = list(
+      lengthMenu = list(c(5, 10, 15, 20, 25, 50, 100, -1), c("5", "10", "15", "20", "25", "50", "100", "All")),
+      pageLength = 5,
+      scrollX = TRUE,
+      dom = "lftip"
+    ),
+    class = "cell-border stripe compact hover"
+  )
+  
+  dt
 })

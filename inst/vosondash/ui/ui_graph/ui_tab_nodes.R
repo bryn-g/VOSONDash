@@ -58,11 +58,11 @@ tabPanel(
         label = NULL,
         choices = c(
           "None",
-          "Degree",
-          "Indegree",
-          "Outdegree",
-          "Betweenness",
-          "Closeness"
+          "degree",
+          "indegree",
+          "outdegree",
+          "betweenness",
+          "closeness"
         ),
         multiple = FALSE,
         selectize = TRUE
@@ -79,7 +79,7 @@ tabPanel(
              step = 0.1,
              value = c(1),
              ticks = FALSE,
-             animate = FALSE
+             animate = TRUE
            )
          ))),
   conditionalPanel(

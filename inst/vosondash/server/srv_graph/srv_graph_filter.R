@@ -1,124 +1,121 @@
-fltr_state <- function() {
-  list(
-    "fltr_prune_chk" = FALSE,
-    "fltr_iso_chk" = FALSE,
-    "fltr_edge_loops_chk" = FALSE,
-    "fltr_edge_multi_chk" = FALSE,
-    "fltr_comp_chk" = FALSE,
-    "fltr_cat_chk" = FALSE
-  )
-}
+g_filter_rv <- reactiveValues(
+  active = NULL,
+  directed = NULL
+)
 
 # apply all filters to graph data and return modified graph
-filter_btn_txt_sel <- function(id, state) {
-  shinyjs::toggleClass(id = id, class = "txt_sel_blue", asis = TRUE, condition = state)
-}
+# filter_btn_txt_sel <- function(id, state) {
+#   shinyjs::toggleClass(id = id, class = "txt_sel_blue", asis = TRUE, condition = state)
+# }
 
-f_init_fltr_state <- function() {
-  sapply(fltr_state(), function(x) x = FALSE, simplify = FALSE, USE.NAMES = TRUE)
-}
-
-f_post_fltr_state <- function(state) {
-  # sapply(names(state), function(x) {
-  #   val <- state[[x]]
-  #   if (isTruthy(val)) {
-  #     filter_btn_txt_sel(paste(x, "_label"), val)
-  #   }
-  # })
-}
+# consolidate filter changes into single event
+observeEvent({
+  input$fltr_order
+  input$fltr_prune_chk
+  input$fltr_iso_chk
+  input$fltr_edge_loops_chk
+  input$fltr_edge_multi_chk
+  input$fltr_comp_chk
+  input$fltr_cat_chk
+  }, {
+    # requires filter ui to be ready
+    fltr_order <- req(input$fltr_order)
+    
+    # get filter states
+    fltr_states <- list(
+      "fltr_prune" = input$fltr_prune_chk,
+      "fltr_iso" = input$fltr_iso_chk,
+      "fltr_edge_loops" = input$fltr_edge_loops_chk,
+      "fltr_edge_multi" = input$fltr_edge_multi_chk,
+      "fltr_comp" = input$fltr_comp_chk,
+      "fltr_cat" = input$fltr_cat_chk
+    )
+    
+    # order filters and keep only active
+    fltrs <- tibble::tibble(id = fltr_order) |>
+      dplyr::left_join(tibble::tibble(id = names(fltr_states), state = fltr_states), by = "id") |>
+      dplyr::filter(state == TRUE) |>
+      dplyr::pull(id)
+    
+    if (length(fltrs)) {
+      g_filter_rv$active <- fltrs
+    } else {
+      g_filter_rv$active <- NULL
+    }
+    
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 r_graph_filter <- reactive({
   g <- r_graph_base()
+  
+  # init with null to dependents
   if (!isTruthy(g)) return(NULL)
+  
+  # active filters
+  active_fltrs <- g_filter_rv$active
+  
+  # no active filters
+  if (is.null(active_fltrs)) return(f_recalc_measures(g))
 
-  cat(file=stderr(), paste0(ts_utc(), " - r_graph_filter entry.\n"))
-  
-  fltr_state <- f_init_fltr_state()
-  
-  # filtering
-  f_order <- input$fltr_order
-  if (isTruthy(f_order)) {
-    for (cmd in f_order) {
-      if (cmd == "rm_pruned") {
-  
-        if (input$fltr_prune_chk) {
-          g <- VOSONDash::filter_nodes(g, g_nodes_rv$pruned)
-   
-          fltr_state$fltr_prune_chk <- TRUE
-        }
-  
-      } else if (cmd == "rm_categories") {
-  
-        if (input$fltr_cat_chk) {
-          cat_sel <- g_nodes_rv$cat_selected
-          cat_sub_sel <- g_nodes_rv$cat_sub_selected
-  
-          g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel, cat_prefix = "")
-          
-          fltr_state$fltr_cat_chk <- TRUE
-        }
+  # apply active filters
+  for (f in active_fltrs) {
+    
+    if (f == "fltr_prune") {
+      nodes <- g_prune_rv$action
+
+      if (!is.null(nodes) && nrow(nodes)) {
+        ids <- nodes |> dplyr::pull(name)
+        g <- VOSONDash::filter_nodes(g, ids)
         
-      } else if (cmd == "rm_components") {
- 
-        if (input$fltr_comp_chk) {
-          slider_vals <- input$comp_slider
-          mode <- input$comp_mode_picker
-          
-          comp_range <- VOSONDash::get_comps_range(g, mode = mode)
-          g_comps_rv$pre_comps <- comp_range
-          
-          id_vals <- input$comp_memb_sel
-          if (!is.null(id_vals)) id_vals <- as.numeric(id_vals)
-          
-          g <- VOSONDash::filter_comps(g, mode, range = slider_vals, ids = id_vals)
-          
-          fltr_state$fltr_comp_chk <- TRUE
-        } else {
-          g_comps_rv$pre_comps <- NULL
-        }
-        
-      } else if (cmd == "rm_multiedges") {
-        
-        if (input$fltr_edge_multi_chk) {
-          g <- VOSONDash::filter_edges(g, input$fltr_edge_multi_chk, FALSE)
-          fltr_state$fltr_edge_multi_chk <- TRUE
-        }
-        
-      } else if (cmd == "rm_loops") {
-        
-        if (input$fltr_edge_loops_chk) {
-          g <- VOSONDash::filter_edges(g, FALSE, input$fltr_edge_loops_chk)
-          fltr_state$fltr_edge_loops_chk <- TRUE
-        }
-        
-      } else if (cmd == "rm_isolates") {
-        
-        if (input$fltr_iso_chk) {
-          g <- VOSONDash::filter_nodes_iso(g)
-          fltr_state$fltr_iso_chk <- TRUE
-        }
-        
+        # set all removed
+        rm_chk <- igraph::V(g)$name[which(igraph::V(g)$name %in% ids)]
+        g_prune_rv$nodes <- isolate(g_prune_rv$nodes) |> dplyr::mutate(status = ifelse(!name %in% rm_chk, "removed", "failed"), idx = ifelse(!name %in% rm_chk, (idx*-1), idx))
+        # g_prune_rv$action <- NULL
       }
+
+    } else if (f == "fltr_cat") {
+      cat_sel <- g_nodes_rv$cat_selected
+      cat_sub_sel <- g_nodes_rv$cat_sub_selected
+
+      g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel, cat_prefix = "")
+      
+    } else if (f == "fltr_comp") {
+      mode <- input$comp_mode_picker
+
+      # set pre-filter component state
+      comp_range <- VOSONDash::get_comps_range(g, mode = mode)
+      g_comps_rv$pre_comps <- comp_range
+      
+      # filter components
+      id_vals <- input$comp_memb_sel
+      if (!is.null(id_vals)) id_vals <- as.numeric(id_vals)
+      
+      selected_range <- g_comps_rv$fltr_range
+
+      if (!is.null(id_vals) || !is.null(selected_range)) {
+        g <- VOSONDash::filter_comps(g, mode, range = selected_range, ids = id_vals)
+      }
+      
+    } else if (f == "fltr_edge_multi") {
+      g <- VOSONDash::filter_edges(g, TRUE, FALSE)
+      
+    } else if (f == "fltr_edge_loops") {
+      g <- VOSONDash::filter_edges(g, FALSE, TRUE)
+      
+    } else if (f == "fltr_iso") {
+      g <- VOSONDash::filter_nodes_iso(g)
     }
   }
   
-  # which filters ran
-  f_post_fltr_state(fltr_state)
-  
-  # add measures of centrality
-  g <- VOSONDash::add_centrality_measures(g)
-  
-  # update node and edge attributes
-  # g_nodes_rv$attrs <- igraph::vertex_attr_names(g)
-  # g_edges_rv$attrs <- igraph::edge_attr_names(g)
-  
-  # directed
-  g_rv$dir <- igraph::is_directed(g)
-  
-  cat(file=stderr(), paste0(ts_utc(), " - r_graph_filter exit.\n"))
-  
-  g
+  g <- f_recalc_measures(g)
 })
+
+f_recalc_measures <- function(g) {
+  g <- VOSONDash::add_cent_measures(g)
+  g_filter_rv$directed <- igraph::is_directed(g)
+
+  g # tidygraph::as_tbl_graph()
+}
 
 # filter ui
 output$filter_rank_list <- renderUI({
@@ -127,42 +124,42 @@ output$filter_rank_list <- renderUI({
   rank_list(
     text = "",
     labels = list(
-      "rm_pruned" = list(
+      "fltr_prune" = list(
         div(
           checkboxInput("fltr_prune_chk", div("Prune Nodes", id = "fltr_prune_chk_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
-      "rm_isolates" = list(
+      "fltr_iso" = list(
         div(
           checkboxInput("fltr_iso_chk", div("Remove Isolates", id = "fltr_iso_chk_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
-      "rm_loops" = list(
+      "fltr_edge_loops" = list(
         div(
           checkboxInput("fltr_edge_loops_chk", div("Remove Edge Loops", id = "fltr_edge_loops_chk_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
-      "rm_multiedges" = list(
+      "fltr_edge_multi" = list(
         div(
           checkboxInput("fltr_edge_multi_chk", div("Merge Multiple Edges", id = "fltr_edge_multi_chk_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
-      "rm_components" = list(
+      "fltr_comp" = list(
         div(
           checkboxInput("fltr_comp_chk", div("Components", id = "fltr_comp_chk_label"), FALSE),
           class = "div_inline"
         ),
         div(icon("sort"), style = "float: right;")
       ),
-      "rm_categories" = list(
+      "fltr_cat" = list(
         div(
           checkboxInput("fltr_cat_chk", div("Categorical", id = "fltr_cat_chk_label"), FALSE),
           class = "div_inline"

@@ -69,6 +69,51 @@ tabPanel(
                       )
                     ))
                   ))),
+  conditionalPanel(condition = "input.canvas_tab == 'visNetwork'",
+                   fluidRow(column(width = 12,
+                                   h5("VisNetwork Edges"),
+                  
+                 disabled(
+                   checkboxInput("visnet_edge_arrows_chk", "Arrows", TRUE)
+                 ),
+                 conditionalPanel(condition = "input.visnet_edge_arrows_chk",
+                  disabled(
+                    checkboxGroupInput(
+                      inputId = "visnet_edge_arrows",
+                      label = NULL, 
+                      choices = c("to", "from", "middle"),
+                      selected = "to"
+                    )
+                  )),
+                   disabled(
+                     checkboxInput("visnet_edge_smooth_chk", "Edge Smoothing", FALSE)
+                   ),
+                   conditionalPanel(condition = "input.visnet_edge_smooth_chk",
+                    
+                    disabled(
+                      selectInput(
+                        "visnet_edge_smooth_type",
+                        label = NULL,
+                        choices = c(
+                          "dynamic",
+                          "continuous",
+                          "discrete",
+                          "diagonalCross",
+                          "straightCross",
+                          "horizontal",
+                          "vertical",
+                          "curvedCW",
+                          "curvedCCW",
+                          "cubicBezier"
+                        ),
+                        selected = "curvedCW",
+                        multiple = FALSE,
+                        selectize = TRUE
+                      )
+                    )
+                     
+                   )
+                   ))),
   fluidRow(column(
     width = 6,
     disabled(actionButton("reset_edges_btn", label = "reset"))

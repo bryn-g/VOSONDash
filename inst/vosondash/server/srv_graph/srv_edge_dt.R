@@ -1,10 +1,12 @@
 # graph edges as dataframe
 r_graph_edges_df <- reactive({
-  g <- r_graph_filter()
+  g <- req(r_graph_filter())
   
   edges <- igraph::as_data_frame(g, what = c("edges"))
+  edges$idx <- 1:nrow(edges)
+  rownames(edges) <- igraph::E(g)$id
   
-  if ("id" %in% colnames(edges)) row.names(edges) <- igraph::E(g)$id
+  edges <- edges |> tibble::as_tibble(rownames = NA)
   
   edges
 })
@@ -13,7 +15,9 @@ r_graph_edges_df <- reactive({
 output$dt_edges <- DT::renderDataTable({
   data <- r_graph_edges_df()
   
-  data <- data |> dplyr::relocate(id, label)
+  if (is.null(data)) return(NULL)
+  
+  data <- data |> dplyr::relocate(idx, label)
   
   # truncate text in column cells
   col_defs <- NULL

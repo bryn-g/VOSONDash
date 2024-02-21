@@ -8,13 +8,17 @@ r_graph_visual <- reactive({
   g <- g |> tidygraph::as_tbl_graph() |> tidygraph::activate(nodes)
   node_attrs <- igraph::vertex_attr_names(g)
   
+  # node_labels_picker
+  
   # nodes selected
   sel_node_rows <- input$dt_nodes_rows_selected
-  sel_node_row_names <- c()
+  if (is.null(sel_node_rows)) sel_node_rows <- c()
+
+  sel_rows_node_ids <- c()
   if (length(sel_node_rows)) {
-    sel_node_row_names <- g |> dplyr::slice(sel_node_rows) |> pull(id)
+    sel_rows_node_ids <- g |> dplyr::slice(sel_node_rows) |> pull(name)
   }
-  g <- g |> dplyr::mutate(selected = ifelse(id %in% sel_node_row_names, TRUE, FALSE))
+  g <- g |> dplyr::mutate(selected = ifelse(name %in% sel_rows_node_ids, TRUE, FALSE))
   
   # node size
   node_size_attr <- input$node_size_sel
@@ -41,16 +45,22 @@ r_graph_visual <- reactive({
   
   g <- g |> dplyr::mutate(label = NA)
   
-  if (isTruthy(label_type) & isTruthy(label_selected)) {
+  if (label_type != "None") {
     
     if (label_type == "index") {
-      g <- g |> dplyr::mutate(label = sub("n", "", id))
+      if ("idn" %in% node_attrs) {
+        g <- g |> dplyr::mutate(label = sub("n", "", idn))
+      } else {
+        g <- g |> dplyr::mutate(label = sub("n", "", id))
+      }
       
     } else if (label_type == "attribute") {
-      if (label_selected %in% node_attrs) {
-        g <- g |> dplyr::mutate(label = .data[[label_selected]])
-      } else {
-        g <- g |> dplyr::mutate(label = NA)
+      if (isTruthy(label_selected)) {
+        if (label_selected %in% node_attrs) {
+          g <- g |> dplyr::mutate(label = .data[[label_selected]])
+        } else {
+          g <- g |> dplyr::mutate(label = NA)
+        }
       }
     }
     
@@ -78,9 +88,6 @@ r_graph_visual <- reactive({
   
   if (input$node_label_prop_chk) {
     if (node_size_attr %in% node_attrs) {
-      # label_sizes <- g |> dplyr::pull(.data[[node_size_attr]])
-      # label_sizes <- (f_norm_vals(label_sizes)) + base_label_size
-      
       g <- g |> dplyr::mutate(label.cex = f_norm_vals(.data[[node_size_attr]]) + base_label_size)
     }
   }
@@ -88,12 +95,47 @@ r_graph_visual <- reactive({
   # node color
   g <- g |> dplyr::mutate(frame.color = ifelse(selected == TRUE, "#000000", "gray"))
   
-  
-  if (!"color" %in% node_attrs) {
-    g <- g |> dplyr::mutate(color = input$node_color)
+  # if not use graph colors
+  if (!input$node_use_g_cols_chk) {
+    
+    cat_fltr <- isTruthy(input$fltr_cat_chk)
+    
+    if (cat_fltr) {
+      color_map <- isolate(g_nodes_rv$cats_color_map)
+      cat_sel <- isolate(input$cat_sel)
+      
+      color_df <- color_map |>
+        dplyr::select(key, value, color) |>
+        tidyr::pivot_wider(names_from = "key", values_from = "value")
+      
+      # if ("color" %in% node_attrs) g <- g |> dplyr::select(-color)
+      # 
+      # if (cat_sel != "All") {
+      #   g <- g |> dplyr::left_join(color_df, by = cat_sel)
+      # } else {
+      #   g <- g |> dplyr::left_join(color_df)
+      # }
+      
+      # absent is logical in one of the graphs - left_join breaks
+      # need a better way
+      
+      # Browse[1]> color_df
+      # # A tibble: 2 × 4
+      # color   post.visibility node_type absent
+      # <chr>   <chr>           <chr>     <chr> 
+      # 1 #6794A7 public          post      FALSE 
+      # 2 #EE8F71 NA              NA        TRUE  
+      
+      # browser()
+
+    } else {
+      g <- g |> dplyr::mutate(color = input$node_color)
+    }
+    
   } else {
-    if (!input$node_use_g_cols_chk) g <- g |> dplyr::mutate(color = input$node_color)
+    if (!"color" %in% node_attrs) g <- g |> dplyr::mutate(color = input$node_color)
   }
+  
   g <- g |> dplyr::mutate(color = ifelse(selected == TRUE, gbl_plot_sel_node_color, color))
 
   ## edges ----

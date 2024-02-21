@@ -83,13 +83,23 @@ observeEvent(c(input$graph_layout_set_btn, g_rv$seed), {
 # update node coords and reset if node coords missing
 observeEvent(r_graph_filter(), {
   g <- req(r_graph_filter())
-  
   coords_base <- g_layout_rv$coords_base
-  if (igraph::gorder(g) > nrow(coords_base)) {
+  
+  n_g <- igraph::gorder(g)
+  n_c <- nrow(coords_base)
+
+  msg <- paste0("graph n = ", n_g, " | coord base n = ", n_c, "\n")
+  
+  if (n_g > n_c) {
     g_layout_rv$coords_base <- r_get_layout_coords()
+    msg <- paste0("new layout - ", msg)
   } else {
-    g_layout_rv$coords <- coords_base[rownames(coords_base) %in% igraph::V(g)$id, ] 
+    # remove coords for missing nodees
+    g_layout_rv$coords <- coords_base[rownames(coords_base) %in% igraph::V(g)$id, ]
+    msg <- paste0("keep layout - ", msg)
   }
+  cat(file=stderr(), msg)
+  
 })
 
 r_get_layout_coords <- reactive({

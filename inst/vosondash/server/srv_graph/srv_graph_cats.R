@@ -1,8 +1,3 @@
-f_unchk_disable_cat_fltr <- function() {
-  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
-  filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
-}
-
 f_get_cats <- function(df) {
   df |> dplyr::filter(unit == "node" & type == "cat") |> dplyr::pull("key") |> unique()
 }
@@ -11,33 +6,72 @@ f_get_cat_values <- function(df, x) {
   df |> dplyr::filter(unit == "node" & type == "cat" & key == x) |> dplyr::pull("value")
 }
 
-# observeEvent(g_nodes_rv$cats, {
-observeEvent(g_nodes_rv$properties, {
-  if (!isTruthy(g_nodes_rv$properties)) f_unchk_disable_cat_fltr()
+observeEvent(g_rv$attrs, {
+  cat_keys <- f_get_cats(g_rv$attrs)
   
- # if (length(names(g_nodes_rv$properties)) < 1) f_unchk_disable_cat_fltr()
-  if (!length(f_get_cats(g_nodes_rv$properties))) f_unchk_disable_cat_fltr()
-  # cats <- append("All", names(g_nodes_rv$cats))
-  
-  cat_keys <- f_get_cats(g_nodes_rv$properties)
-  cats <- append("All", cat_keys)
-  
-  updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
-  updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
-  
-  g_nodes_rv$cat_selected <- "All"
-  g_nodes_rv$cat_sub_selected <- "All"
-  
-  updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
-})
+  if (length(cat_keys)) {
+    
+    # map colors
+    cats_lst <- g_rv$attrs |>
+      dplyr::filter(unit == "node" & type == "cat")
+    
+    # colors from graphml
+    color_lst <- cats_lst |>
+      dplyr::filter(key == "color") |>
+      dplyr::select("key", color.graphml = "value")
+    
+    color_lst2 <- color_lst |> dplyr::pull(color.graphml)
+    
+    f_color_lst <- function(x) {
+      sapply(x, function(y) {
+        if (y > length(color_lst2)) {
+          "#cccccc" # NA_character_
+        } else {
+          color_lst2[y]
+        }
+      })
+    }
+    
+    cats_lst <- cats_lst |> dplyr::filter(key != "color")
+    g_nodes_rv$cats_color_map <- g_rv$attrs |>
+      dplyr::filter(unit == "node" & type == "cat")
+    
+    color_cats_lst <- cats_lst |>
+      dplyr::group_by(key) |>
+      dplyr::mutate(rn = dplyr::row_number(), n = n()) |>
+      dplyr::ungroup() |>
+      dplyr::rowwise() |>
+      dplyr::mutate(color = cat_pal(2, n)[rn])
+    
+    
+    if (nrow(color_lst)) {
+      color_cats_lst <- color_cats_lst |>
+        dplyr::group_by(key) |>
+        dplyr::mutate(color.graphml = f_color_lst(rn)) |>
+        dplyr::ungroup()
+    } else {
+      color_cats_lst <- color_cats_lst |> dplyr::mutate(color.graphml = "#cccccc")
+    }
+    
+    g_nodes_rv$cats_color_map <- color_cats_lst
+    
+    cats <- append("All", cat_keys[which(cat_keys != "color")])
+    
+    updateSelectInput(session, "cat_sel", choices = cats, selected = "All")
+    updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
+    
+    g_nodes_rv$cat_selected <- "All"
+    g_nodes_rv$cat_sub_selected <- "All"
+  } else {
+    
+    g_nodes_rv$cat_selected <- NULL
+    g_nodes_rv$cat_sub_selected <- NULL
+  }
+}, ignoreInit = TRUE)
 
 observeEvent(input$cat_sel, {
-  req(g_nodes_rv$properties, input$cat_sel)
-  
   if (input$cat_sel != "All") {
-    # sub_cats <- append("All", g_nodes_rv$cats[[input$cat_sel]])
-    
-    cat_vals <- f_get_cat_values(g_nodes_rv$properties, input$cat_sel)
+    cat_vals <- f_get_cat_values(g_rv$attrs, input$cat_sel)
     sub_cats <- append("All", cat_vals)
     
     updateSelectInput(session, "cat_sub_sel", choices = sub_cats, selected = "All")
@@ -45,9 +79,6 @@ observeEvent(input$cat_sel, {
     g_nodes_rv$cat_selected <- input$cat_sel
     g_nodes_rv$cat_sub_selected <- "All"
   } else {
-    updateCheckboxInput(session, "fltr_cat_chk", value = FALSE)
-    filter_btn_txt_sel("fltr_cat_chk_label", FALSE)
-    
     g_nodes_rv$cat_selected <- input$cat_sel
     updateSelectInput(session, "cat_sub_sel", choices = "All", selected = "All")
   }
@@ -55,10 +86,7 @@ observeEvent(input$cat_sel, {
 }, ignoreInit = TRUE)
 
 observeEvent(input$cat_sub_sel, {
-  req(g_nodes_rv$properties, input$cat_sel, input$cat_sub_sel)
-  
   g_nodes_rv$cat_sub_selected <- input$cat_sub_sel
-  updateCheckboxInput(session, "fltr_cat_chk", value = TRUE)
 }, ignoreInit = TRUE)
 
 observeEvent(input$fltr_cat_chk, {
@@ -72,49 +100,38 @@ observeEvent(input$fltr_cat_chk, {
   } else {
     set_ctrl_state(filter_cat_ctrls(), "enable")
   }
-
 }, ignoreInit = TRUE)
 
 r_graph_legend <- reactive({
-  g <- req(r_graph_filter())
-  req(g_nodes_rv$properties, input$cat_sub_sel, input$fltr_cat_chk)
+  req(g_rv$attrs, input$cat_sub_sel, input$fltr_cat_chk)
 
+  g <- req(r_graph_visual())
+  color_map <- req(g_nodes_rv$cats_color_map)
+  
   if (igraph::gorder(g) < 1) return(NULL)
   
-  cat_attrs <- f_get_cats(isolate(g_nodes_rv$properties))
-  
-  # cat_attrs <- g_nodes_rv$cats
+  cat_attrs <- f_get_cats(isolate(g_rv$attrs))
   cat_attr_selected <- input$cat_sel
   
   if (cat_attr_selected == "All" || input$fltr_cat_chk == FALSE) return(NULL)
   
   if (input$node_use_g_cols_chk & ("color" %in% igraph::vertex_attr_names(g))) {
-    
-    # attr_name_selected <- sub("\\^", "", paste0(voson_cat_prefix, cat_attr_selected))
-    # attr_vals <- igraph::vertex_attr(g, attr_name_selected)
-    
-    attr_vals <- igraph::vertex_attr(g, cat_attr_selected)
-
-    color_vals <- igraph::V(g)$color
+    # attr_vals <- igraph::vertex_attr(g, cat_attr_selected)
+    # color_vals <- igraph::V(g)$color
+    # 
     # df <- data.frame(
-    #   cat = attr_vals,
-    #   color = color_vals
+    #   key = cat_attr_selected,
+    #   value = attr_vals,
+    #   color.set = color_vals
     # ) |> dplyr::distinct()
-
-    df <- data.frame(
-      key = cat_attr_selected,
-      value = attr_vals,
-      color.set = color_vals
-    ) |> dplyr::distinct()
-    
-    #g_nodes_rv$properties <- g_nodes_rv$properties |> dplyr::left_join(df, dplyr::join_by("key", "value"))
-    
+    # 
+    df <- color_map |> dplyr::filter(key == cat_attr_selected) |> dplyr::select(key, value, color = color.graphml)
   } else {
-    # cats <- cat_attrs[[cat_attr_selected]]
-    cat_vals <- f_get_cat_values(isolate(g_nodes_rv$properties), cat_attr_selected)
-    
-    df <- data.frame(key = cat_attr_selected, value = cat_vals)
-    df$color <- gbl_plot_palette()[1:nrow(df)]
+    # cat_vals <- f_get_cat_values(isolate(g_rv$attrs), cat_attr_selected)
+    # 
+    # df <- data.frame(key = cat_attr_selected, value = cat_vals)
+    # df$color <- gbl_plot_palette()[1:nrow(df)]
+    df <- color_map |> dplyr::filter(key == cat_attr_selected) |> dplyr::select(key, value, color)
   }
   
   output <- c("")

@@ -12,7 +12,7 @@ get_attr_properties(g, type = NULL, cat_max = NULL)
 \item{type}{Character vector. Can contain "node" or "edge" as types. Default is \code{NULL} for both.}
 
 \item{cat_max}{Numeric. Maximum number of unique values an attribute can have to be considered a category. By default
-a category must have > 1 and <= 25\% of its total values unique. Default is \code{NULL}.}
+a category must have >= 1 and <= 25\% of its total values unique. Default is \code{NULL}.}
 }
 \value{
 A tibble of attribute properties.

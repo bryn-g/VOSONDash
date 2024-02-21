@@ -25,6 +25,7 @@ Imports:
     wordcloud
 Suggests:
     DT,
+    ggthemes,
     htmlwidgets,
     purrr,
     shinydashboard,

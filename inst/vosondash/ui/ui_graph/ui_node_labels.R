@@ -2,14 +2,23 @@ fluidRow(
   column(
     width = 12,
     h4("Node Labels"),
-    disabled(checkboxInput("node_index_chk", "Node index", FALSE)),
-    disabled(checkboxInput(
-      "node_labels_chk", "Label attribute", FALSE
-    )),
+    fluidRow(column(
+      width = 6,
+    disabled(
+      selectInput(
+        "node_labels_picker",
+        label = NULL,
+        choices = c(
+          "None",
+          "index",
+          "attribute"
+        ),
+        selectize = TRUE,
+        selected = "None"
+      )
+    ))),
     conditionalPanel(
-      condition = "input.node_labels_chk",
-      
-      
+      condition = "input.node_labels_picker == 'attribute'",
       fluidRow(column(
         width = 6,
         selectInput(

@@ -43,18 +43,28 @@ get_comps_range <- function(g, mode = NULL) {
 #' @export
 filter_comps <- function(g, mode = "strong", range = NULL, ids = NULL) {
   if (is.null(range) && is.null(ids)) return(NULL)
-    
-  min_range <- range[1]
-  max_range <- range[2]
   
   cc <- igraph::components(g, mode = mode)
   igraph::V(g)$c_id <- cc$membership
+  
+  rm_nodes <- c()
+  
+  if (!is.null(ids)) {
+    rm_nodes <- V(g)[which(!cc$membership %in% ids)]$name
+    
+    if (is.null(range)) {
+      g <- igraph::delete_vertices(g, which(igraph::V(g)$name %in% rm_nodes))
+      return(g)
+    }
+  }
+  
+  min_range <- range[1]
+  max_range <- range[2]
   
   min_cc_size <- suppressWarnings(min(cc$csize)) # suppress no non-missing arguments to min
   max_cc_size <- suppressWarnings(max(cc$csize)) # returning Inf warning
   
   nodes_lt_min_cc <- nodes_gt_max_cc <- NULL
-  rm_nodes <- c()
   
   # remove nodes not part of components in component size range by name
   
@@ -76,16 +86,11 @@ filter_comps <- function(g, mode = "strong", range = NULL, ids = NULL) {
     }
   }
   
-  # named list - names are cluster is, values are node names
-  
-  if (!is.null(ids)) {
-    rm_nodes <- append(rm_nodes, V(g)[which(!cc$membership %in% ids)]$name)
-  }
+  # named list - names are cluster, values are node names
   
   # remove nodes from graph
   if (length(rm_nodes) > 0) {
     rm_chk <- which(igraph::V(g)$name %in% rm_nodes)
-    
     g <- igraph::delete_vertices(g, rm_chk)
   }
   
@@ -112,14 +117,6 @@ filter_edges <- function(g, multi_edges = TRUE, loop_edges = TRUE) {
   g <- igraph::simplify(g, remove.multiple = multi_edges, remove.loops = loop_edges)
 }
 
-# lo1 = layout_with_fr(g)
-
-# i = which(degree(g) == 0)
-# g2 = delete.vertices(g, i)
-# lo2 = lo1[-i, ]
-
-# g.new <- delete.vertices(g.new, V(g.new)[degree(g.new)==0]) 
-
 #' @title Add centrality measures to graph as node attributes
 #' 
 #' @description Adds degree, in-degree, out-degree, betweenness and closeness measures to graph as node attributes.
@@ -129,23 +126,22 @@ filter_edges <- function(g, multi_edges = TRUE, loop_edges = TRUE) {
 #' @return An igraph graph object.
 #' 
 #' @export
-add_centrality_measures <- function(g) {
+add_cent_measures <- function(g) {
   # add degree
-  igraph::V(g)$Degree <- igraph::degree(g, mode = "total")
+  igraph::V(g)$degree <- igraph::degree(g, mode = "total")
   if (igraph::is_directed(g)) {
-    igraph::V(g)$Indegree <- igraph::degree(g, mode = "in")
-    igraph::V(g)$Outdegree <- igraph::degree(g, mode = "out")
+    igraph::V(g)$indegree <- igraph::degree(g, mode = "in")
+    igraph::V(g)$outdegree <- igraph::degree(g, mode = "out")
   } else {
-    igraph::V(g)$Indegree <- igraph::V(g)$Outdegree <- 0
+    igraph::V(g)$indegree <- igraph::V(g)$outdegree <- 0
   }
   
   # add centrality
   if (igraph::gorder(g) > 1) {
-    igraph::V(g)$Betweenness <- as.numeric(sprintf(fmt = "%#.3f", igraph::betweenness(g)))
-    # suppress disconnected graph warnings
-    igraph::V(g)$Closeness <- as.numeric(sprintf(fmt = "%#.3f", suppressWarnings(igraph::closeness(g))))    
+    igraph::V(g)$betweenness <- igraph::betweenness(g)
+    igraph::V(g)$closeness <- suppressWarnings(igraph::closeness(g))
   } else {
-    igraph::V(g)$Betweenness <- igraph::V(g)$Closeness <- 0
+    igraph::V(g)$betweenness <- igraph::V(g)$closeness <- 0
   }
 
   g
@@ -186,31 +182,6 @@ get_node_cats <- function(g, cat_prefix = "vosonCA_", cat_colors = FALSE) {
   }
   
   graph_cats
-}
-
-#' @title Check if graph object has text attributes
-#' 
-#' @description This function checks if a graph has either node or edge text attributes.
-#' 
-#' @note Uses the \code{VOSON} node and edge text attribute prefix \code{"vosonTxt_"} to determine if attributes are
-#' text attributes.
-#' 
-#' @param g \pkg{igraph} \code{graph} object.
-#' 
-#' @return Result as logical.
-#' 
-#' @keywords internal
-#' @export
-has_voson_txt_attr <- function(g) {
-  attr_v <- igraph::vertex_attr_names(g)
-  attr_v <- attr_v[grep("^vosonTxt_", attr_v, perl = TRUE)]
-  
-  attr_e <- igraph::edge_attr_names(g)
-  attr_e <- attr_e[grep("^vosonTxt_", attr_e, perl = TRUE)]
-  
-  if (length(attr_v) > 0 | length(attr_e) > 0) return(TRUE)
-  
-  FALSE
 }
 
 #' @title Filter out graph nodes not in selected category
@@ -262,7 +233,7 @@ filter_cats <- function(g, selected_cat, selected_subcats, cat_prefix = "vosonCA
 #' 
 #' @export
 filter_nodes_iso <- function(g, loops = FALSE) {
-  iso_ids <- V(g)[which(igraph::degree(g) == 0)]$id
+  iso_ids <- V(g)[which(igraph::degree(g) == 0)]$name
   
   if (!length(iso_ids)) return(g)
   
@@ -283,7 +254,7 @@ filter_nodes <- function(g, ids = NULL) {
   if (is.null(ids)) return(g)
   
   if (length(ids) > 0) {
-    rm_ids <- which(igraph::V(g)$id %in% ids)
+    rm_ids <- which(igraph::V(g)$name %in% ids)
     g <- igraph::delete_vertices(g, rm_ids)
   }
   g

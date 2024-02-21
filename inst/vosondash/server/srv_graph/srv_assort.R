@@ -69,7 +69,7 @@ homophily_txt <- reactive({
       mm <- VOSONDash::mixmat(g, cat_sel, use_density = FALSE)
       
       # attr_list <- g_nodes_rv$cats[[cat_sel]]
-      attr_list <- f_get_cat_values(g_nodes_rv$properties, cat_sel)
+      attr_list <- f_get_cat_values(g_rv$attrs, cat_sel)
       
       # if subset of attributes selected
       if (input$cat_sub_sel[1] != "All") {

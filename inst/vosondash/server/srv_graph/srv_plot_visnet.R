@@ -37,12 +37,10 @@ r_graph_visnet_plot <- reactive({
   
   g <- g |> dplyr::mutate(title = id)
   
-  if (isTruthy(label_type)) {
-    if (label_type == "index") {
-      g <- g |> dplyr::mutate(shape = "circle")
-    } else {
-      g <- g |> dplyr::mutate(shape = "dot")
-    }
+  if (label_type == "index") {
+    g <- g |> dplyr::mutate(shape = "circle")
+  } else {
+    g <- g |> dplyr::mutate(shape = "dot")
   }
   
   visnet_label_size <- function(x) base_font_size + (((f_norm_vals(x) + 0.1) * norm_multi) * node_size_mplr)
@@ -137,10 +135,15 @@ r_graph_visnet_plot <- reactive({
   }
   
   if (n_edges) {
-    e_arrows <- e_smooth <- NULL
-    if (isolate(g_rv$dir)) e_arrows <- "to"
-    if (isTruthy(isolate(input$fltr_edge_multi_chk)) && isolate(input$fltr_edge_multi_chk) == TRUE) { 
-      e_smooth <- list(enabled = TRUE, type = "diagonalCross")
+    e_arrows <- NULL
+    e_smooth <- NULL
+    
+    if (isTruthy(isolate(g_filter_rv$directed))) {
+      if (input$visnet_edge_arrows_chk) e_arrows <- paste0(input$visnet_edge_arrows, collapse = ",")
+    }
+    
+    if (input$visnet_edge_smooth_chk) {
+      e_smooth <- list(enabled = TRUE, type = input$visnet_edge_smooth_type)
     }
     
     vis_net <- vis_net |> visNetwork::visEdges(arrows = e_arrows, smooth = e_smooth)

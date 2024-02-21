@@ -1,5 +1,6 @@
 g_comps_rv <- reactiveValues(
-  pre_comps = NULL
+  pre_comps = NULL,
+  fltr_range = NULL
 )
 
 r_comps <- reactive({
@@ -9,8 +10,21 @@ r_comps <- reactive({
   if (!isTruthy(g)) return(NULL)
   
   comps <- VOSONDash::get_comps_range(g, mode = input$comp_mode_picker)
-
+  
   comps
+})
+
+observeEvent(input$comp_slider, {
+  pre_comp_range <- req(g_comps_rv$pre_comps)
+  selected <- input$comp_slider
+  
+  pre_comp_range <- pre_comp_range[[input$comp_mode_picker]]
+
+  if ((selected[1] != pre_comp_range$min) | (selected[2] != pre_comp_range$max)) {
+    g_comps_rv$fltr_range <- input$comp_slider
+  } else {
+    g_comps_rv$fltr_range <- NULL
+  }
 })
 
 f_comps_lst <- function(comp_sizes) {
@@ -71,6 +85,7 @@ r_comp_summary_txt <- reactive({
 })
 
 # when g_comps_rv$pre_comps changes
+# changes comp_memb_sel and comp_slider
 observeEvent(g_comps_rv$pre_comps, {
   req(g_comps_rv$pre_comps, input$comp_mode_picker)
   

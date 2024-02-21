@@ -3,6 +3,7 @@ required_pkgs <- c(
   "colourpicker",
   "dplyr",
   "DT",
+  "ggthemes",
   "htmlwidgets",
   "igraph",
   "purrr",

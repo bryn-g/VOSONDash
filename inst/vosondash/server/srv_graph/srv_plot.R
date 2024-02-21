@@ -10,6 +10,10 @@ f_norm_vals <- function(x) {
   # all values the same
   if (var(x) == 0) return(rep(0.1, length(x)))
   
+  # x[is.na(x)] <- 0.1
+  x[x<=0] <- NA
+  x[is.na(x)] <- 0.1
+  
   min_x <- min(x)
   diff_x <- max(x) - min_x
   s <- sapply(x, function(y) ((y - min_x) / diff_x))
@@ -162,6 +166,7 @@ output$vis_plot_ui <- renderUI({
 })
 
 output$graph_legend_ui <- renderUI({
+  req(r_graph_legend())
   tagList(div(div(
     HTML(r_graph_legend()),
     style = paste0(
@@ -174,6 +179,7 @@ output$graph_legend_ui <- renderUI({
 })
 
 output$graph_summary_ui <- renderUI({
+  req(r_graph_summary_html())
   tagList(div(div(
     HTML(r_graph_summary_html()),
     style = paste0(

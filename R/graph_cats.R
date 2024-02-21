@@ -11,9 +11,7 @@
 #'
 #' @export
 get_attr_properties <- function(g, type = NULL, cat_max = NULL) {
-  if (is.null(type)) {
-    type <- c("node", "edge")
-  }
+  if (is.null(type)) type <- c("node", "edge")
   
   df_props <- tibble::tibble()
   
@@ -30,7 +28,7 @@ get_attr_properties <- function(g, type = NULL, cat_max = NULL) {
       attr_name <- attr_names[j]
       
       vals <- f_attr_vals(g, attr_name)
-      vals[vals == "NA"] <- NA
+      if (!"POSIXct" %in% class(vals)) vals[vals == "NA"] <- NA
       
       if (is.logical(vals)) {
         df <- attr_property(unit, "cat", attr_name, value = as.character(unique(vals)))

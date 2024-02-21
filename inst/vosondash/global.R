@@ -1,5 +1,7 @@
 # voson dashboard shiny app globals
 
+rm(list=ls())
+
 # app version
 voson_pkg_vers <- VOSONDash::get_voson_vers()
 app_ver <- paste0("v", voson_pkg_vers$VOSONDash)
@@ -13,6 +15,8 @@ if (!is.null(getShinyOption("VOSONPkgMsgs"))) pkgMsgs <- getShinyOption("VOSONPk
 source("packages.R", local = TRUE)
 
 options("gargoyle.talkative" = TRUE)
+
+options(voson.msg = FALSE)
 
 # file upload sizes
 ifelse(isLocal, options(shiny.maxRequestSize = 128*1024^2), # 128 MB max local
@@ -31,6 +35,15 @@ gbl_sel_label_col <- "#006cb7"
 gbl_plot_palette <- function(n = 8) brewer.pal(n, "Dark2")
 gbl_plot_height <- 700
 gbl_plot_width <- 9
+
+cat_pal <- function(p = 1, n = 8) {
+  if (p == 1) {
+    pal <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(n)
+  } else if (p == 2) {
+    pal <- grDevices::colorRampPalette(ggthemes::economist_pal()(8))(n)
+  }
+  return(pal)
+}
 
 # data tables
 options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
