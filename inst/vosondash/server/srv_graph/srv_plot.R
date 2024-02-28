@@ -166,9 +166,9 @@ output$vis_plot_ui <- renderUI({
 })
 
 output$graph_legend_ui <- renderUI({
-  req(r_graph_legend())
+  req(r_graph_legend_sel())
   tagList(div(div(
-    HTML(r_graph_legend()),
+    HTML(r_graph_legend_sel()),
     style = paste0(
       "position:absolute; z-index:1; top:",
       as.numeric(g_plot_rv$height_legend),

@@ -6,11 +6,11 @@ ui <-
     dashboardHeader(disable = TRUE),
     dashboardSidebar(disable = TRUE),
     dashboardBody(
-      useShinyjs(),
-      extendShinyjs(text = gbl_disable_tab_js, functions = c("disableTab")),
-      inlineCSS(gbl_disable_tab_css),
+      shinyjs::useShinyjs(),
+      shinyjs::extendShinyjs(text = gbl_disable_tab_js, functions = c("disableTab")),
+      shinyjs::inlineCSS(gbl_disable_tab_css),
       
-      extendShinyjs(text = gbl_scroll_console, functions = c("scroll_console")),
+      shinyjs::extendShinyjs(text = gbl_scroll_console, functions = c("scroll_console")),
       # custom ui stylesheet
       tags$head(
         tags$script(src = popover_js$file),

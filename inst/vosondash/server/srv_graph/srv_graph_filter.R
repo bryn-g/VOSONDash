@@ -1,12 +1,25 @@
 g_filter_rv <- reactiveValues(
   active = NULL,
-  directed = NULL
+  directed = NULL,
+  update = TRUE
 )
 
 # apply all filters to graph data and return modified graph
 # filter_btn_txt_sel <- function(id, state) {
 #   shinyjs::toggleClass(id = id, class = "txt_sel_blue", asis = TRUE, condition = state)
 # }
+
+observeEvent(input$fltr_cat_chk, {
+  if (input$fltr_cat_chk) updateTabsetPanel(session, "node_filters_tabset", selected = "Categorical")
+})
+
+observeEvent(input$fltr_comp_chk, {
+  if (input$fltr_comp_chk) updateTabsetPanel(session, "node_filters_tabset", selected = "Components")
+})
+
+observeEvent(input$fltr_prune_chk, {
+  if (input$fltr_prune_chk) updateTabsetPanel(session, "node_filters_tabset", selected = "Prune")
+})
 
 # consolidate filter changes into single event
 observeEvent({
@@ -46,17 +59,32 @@ observeEvent({
 }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 r_graph_filter <- reactive({
+  # effectively disable reactivity for some events
+  if (!g_filter_rv$update) {
+    g_filter_rv$update <- TRUE
+    cat(file=stderr(), paste0("r_graph_filter: skip update\n"))
+    req(FALSE, cancelOutput = TRUE)
+  }
+  
   g <- r_graph_base()
   
   # init with null to dependents
-  if (!isTruthy(g)) return(NULL)
+  if (!isTruthy(g)) {
+    cat(file=stderr(), paste0("r_graph_filter: return null\n"))
+    return(NULL)
+  }
   
   # active filters
   active_fltrs <- g_filter_rv$active
   
   # no active filters
-  if (is.null(active_fltrs)) return(f_recalc_measures(g))
+  if (is.null(active_fltrs)) {
+    cat(file=stderr(), paste0("r_graph_filter: no filters\n"))
+    return(f_recalc_measures(g))
+  }
 
+  cat(file=stderr(), paste0("r_graph_filter: processing\n"))
+  
   # apply active filters
   for (f in active_fltrs) {
     
@@ -90,6 +118,7 @@ r_graph_filter <- reactive({
       id_vals <- input$comp_memb_sel
       if (!is.null(id_vals)) id_vals <- as.numeric(id_vals)
       
+      # does not get set to null - for colors
       selected_range <- g_comps_rv$fltr_range
 
       if (!is.null(id_vals) || !is.null(selected_range)) {

@@ -46,7 +46,7 @@ tabPanel(
   ),
   fluidRow(
     disabled(checkboxInput(
-      "node_use_g_cols_chk", div("Node colors from graphml", style = "margin-bottom:5px;"), TRUE
+      "node_use_g_cols_chk", div("Node colors from graphml", style = "margin-bottom:5px;"), FALSE
     ))
   ),
   fluidRow(column(

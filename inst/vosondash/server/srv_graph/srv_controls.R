@@ -60,7 +60,8 @@ node_ctrls <- function() {
     "node_label_rot",
     "node_label_dist",
     "node_color",
-    "node_use_g_cols_chk",
+    # "node_use_g_cols_chk",
+    # "cat_use_g_cols_chk",
     "node_size_sel",
     "node_size_slider",
     "mtdn_img_opts_chk",
@@ -69,6 +70,11 @@ node_ctrls <- function() {
     "node_mtdn_img_bord_chk",
     "reset_node_attrs_btn",
     "reset_node_labels_btn")
+}
+
+node_g_color_ctrls <- function() {
+  c("node_use_g_cols_chk",
+    "cat_use_g_cols_chk")
 }
 
 # node nbh ctrls
@@ -137,6 +143,7 @@ disable_g_ctrls <- function() {
     layout_ctrls(),
     igraph_ctrls(),
     node_ctrls(),
+    node_g_color_ctrls(),
     node_prune_ctrls(),
     node_nbh_ctrls(),
     edge_ctrls(),
@@ -168,6 +175,7 @@ reset_enable_g_ctrls <- function() {
   
   # just reset
   x <- c(
+    node_g_color_ctrls(),
     filter_comp_ctrls(),
     filter_cat_ctrls()
   )

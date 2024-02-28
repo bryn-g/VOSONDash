@@ -3,7 +3,7 @@ f_get_cats <- function(df) {
 }
 
 f_get_cat_values <- function(df, x) {
-  df |> dplyr::filter(unit == "node" & type == "cat" & key == x) |> dplyr::pull("value")
+  df |> dplyr::filter(unit == "node" & type == "cat" & key == {{ x }}) |> dplyr::pull("value")
 }
 
 observeEvent(g_rv$attrs, {
@@ -102,42 +102,34 @@ observeEvent(input$fltr_cat_chk, {
   }
 }, ignoreInit = TRUE)
 
-r_graph_legend <- reactive({
-  req(g_rv$attrs, input$cat_sub_sel, input$fltr_cat_chk)
-
+r_graph_legend_sel <- reactive({
   g <- req(r_graph_visual())
-  color_map <- req(g_nodes_rv$cats_color_map)
-  
   if (igraph::gorder(g) < 1) return(NULL)
   
-  cat_attrs <- f_get_cats(isolate(g_rv$attrs))
-  cat_attr_selected <- input$cat_sel
-  
-  if (cat_attr_selected == "All" || input$fltr_cat_chk == FALSE) return(NULL)
-  
-  if (input$node_use_g_cols_chk & ("color" %in% igraph::vertex_attr_names(g))) {
-    # attr_vals <- igraph::vertex_attr(g, cat_attr_selected)
-    # color_vals <- igraph::V(g)$color
-    # 
-    # df <- data.frame(
-    #   key = cat_attr_selected,
-    #   value = attr_vals,
-    #   color.set = color_vals
-    # ) |> dplyr::distinct()
-    # 
-    df <- color_map |> dplyr::filter(key == cat_attr_selected) |> dplyr::select(key, value, color = color.graphml)
-  } else {
-    # cat_vals <- f_get_cat_values(isolate(g_rv$attrs), cat_attr_selected)
-    # 
-    # df <- data.frame(key = cat_attr_selected, value = cat_vals)
-    # df$color <- gbl_plot_palette()[1:nrow(df)]
-    df <- color_map |> dplyr::filter(key == cat_attr_selected) |> dplyr::select(key, value, color)
+  df <- NULL
+  fltr_order <- isolate(g_filter_rv$active)
+  if (!is.null(fltr_order)) {
+    fltrs <- fltr_order[which(fltr_order %in% c("fltr_comp", "fltr_cat"))]
+    if (length(fltrs)) {
+      fltr <- fltrs[length(fltrs)]
+      
+      # components
+      if (fltr == "fltr_comp") {
+        if (g_nodes_rv$use_imp_colors) return(NULL)
+        
+        df <- r_graph_comp_legend()
+      } else {
+        df <- r_graph_cat_legend()
+      }
+    }
   }
+  
+  if (is.null(df)) return(NULL)
   
   output <- c("")
   if (nrow(df) > 0) {
-    output <- append(output, paste0("<table><tbody><tr><td colspan='3'>", cat_attr_selected, "</td></tr>"))
-      
+    output <- append(output, paste0("<table><tbody><tr><td colspan='3'>", df |> dplyr::pull(key) |> unique() |> paste0(), "</td></tr>"))
+    
     for (row in 1:nrow(df)) {
       output <- append(
         output,
@@ -145,10 +137,10 @@ r_graph_legend <- reactive({
           "<tr><td style='vertical-align:middle'>",
           "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
           "background-color:",
-          df[row, 3],
+          df[row, 3], # color
           ";'></span></td>",
           "<td>&nbsp;</td><td style='vertical-align:middle'>",
-          df[row, 2],
+          df[row, 2], # value
           "</td></tr>"
         )
       )
@@ -157,5 +149,57 @@ r_graph_legend <- reactive({
   }
   
   output
+})
+
+r_graph_comp_legend <- reactive({
+  req(input$fltr_comp_chk)
+  
+  # idc, color, color.graphml
+  color_map <- req(g_nodes_rv$comps_color_map)
+  df <- color_map |> dplyr::mutate(key = "components", value = paste0("c", idc)) |> dplyr::select(key, value, color)
+  
+  df
+})
+
+r_graph_cat_legend <- reactive({
+  req(g_rv$attrs, input$cat_sub_sel, input$fltr_cat_chk)
+  color_map <- req(g_nodes_rv$cats_color_map)
+  
+  cat_attr_selected <- input$cat_sel
+  if (cat_attr_selected == "All") return(NULL)
+  
+  cat_attrs <- f_get_cats(isolate(g_rv$attrs))
+  
+  if (g_nodes_rv$use_imp_colors) {
+    df <- color_map |> dplyr::filter(key == cat_attr_selected) |> dplyr::select(key, value, color = color.graphml)
+  } else {
+    df <- color_map |> dplyr::filter(key == cat_attr_selected) |> dplyr::select(key, value, color)
+  }
+  
+  df
+  
+  # output <- c("")
+  # if (nrow(df) > 0) {
+  #   output <- append(output, paste0("<table><tbody><tr><td colspan='3'>", cat_attr_selected, "</td></tr>"))
+  #     
+  #   for (row in 1:nrow(df)) {
+  #     output <- append(
+  #       output,
+  #       paste0(
+  #         "<tr><td style='vertical-align:middle'>",
+  #         "<span style='height:12px; width:12px; border-radius:50%; display:inline-block;",
+  #         "background-color:",
+  #         df[row, 3],
+  #         ";'></span></td>",
+  #         "<td>&nbsp;</td><td style='vertical-align:middle'>",
+  #         df[row, 2],
+  #         "</td></tr>"
+  #       )
+  #     )
+  #   }
+  #   output <- append(output, "</tbody></table>")
+  # }
+  # 
+  # output
 })
 

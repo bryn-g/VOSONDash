@@ -20,11 +20,13 @@ observeEvent(input$comp_slider, {
   
   pre_comp_range <- pre_comp_range[[input$comp_mode_picker]]
 
-  if ((selected[1] != pre_comp_range$min) | (selected[2] != pre_comp_range$max)) {
-    g_comps_rv$fltr_range <- input$comp_slider
-  } else {
-    g_comps_rv$fltr_range <- NULL
-  }
+  # disabled for colors
+  # if ((selected[1] != pre_comp_range$min) | (selected[2] != pre_comp_range$max)) {
+  #   g_comps_rv$fltr_range <- input$comp_slider
+  # } else {
+  #   g_comps_rv$fltr_range <- NULL
+  # }
+  g_comps_rv$fltr_range <- input$comp_slider
 })
 
 f_comps_lst <- function(comp_sizes) {
@@ -34,7 +36,7 @@ f_comps_lst <- function(comp_sizes) {
   comp_sizes <- comp_sizes[order(comp_sizes, decreasing = TRUE)]
   
   sel_lst <- names(comp_sizes)
-  names(sel_lst) <- paste0("c-", sel_lst, " (", comp_sizes, ")")
+  names(sel_lst) <- paste0("c", sel_lst, " (", comp_sizes, ")")
   
   sel_lst
 }
@@ -103,6 +105,13 @@ observeEvent(g_comps_rv$pre_comps, {
     max = range$max,
     value = c(range$min, range$max)
   )
+
+  # set color map
+  if (!is.null(sel_lst) && length(sel_lst)) {
+    colors <- cat_pal(2, n = length(sel_lst))
+    color_comps_lst <- tibble::tibble(idc = as.numeric(unname(sel_lst)), color = colors) |> dplyr::mutate(color.graphml = "#cccccc")
+    g_nodes_rv$comps_color_map <- color_comps_lst
+  }
   
   dash_logger("set pre comp_slider", input$comp_mode_picker, paste("min:", range$min, ", max:", range$max))
 

@@ -11,8 +11,26 @@ g_nodes_rv <- reactiveValues(
   cat_sub_selected = "All",
   cats_color_map = NULL,
   
+  comps_color_map = NULL,
+  use_imp_colors = FALSE,
+  react_update = TRUE,
+  
   conts = NULL
 )
+
+observeEvent(input$cat_use_g_cols_chk, {
+  g_nodes_rv$use_imp_colors <- input$cat_use_g_cols_chk
+}, ignoreInit = TRUE)
+
+observeEvent(input$node_use_g_cols_chk, {
+  g_nodes_rv$use_imp_colors <- input$node_use_g_cols_chk
+}, ignoreInit = TRUE)
+
+observeEvent(g_nodes_rv$use_imp_colors, {
+  updateCheckboxInput(session, "cat_use_g_cols_chk", value = g_nodes_rv$use_imp_colors)
+  updateCheckboxInput(session, "node_use_g_cols_chk", value = g_nodes_rv$use_imp_colors)
+  if (g_nodes_rv$react_update) trigger("redraw_graph") else g_nodes_rv$react_update <- TRUE
+}, ignoreInit = TRUE)
 
 # update node attribute label select
 observeEvent(g_nodes_rv$labels, {
@@ -80,6 +98,7 @@ observeEvent(input$reset_node_attrs_btn, {
         "igraph_node_base_size_slider",
         "visnet_node_base_size_slider",
         "node_use_g_cols_chk",
+        "cat_use_g_cols_chk",
         "node_size_sel",
         "node_size_slider",
         "node_label_prop_chk",

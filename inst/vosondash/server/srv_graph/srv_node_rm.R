@@ -69,8 +69,8 @@ observeEvent(input$dt_nodes_rows_selected, {
     
     # remove from seleect list if already in prune list 
     if (!is.null(prune_lst)) {
-      df <- df |> dplyr::filter(!id %in% (prune_lst |> dplyr::pull(id)))
-      DT::selectRows(dt_nodes_proxy, df |> dplyr::pull(idx))
+      df <- df |> dplyr::filter(!id %in% (prune_lst |> dplyr::pull("id")))
+      DT::selectRows(dt_nodes_proxy, df |> dplyr::pull("idx"))
     }
   }
   

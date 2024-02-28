@@ -37,9 +37,9 @@ gbl_plot_height <- 700
 gbl_plot_width <- 9
 
 cat_pal <- function(p = 1, n = 8) {
-  if (p == 1) {
+  if (p == 2) {
     pal <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(n)
-  } else if (p == 2) {
+  } else if (p == 1) {
     pal <- grDevices::colorRampPalette(ggthemes::economist_pal()(8))(n)
   }
   return(pal)

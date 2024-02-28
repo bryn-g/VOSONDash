@@ -1,5 +1,10 @@
 fluidRow(column(width = 12,
                 fluidRow(
+                  disabled(checkboxInput(
+                    "cat_use_g_cols_chk", div("Node colors from graphml", style = "margin-bottom:5px;"), FALSE
+                  ))
+                ),
+                fluidRow(
                   column(width = 6,
                          disabled(
                            selectInput(

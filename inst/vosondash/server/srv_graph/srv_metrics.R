@@ -1,5 +1,6 @@
 # network metrics summary
 output$net_metrics_txt <- renderText({
+  req(r_graph_metrics())
     r_graph_metrics()
 })
 
@@ -10,6 +11,7 @@ get_std_plot <- function(x, type = "b", xlab = "", ylab = "N nodes", ...) {
 
 # generate distribution plot
 r_node_distrib_plot <- reactive({
+  req(r_graph_filter())
   g <- r_graph_filter()
   
   if (!isTruthy(g)) return(VOSONDash::get_empty_plot("No graph data."))
@@ -62,8 +64,8 @@ output$metrics_distrib_plot <- renderPlot({
 
 # graph summary text
 r_graph_summary_html <- reactive({
+  req(r_graph_filter())
   g <- r_graph_filter()
-  
   if (!isTruthy(g)) return(NULL)
   
   paste0(c(
@@ -84,6 +86,7 @@ fmt_double_values <- function(values, n = 3) {
 
 # format network metrics into summary text
 r_graph_metrics <- reactive({
+  req(r_graph_filter())
   g <- r_graph_filter()
 
   if (!isTruthy(g)) return("No graph data.")

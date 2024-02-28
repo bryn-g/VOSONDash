@@ -31,7 +31,24 @@ observeEvent(g_rv$data, {
   g_prune_rv$nodes <- NULL
   g_prune_rv$prev_selected <- NULL
   
+  g_filter_rv$active <- NULL
+  g_comps_rv$pre_comps <- NULL
+  g_comps_rv$fltr_range <- NULL
+  
   reset_enable_g_ctrls()
+  # set_ctrl_state(filter_ctrls(), "reset")
+  # sapply(filter_ctrls(), function(x) shinyjs::reset(x))
+  # filter_ctrls <- function() {
+  #   c("fltr_order",
+  #     "fltr_prune_chk",
+  #     "fltr_iso_chk",
+  #     "fltr_edge_multi_chk",
+  #     "fltr_edge_loops_chk",
+  #     "fltr_cat_chk",
+  #     "fltr_comp_chk")
+  # }
+  # reset failing
+  shinyjs::reset("fltr_comp_chk")
   
   if (input$nav_sel_tab_id != "network_graphs_tab") {
     updateNavbarPage(session, "nav_sel_tab_id", selected = "network_graphs_tab")
@@ -63,7 +80,7 @@ r_graph_base <- reactive({
 
 # get attributes by unit
 f_get_attrs <- function(df, unit = "node") {
-  df |> dplyr::filter(unit == unit) |> dplyr::pull(key) |> unique()
+  df |> dplyr::filter(unit == {{ unit }}) |> dplyr::pull("key") |> unique()
 }
 
 # graph attributes changed
@@ -74,6 +91,8 @@ observeEvent(g_rv$attrs, {
   g_nodes_rv$cats <- f_get_cats(g_rv$attrs)
   g_nodes_rv$labels <- sort(node_attrs[!node_attrs == "label"])
   
+  if ("color.imp" %in% node_attrs) set_ctrl_state(node_g_color_ctrls(), "enable")
+
   edge_attrs <- f_get_attrs(g_rv$attrs, "edge")
   g_edges_rv$attrs <- edge_attrs
   g_edges_rv$labels <- sort(edge_attrs[!edge_attrs == "label"])

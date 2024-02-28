@@ -8,7 +8,7 @@ g_edges_rv <- reactiveValues(
 
 # update edge attribute label select
 observeEvent(g_edges_rv$labels, {
-  updateSelectInput(
+  updatePickerInput(
     session,
     "edge_label_sel",
     label = NULL,
@@ -19,11 +19,11 @@ observeEvent(g_edges_rv$labels, {
 }, ignoreInit = TRUE)
 
 # change edge label field
-observeEvent(input$edge_label_sel, {
-  if (isTruthy(input$edge_label_sel) & (input$edge_label_sel != "None")) {
-    g_edges_rv$label_selected <- input$edge_label_sel 
-  }
-}, ignoreInit = TRUE)
+# observeEvent(input$edge_label_sel, {
+#   if (isTruthy(input$edge_label_sel) & (input$edge_label_sel != "None")) {
+#     g_edges_rv$label_selected <- input$edge_label_sel 
+#   }
+# }, ignoreInit = TRUE)
 
 # reset edge visual ctrls
 observeEvent(input$reset_edges_btn, {

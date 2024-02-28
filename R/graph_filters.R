@@ -45,7 +45,7 @@ filter_comps <- function(g, mode = "strong", range = NULL, ids = NULL) {
   if (is.null(range) && is.null(ids)) return(NULL)
   
   cc <- igraph::components(g, mode = mode)
-  igraph::V(g)$c_id <- cc$membership
+  igraph::V(g)$idc <- cc$membership
   
   rm_nodes <- c()
   

@@ -1,4 +1,9 @@
+init("redraw_graph")
+
 r_graph_visual <- reactive({
+  watch("redraw_graph")
+  cat(file=stderr(), paste0("r_graph_visual: triggered\n"))
+  
   g <- r_graph_filter()
   
   if (!isTruthy(g)) return(NULL)
@@ -96,42 +101,56 @@ r_graph_visual <- reactive({
   g <- g |> dplyr::mutate(frame.color = ifelse(selected == TRUE, "#000000", "gray"))
   
   # if not use graph colors
-  if (!input$node_use_g_cols_chk) {
-    
-    cat_fltr <- isTruthy(input$fltr_cat_chk)
-    
-    if (cat_fltr) {
-      color_map <- isolate(g_nodes_rv$cats_color_map)
-      cat_sel <- isolate(input$cat_sel)
-      
-      color_df <- color_map |>
-        dplyr::select(key, value, color) |>
-        tidyr::pivot_wider(names_from = "key", values_from = "value")
-      
-      # if ("color" %in% node_attrs) g <- g |> dplyr::select(-color)
-      # 
-      # if (cat_sel != "All") {
-      #   g <- g |> dplyr::left_join(color_df, by = cat_sel)
-      # } else {
-      #   g <- g |> dplyr::left_join(color_df)
-      # }
-      
-      # absent is logical in one of the graphs - left_join breaks
-      # need a better way
-      
-      # Browse[1]> color_df
-      # # A tibble: 2 × 4
-      # color   post.visibility node_type absent
-      # <chr>   <chr>           <chr>     <chr> 
-      # 1 #6794A7 public          post      FALSE 
-      # 2 #EE8F71 NA              NA        TRUE  
-      
-      # browser()
+  # input$node_use_g_cols_chk
+  if (isolate(g_nodes_rv$use_imp_colors) == FALSE) {
+    # apply node colors for last color capable filter
+    fltr_order <- isolate(g_filter_rv$active)
+    if (!is.null(fltr_order)) {
+      fltrs <- fltr_order[which(fltr_order %in% c("fltr_comp", "fltr_cat"))]
+      if (length(fltrs)) {
+        fltr <- fltrs[length(fltrs)]
+        
+        # components
+        if (fltr == "fltr_comp") {
+          
+          color_map <- isolate(g_nodes_rv$comps_color_map)
+          if (!is.null(color_map)) {
+            if ("color" %in% node_attrs) g <- g |> dplyr::select(-color)
+            
+            if ("idc" %in% igraph::vertex_attr_names(g)) {
+              g <- g |> dplyr::left_join(color_map, by = "idc")
+            } else {
+              g <- g |> dplyr::mutate(color = input$node_color)
+            }
+          } else {
+            g <- g |> dplyr::mutate(color = input$node_color)
+          }
+        
+        # categories
+        } else {
 
+          color_map <- isolate(g_nodes_rv$cats_color_map)
+          cat_sel <- isolate(input$cat_sel)
+
+          color_df <- color_map |>
+            dplyr::select(key, value, color) |>
+            tidyr::pivot_wider(names_from = "key", values_from = "value")
+
+            if (cat_sel == "All") {
+              g <- g |> dplyr::mutate(color = input$node_color)
+            } else {
+              if ("color" %in% node_attrs) g <- g |> dplyr::select(-color)
+              g <- g |> dplyr::left_join(color_df, by = cat_sel)
+            }
+        }
+      } else {
+        g <- g |> dplyr::mutate(color = input$node_color)
+      }
     } else {
       g <- g |> dplyr::mutate(color = input$node_color)
     }
-    
+  
+  # if use graphml colors
   } else {
     if (!"color" %in% node_attrs) g <- g |> dplyr::mutate(color = input$node_color)
   }
@@ -147,13 +166,11 @@ r_graph_visual <- reactive({
                   arrow.size = input$edge_arrow_size,
                   arrow.width = input$edge_arrow_width)
   
-  if (input$edge_labels_chk & !is.null(input$edge_label_sel)) {
-    if (input$edge_label_sel != "None") {
-      g <- g |>
+  if (input$edge_labels_chk & input$edge_label_sel != "None") {
+    g <- g |>
         dplyr::mutate(label = .data[[input$edge_label_sel]],
                       label.cex = input$edge_label_size,
                       label.color = input$edge_label_color)
-    }
   } else {
     g <- g |> dplyr::mutate(label = NA)
   }
