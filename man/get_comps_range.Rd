@@ -4,13 +4,15 @@
 \alias{get_comps_range}
 \title{Get component count and min max size ranges for component modes}
 \usage{
-get_comps_range(g, mode = NULL)
+get_comps_range(g, mode = NULL, graph = FALSE)
 }
 \arguments{
 \item{g}{\pkg{igraph} \code{graph} object.}
 
 \item{mode}{Character string. Use strongly or weakly connected components by specifying \code{"strong"} or
 \code{"weak"}. Ignored for undirected graphs. Default is \code{"NULL"} for both modes.}
+
+\item{graph}{Logical. Return graph with node community membership ids \code{"idc"}. Default is \code{"FALSE"}.}
 }
 \value{
 A named list of size and range values per component mode.

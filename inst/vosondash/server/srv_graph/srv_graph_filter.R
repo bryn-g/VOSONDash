@@ -1,13 +1,10 @@
+init("filter_graph")
+
 g_filter_rv <- reactiveValues(
   active = NULL,
   directed = NULL,
   update = TRUE
 )
-
-# apply all filters to graph data and return modified graph
-# filter_btn_txt_sel <- function(id, state) {
-#   shinyjs::toggleClass(id = id, class = "txt_sel_blue", asis = TRUE, condition = state)
-# }
 
 observeEvent(input$fltr_cat_chk, {
   if (input$fltr_cat_chk) updateTabsetPanel(session, "node_filters_tabset", selected = "Categorical")
@@ -59,6 +56,8 @@ observeEvent({
 }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 r_graph_filter <- reactive({
+  watch("filter_graph")
+  
   # effectively disable reactivity for some events
   if (!g_filter_rv$update) {
     g_filter_rv$update <- TRUE
@@ -67,7 +66,6 @@ r_graph_filter <- reactive({
   }
   
   g <- r_graph_base()
-  
   # init with null to dependents
   if (!isTruthy(g)) {
     cat(file=stderr(), paste0("r_graph_filter: return null\n"))
@@ -108,11 +106,14 @@ r_graph_filter <- reactive({
       g <- VOSONDash::filter_cats(g, cat_sel, cat_sub_sel, cat_prefix = "")
       
     } else if (f == "fltr_comp") {
+      cat(file=stderr(), paste0("fltr_comp: active\n"))
+      
       mode <- input$comp_mode_picker
 
       # set pre-filter component state
-      comp_range <- VOSONDash::get_comps_range(g, mode = mode)
+      comp_range <- VOSONDash::get_comps_range(g, mode = mode, graph = TRUE)
       g_comps_rv$pre_comps <- comp_range
+      g <- comp_range[[mode]]$g
       
       # filter components
       id_vals <- input$comp_memb_sel
@@ -122,6 +123,7 @@ r_graph_filter <- reactive({
       selected_range <- g_comps_rv$fltr_range
 
       if (!is.null(id_vals) || !is.null(selected_range)) {
+        cat(file=stderr(), paste0("fltr_comp: processing\n"))
         g <- VOSONDash::filter_comps(g, mode, range = selected_range, ids = id_vals)
       }
       

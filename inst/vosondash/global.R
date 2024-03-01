@@ -1,5 +1,6 @@
 # voson dashboard shiny app globals
 
+# for dev only
 rm(list=ls())
 
 # app version
@@ -14,8 +15,8 @@ if (!is.null(getShinyOption("VOSONPkgMsgs"))) pkgMsgs <- getShinyOption("VOSONPk
 
 source("packages.R", local = TRUE)
 
+# for dev only
 options("gargoyle.talkative" = TRUE)
-
 options(voson.msg = FALSE)
 
 # file upload sizes

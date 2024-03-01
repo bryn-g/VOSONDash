@@ -87,3 +87,19 @@ get_dtb_graph <- function() {
 get_eaw_graph <- function() {
   get_pkg_data("enviroActivistWebsites_2006.graphml")
 }
+
+
+#' @title Is an object an igraph object
+#'
+#' @description Test an object to see if it is an igraph object.
+#' 
+#' @param g \pkg{igraph} \code{graph} object.
+#'
+#' @return A logical value.
+#' 
+#' @export
+is_igraph <- function(g) {
+  if (is.null(g)) return(FALSE)
+  if (!"igraph" %in% class(g)) return(FALSE)
+  TRUE
+}

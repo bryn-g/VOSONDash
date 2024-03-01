@@ -105,3 +105,59 @@ get_empty_plot <- function(msg = "No plot available.", cex = 1, type = "n", axes
   plot(1:10, 1:10, type = "n", axes = axes, xlab = "", ylab = "", ...)
   text(5, 5, msg, cex = cex)
 }
+
+#' @title Set graph ids and labels
+#'
+#' @description Create simple node and edge ids and assign if missing. Rename existing id and label attributes as
+#'   imported. Will not change igraph symbolic names.
+#'
+#' @param g \pkg{igraph} \code{graph} object.
+#'
+#' @return An igraph graph object.
+#'
+#' @export
+set_ids_and_labels <- function(g) {
+  attr_v <- igraph::vertex_attr_names(g)
+  attr_e <- igraph::edge_attr_names(g)
+  
+  # if node id attr present copy to id.imp
+  if ("id" %in% attr_v) {
+    if (!"id.imp" %in% attr_v) igraph::V(g)$id.imp <- igraph::V(g)$id
+  }
+  
+  # create node id attr formatted as n"index-1"
+  igraph::V(g)$id <- paste0("n", as.numeric(igraph::V(g))-1) # n0, n1 ..
+  
+  # if node symbolic name attr not presemt, set name to id
+  if (!igraph::is_named(g)) {
+    igraph::V(g)$name <- igraph::V(g)$id
+    
+    # if symbolic name attr is present assign its value to id
+  } else {
+    igraph::V(g)$idn <- igraph::V(g)$id
+    igraph::V(g)$id <- igraph::V(g)$name
+    
+  }
+  
+  # import labels
+  if ("label" %in% attr_v) {
+    if (!"label.imp" %in% attr_v) igraph::V(g)$label.imp <- igraph::V(g)$label
+  }
+  igraph::V(g)$label <- igraph::V(g)$name
+  
+  # colors
+  if ("color" %in% attr_v) igraph::V(g)$color.imp <- igraph::V(g)$color
+  
+  # edges
+  if ("id" %in% attr_e) {
+    if (!"id.imp" %in% attr_e) igraph::E(g)$id.imp <- igraph::E(g)$id
+  }
+  igraph::E(g)$id <- paste0("e", as.numeric(igraph::E(g))-1) # e0, e1 ..
+  
+  if ("label" %in% attr_e) {
+    if (!"label.imp" %in% attr_e) igraph::E(g)$label.imp <- igraph::E(g)$label
+  }
+  igraph::E(g)$label <- igraph::E(g)$id
+  
+  g
+}

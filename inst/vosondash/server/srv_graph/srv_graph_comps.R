@@ -1,10 +1,14 @@
 g_comps_rv <- reactiveValues(
   pre_comps = NULL,
-  fltr_range = NULL
+  fltr_range = NULL,
+  comp_lst = NULL,
+  update_comp_values = TRUE
 )
 
 r_comps <- reactive({
-  req(input$comp_slider, input$comp_mode_picker)
+  req(input$comp_mode_picker)
+  
+  # input$comp_slider, 
   
   g <- r_graph_filter()
   if (!isTruthy(g)) return(NULL)
@@ -15,10 +19,10 @@ r_comps <- reactive({
 })
 
 observeEvent(input$comp_slider, {
-  pre_comp_range <- req(g_comps_rv$pre_comps)
-  selected <- input$comp_slider
+  # pre_comp_range <- req(g_comps_rv$pre_comps)
+  # selected <- input$comp_slider
   
-  pre_comp_range <- pre_comp_range[[input$comp_mode_picker]]
+  # pre_comp_range <- pre_comp_range[[input$comp_mode_picker]]
 
   # disabled for colors
   # if ((selected[1] != pre_comp_range$min) | (selected[2] != pre_comp_range$max)) {
@@ -26,7 +30,19 @@ observeEvent(input$comp_slider, {
   # } else {
   #   g_comps_rv$fltr_range <- NULL
   # }
-  g_comps_rv$fltr_range <- input$comp_slider
+  cat(file=stderr(), paste0("update_comp_values:", g_comps_rv$update_comp_values, "\n"))
+  
+  # only update range if flag set 
+  if (g_comps_rv$update_comp_values) {
+    cat(file=stderr(), paste0("comp_slider event: update fltr_range\n"))
+    g_comps_rv$fltr_range <- input$comp_slider
+  } else {
+    cat(file=stderr(), paste0("comp_slider event: skip fltr_range update\n"))
+    g_comps_rv$fltr_range <- NULL
+    trigger("redraw_graph")
+    g_comps_rv$update_comp_values <- TRUE
+  }
+  
 })
 
 f_comps_lst <- function(comp_sizes) {
@@ -44,16 +60,23 @@ f_comps_lst <- function(comp_sizes) {
 # when r_comps changes
 observeEvent(r_comps(), {
   req(r_comps(), input$fltr_comp_chk)
-  range <- r_comps()
   
+  # browser()
   # if filter off update slider
   if (!input$fltr_comp_chk) {
+    cat(file=stderr(), paste0("r_comps event: fltr_comp_chk false - update sliders\n"))
+    
+    range <- r_comps()
+    
     range <- range[[input$comp_mode_picker]]
     
     comp_sizes <- range$csize
     sel_lst <- f_comps_lst(comp_sizes)
+    
+    # g_comps_rv$update_comp_values <- FALSE
     updatePickerInput(session, "comp_memb_sel", choices = sel_lst, selected = NULL)
     
+    # g_comps_rv$update_comp_values <- FALSE
     updateSliderInput(
       session,
       inputId = "comp_slider",
@@ -61,8 +84,8 @@ observeEvent(r_comps(), {
       max = range$max,
       value = c(range$min, range$max)
     )
-    dash_logger("set comp_slider", input$comp_mode_picker, paste("min:", range$min, ", max:", range$max))
   }
+  
 }, ignoreInit = TRUE)
 
 # graph components
@@ -96,8 +119,11 @@ observeEvent(g_comps_rv$pre_comps, {
   
   comp_sizes <- range$csize
   sel_lst <- f_comps_lst(comp_sizes)
+  
+  g_comps_rv$update_comp_values <- FALSE
   updatePickerInput(session, "comp_memb_sel", choices = sel_lst, selected = NULL)
   
+  g_comps_rv$update_comp_values <- FALSE
   updateSliderInput(
     session,
     inputId = "comp_slider",
@@ -113,6 +139,7 @@ observeEvent(g_comps_rv$pre_comps, {
     g_nodes_rv$comps_color_map <- color_comps_lst
   }
   
+  cat(file=stderr(), paste0("pre_comps event\n"))
   dash_logger("set pre comp_slider", input$comp_mode_picker, paste("min:", range$min, ", max:", range$max))
 
 }, ignoreInit = TRUE)

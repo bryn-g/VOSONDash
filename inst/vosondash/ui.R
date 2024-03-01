@@ -6,7 +6,7 @@ ui <-
     dashboardHeader(disable = TRUE),
     dashboardSidebar(disable = TRUE),
     dashboardBody(
-      shinyjs::useShinyjs(),
+      shinyjs::useShinyjs(debug = TRUE),
       shinyjs::extendShinyjs(text = gbl_disable_tab_js, functions = c("disableTab")),
       shinyjs::inlineCSS(gbl_disable_tab_css),
       

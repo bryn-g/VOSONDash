@@ -6,11 +6,12 @@
 #' @param g \pkg{igraph} \code{graph} object.
 #' @param mode Character string. Use strongly or weakly connected components by specifying \code{"strong"} or
 #'   \code{"weak"}. Ignored for undirected graphs. Default is \code{"NULL"} for both modes.
-#'
+#' @param graph Logical. Return graph with node community membership ids \code{"idc"}. Default is \code{"FALSE"}.
+
 #' @return A named list of size and range values per component mode.
 #'
 #' @export
-get_comps_range <- function(g, mode = NULL) {
+get_comps_range <- function(g, mode = NULL, graph = FALSE) {
   modes <- list(weak = "weak", strong = "strong")
   if (!is.null(mode)) modes <- modes[[which(names(modes) == mode)]]
   
@@ -18,13 +19,20 @@ get_comps_range <- function(g, mode = NULL) {
     modes,
     function(x) {
       c <- igraph::components(g, mode = x)
-      list(
+      y <- list(
         no = c$no,
         min = suppressWarnings(min(c$csize)),
         max = suppressWarnings(max(c$csize)),
         csize = c$csize
       )
-    }, simplify = FALSE, USE.NAMES = TRUE)  
+      if (graph) {
+        y$g <- g
+        igraph::V(y$g)$idc <- c$membership
+      }
+      y
+    }, simplify = FALSE, USE.NAMES = TRUE)
+  
+  comp_ranges
 }
 
 #' @title Filter out graph nodes not in component size range
@@ -42,10 +50,10 @@ get_comps_range <- function(g, mode = NULL) {
 #' 
 #' @export
 filter_comps <- function(g, mode = "strong", range = NULL, ids = NULL) {
-  if (is.null(range) && is.null(ids)) return(NULL)
-  
   cc <- igraph::components(g, mode = mode)
   igraph::V(g)$idc <- cc$membership
+  
+  if (is.null(range) && is.null(ids)) return(g)
   
   rm_nodes <- c()
   
@@ -145,43 +153,6 @@ add_cent_measures <- function(g) {
   }
 
   g
-}
-
-#' @title Get a list of node category attribute names and values
-#' 
-#' @description This function returns a list of graph node attribute names that match a category attribute prefix 
-#' format and their unique values.
-#' 
-#' @param g \pkg{igraph} \code{graph} object.
-#' @param cat_prefix Character string. Category attribute prefix format to match. Default is \code{"vosonCA_"}.
-#' 
-#' @return A named list of node category attributes and values.
-#' 
-#' @examples
-#' \dontrun{
-#' # get a list of voson node categories and values
-#' g <- get_pkg_data("DividedTheyBlog_40Alist_release.graphml")
-#' 
-#' cats <- get_node_cats(g)
-#' 
-#' # cats
-#' # $Stance
-#' # [1] "conservative" "liberal"  
-#' }
-#' 
-#' @export
-get_node_cats <- function(g, cat_prefix = "vosonCA_", cat_colors = FALSE) {
-  graph_cats <- list()
-  
-  attr_v <- igraph::vertex_attr_names(g)
-  attr_v <- attr_v[grep(paste0("^", cat_prefix), attr_v, perl = TRUE)]
-  
-  for (voson_attr in attr_v) {
-    voson_attr_rm_prefix <- sub(paste0("^", cat_prefix), "", voson_attr)
-    graph_cats[[voson_attr_rm_prefix]] <- sort(unique(igraph::vertex_attr(g, voson_attr)))
-  }
-  
-  graph_cats
 }
 
 #' @title Filter out graph nodes not in selected category

@@ -99,7 +99,7 @@ r_graph_visual <- reactive({
 
   # node color
   g <- g |> dplyr::mutate(frame.color = ifelse(selected == TRUE, "#000000", "gray"))
-  
+  #browser()
   # if not use graph colors
   # input$node_use_g_cols_chk
   if (isolate(g_nodes_rv$use_imp_colors) == FALSE) {
@@ -112,8 +112,8 @@ r_graph_visual <- reactive({
         
         # components
         if (fltr == "fltr_comp") {
-          
           color_map <- isolate(g_nodes_rv$comps_color_map)
+          # color_map <- g_nodes_rv$comps_color_map
           if (!is.null(color_map)) {
             if ("color" %in% node_attrs) g <- g |> dplyr::select(-color)
             
@@ -123,6 +123,8 @@ r_graph_visual <- reactive({
               g <- g |> dplyr::mutate(color = input$node_color)
             }
           } else {
+            cat(file=stderr(), paste0("comps_color_map: null\n"))
+            
             g <- g |> dplyr::mutate(color = input$node_color)
           }
         
